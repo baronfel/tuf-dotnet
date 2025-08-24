@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 namespace CanonicalJson;
 
@@ -21,35 +22,22 @@ namespace CanonicalJson;
 public static class CanonicalJsonSerializer
 {
     /// <summary>
-    /// Convert an object to a detached JsonElement using default serializer options.
-    /// The returned JsonElement is safe to use after the internal JsonDocument is disposed.
-    /// </summary>
-    public static JsonElement ToJsonElement<T>(T obj)
-        => ToJsonElement(obj, options: null);
-
-    /// <summary>
     /// Convert an object to a detached JsonElement using the provided <see cref="JsonSerializerOptions"/>.
     /// </summary>
-    public static JsonElement ToJsonElement<T>(T obj, JsonSerializerOptions? options)
+    public static JsonElement ToJsonElement<T>(T obj, JsonTypeInfo<T> typeInfo)
     {
-        var utf8 = JsonSerializer.SerializeToUtf8Bytes(obj, options);
+        var utf8 = JsonSerializer.SerializeToUtf8Bytes(obj, typeInfo);
         using var doc = JsonDocument.Parse(utf8);
         return doc.RootElement.Clone();
     }
 
     /// <summary>
-    /// Serialize an object to canonical JSON as a UTF-8 encoded byte array using default serializer options.
-    /// </summary>
-    public static byte[] Serialize<T>(T obj)
-        => Serialize(obj, options: null);
-
-    /// <summary>
     /// Serialize an object to canonical JSON as a UTF-8 encoded byte array using the provided serializer options.
     /// This allows custom converters to participate when creating the JSON prior to canonical emission.
     /// </summary>
-    public static byte[] Serialize<T>(T obj, JsonSerializerOptions? options)
+    public static byte[] Serialize<T>(T obj, JsonTypeInfo<T> typeInfo)
     {
-        var element = ToJsonElement(obj, options);
+        var element = ToJsonElement(obj, typeInfo);
         using var ms = new MemoryStream();
         var writer = new Utf8JsonWriter(ms);
         WriteElement(element, writer);

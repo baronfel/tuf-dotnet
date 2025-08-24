@@ -1,4 +1,6 @@
+using System.Text.Json.Serialization.Metadata;
 using TUF.Models.Primitives;
+using TUF.Serialization;
 
 namespace TUF.Models.Roles.Timestamp;
 
@@ -9,4 +11,9 @@ public class SnapshotMetadata(FileMetadata snapshotFileMetadata) : Dictionary<Re
 {
 }
 
-public record TimestampRole(SemanticVersion SpecVersion, uint Version, DateTimeOffset Expires, FileMetadata Meta) : RoleBase(SpecVersion, Version, Expires);
+public record Timestamp(SemanticVersion SpecVersion, uint Version, DateTimeOffset Expires, FileMetadata Meta) :
+    RoleBase<Timestamp>(SpecVersion, Version, Expires),
+    IAOTSerializable<Timestamp>
+{
+    public static JsonTypeInfo<Timestamp> JsonTypeInfo => MetadataJsonContext.Default.Timestamp;
+}

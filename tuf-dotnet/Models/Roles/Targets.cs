@@ -1,4 +1,6 @@
+using System.Text.Json.Serialization.Metadata;
 using TUF.Models.Primitives;
+using TUF.Serialization;
 
 namespace TUF.Models.Roles.Targets;
 
@@ -9,4 +11,9 @@ public record Delegations(Dictionary<KeyId, Keys.Key> Keys, Dictionary<Delegated
 
 // style nit: Can't call the type and the member Target, so in order to keep the member name aligned with TUF specifications, the member is called Targets
 //            and we 'sacrifice' the type name.
-public record TargetsRole(SemanticVersion SpecVersion, uint Version, DateTimeOffset Expires, Dictionary<RelativePath, TargetMetadata> Targets) : RoleBase(SpecVersion, Version, Expires);
+public record TargetsRole(SemanticVersion SpecVersion, uint Version, DateTimeOffset Expires, Dictionary<RelativePath, TargetMetadata> Targets) :
+    RoleBase<TargetsRole>(SpecVersion, Version, Expires),
+    IAOTSerializable<TargetsRole>
+{
+    public static JsonTypeInfo<TargetsRole> JsonTypeInfo => MetadataJsonContext.Default.TargetsRole;
+}
