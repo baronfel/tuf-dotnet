@@ -26,7 +26,7 @@ public class MetadataRoundtripTests
         var expires = DateTimeOffset.UtcNow.AddDays(30);
         var rootRoles = new RootRoleNs.RoleKeys(new List<KeyId>(), 1);
         var roles = new RootRoleNs.RootRoles(rootRoles, rootRoles, rootRoles, rootRoles, null);
-        var signed = new RootRoleNs.Root(spec, null, 1, expires, new Dictionary<KeyId, IKey>(), roles);
+        var signed = new RootRoleNs.Root(spec, null, 1, expires, new Dictionary<KeyId, Key>(), roles);
         var meta = new Metadata<RootRoleNs.Root>(signed, new Dictionary<KeyId, Signature>(), null);
 
         var bytes = MetadataSerializer.SerializeToUTF8Bytes(meta);

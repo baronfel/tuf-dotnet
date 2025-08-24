@@ -5,28 +5,16 @@ using TUF.Models.Primitives;
 
 namespace TUF.Models.Keys;
 
-public interface IKey
+public abstract record Key(string KeyType, string Scheme)
 {
-    string KeyType { get; }
-    string Scheme { get; }
-    object KeyVal { get; }
+    public abstract object KeyVal { get; }
 }
 
-
-public record Key(string KeyType, string Scheme, object KeyVal) : IKey
-{
-    public static Key From<T>(Key<T> key) => new(key.KeyType, key.Scheme, key.KeyVal!);
-}
-
-public record Key<T>(string KeyType, string Scheme, T KeyVal) : IKey
-{
-    object IKey.KeyVal => KeyVal!;
-}
-
-public record Key<TKey, TKeyScheme, TKeyValInner>(IKeyValue<TKey, TKeyValInner> KeyVal) : Key<IKeyValue<TKey, TKeyValInner>>(TKey.Name, TKeyScheme.Name, KeyVal)
+public record Key<TKey, TKeyScheme, TKeyValInner>(IKeyValue<TKey, TKeyValInner> TypedKeyVal) : Key(TKey.Name, TKeyScheme.Name)
     where TKey : IKeyType<TKey>
     where TKeyScheme : IKeyScheme<TKeyScheme>
 {
+    public override object KeyVal => TypedKeyVal;
 }
 
 public static class WellKnown

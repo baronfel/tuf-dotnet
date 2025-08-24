@@ -4,7 +4,7 @@ public record SemanticVersion(string SemVer);
 public record struct RelativePath(string RelPath);
 
 public class AbsoluteUri(string uriString) : Uri(uriString, UriKind.Absolute);
-public class RelativeUri(string uriString) : Uri(uriString, UriKind.Absolute);
+public class RelativeUri(string uriString) : Uri(uriString, UriKind.Relative);
 
 /// <summary>
 /// A hex-encoded signature of the canonical form of a metadata object

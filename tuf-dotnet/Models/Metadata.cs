@@ -10,7 +10,7 @@ public record Metadata<T>(
     Dictionary<string, object>? UnrecognizedFields)
     where T: Roles.IRole
 {
-    public byte[] SignedBytes => CanonicalJsonSerializer.Serialize(Signed);
+    public byte[] SignedBytes => CanonicalJsonSerializer.Serialize(Signed, TUF.Serialization.MetadataSerializer.JsonOptions);
 
     /// <summary>
     /// Signs the metadata using the provided signer.
