@@ -1,7 +1,46 @@
-﻿using System.Data.SqlTypes;
-using tuf_dotnet.Serialization;
+﻿using tuf_dotnet.Serialization;
+using static tuf_dotnet.Models.Primitives;
 
 namespace tuf_dotnet.Models;
+
+public static class Constants
+{
+    public static SemanticVersion ImplementedSpecVersion => new SemanticVersion("1.0.0");
+    
+}
+
+public static class Primitives
+{
+    public record SemanticVersion(string SemVer);
+    public record struct RelativePath(string RelPath);
+
+    public class AbsoluteUri(string uriString) : Uri(uriString, UriKind.Absolute);
+    public class RelativeUri(string uriString) : Uri(uriString, UriKind.Absolute);
+
+    /// <summary>
+    /// A hex-encoded signature of the canonical form of a metadata object
+    /// </summary>
+    public record struct Signature();
+
+    /// <summary>
+    /// A wrapper around a value that has been hex-encoded - that is, its SHA-256 hash has been computed and converted into a 
+    /// hexadecimal string.
+    /// </summary>
+    /// <param name="sha256HexDigest"></param>
+    public record struct HexDigest(string sha256HexDigest);
+
+
+    /// <summary>
+    /// A wrapper around a string that represents a Unix-shell-style file path pattern.
+    /// This is always a relative path. It may support *- or ?-based wildcards.
+    /// It SHOULD always use the forward slash (/) as the path separator.
+    /// It SHOULD NOT start with a directory separator.
+    /// Implementation note: A wildcard in this pattern SHOULD NOT match a directory in a candidate path.
+    /// That is, a pattern like "foo/*" should match "foo/bar" but not "foo/bar/baz".
+    /// </summary>
+    /// <param name="pattern"></param>
+    public record struct PathPattern(string pattern);
+}
 
 public static class KeyTypes
 {
@@ -133,7 +172,6 @@ public static class Keys
     {
     }
 
-    public record struct KeyId(string hexDigestSha256hash);
 
     public static class WellKnown
     {
@@ -145,68 +183,75 @@ public static class Keys
 
 public static class Roles
 {
-    public record SemanticVersion(string SemVer);
+    public record FileMetadata(uint Version, uint? Length, List<DigestAlgorithms.DigestValue>? Hashes);
+
+    public interface IRole
+    {
+        SemanticVersion SpecVersion { get; }
+        uint Version { get; }
+        DateTimeOffset Expires { get; }
+    }
+    public record RoleBase(SemanticVersion SpecVersion, uint Version, DateTimeOffset Expires): IRole;
 
     public static class Root
     {
-        public record RoleKeys(List<Keys.KeyId> KeyIds, uint Threshold);
+        public record RoleKeys(List<KeyId> KeyIds, uint Threshold);
         public record RootRoles(RoleKeys Root, RoleKeys Timestamp, RoleKeys Snapshot, RoleKeys Targets, RoleKeys? Mirrors);
 
-        public record RootRole(SemanticVersion SpecVersion, bool? ConsistentSnapshot, uint Version, DateTimeOffset Expires, Dictionary<Keys.KeyId, Keys.IKey> Keys, RootRoles Roles);
+        public record RootRole(SemanticVersion SpecVersion, bool? ConsistentSnapshot, uint Version, DateTimeOffset Expires, Dictionary<KeyId, Keys.IKey> Keys, RootRoles Roles) : RoleBase(SpecVersion, Version, Expires);
     }
-    public record struct RelativePath(string RelPath);
 
-    public record FileMetadata(uint Version, uint? Length, List<DigestAlgorithms.DigestValue>? Hashes);
 
     public static class Snapshot
     {
         public record struct HashAlgorithm(string algo);
-        public record SnapshotRole(SemanticVersion SpecVersion, uint Version, DateTimeOffset Expires, Dictionary<RelativePath, FileMetadata> Meta);
+        public record SnapshotRole(SemanticVersion SpecVersion, uint Version, DateTimeOffset Expires, Dictionary<RelativePath, FileMetadata> Meta) : RoleBase(SpecVersion, Version, Expires);
     }
 
     public static class Targets
     {
-        public interface ITargetMetadata
-        {
-            uint Length { get; }
-            List<DigestAlgorithms.DigestValue> Hashes { get; }
-        }
+        public record struct DelegatedRoleName(string roleName);
+        public record DelegationData(KeyId[] KeyIDs, uint Threshold, HexDigest[]? PathHashPrefixes, PathPattern[]? Paths, bool Terminating);
+        public record TargetMetadata(uint Length, List<DigestAlgorithms.DigestValue> Hashes, Dictionary<string, object>? Custom);
+        public record Delegations(Dictionary<KeyId, Keys.IKey> Keys, Dictionary<DelegatedRoleName, DelegationData>? Roles);
 
         // todo: model delegations
-        public record TargetRole(SemanticVersion SpecVersion, uint Version, DateTimeOffset Expires, Dictionary<RelativePath, ITargetMetadata> Targets);
+        public record TargetRole(SemanticVersion SpecVersion, uint Version, DateTimeOffset Expires, Dictionary<RelativePath, TargetMetadata> Targets) : RoleBase(SpecVersion, Version, Expires);
     }
-    
+
     public static class Timestamp
-    {   
+    {
         /// <summary>
         /// For the timestamp role specifically, the only metadata record is for the snapshot.json file.
         /// </summary>
         public class SnapshotMetadata(FileMetadata snapshotFileMetadata) : Dictionary<RelativePath, FileMetadata>([new(new("snapshot.json"), snapshotFileMetadata)])
         {
         }
-        public record TimestampRole(SemanticVersion SpecVersion, uint Version, DateTimeOffset Expires, FileMetadata Meta);
+        public record TimestampRole(SemanticVersion SpecVersion, uint Version, DateTimeOffset Expires, FileMetadata Meta) : RoleBase(SpecVersion, Version, Expires);
+    }
+
+    public static class Mirrors
+    {
+
+        public record struct Mirror(AbsoluteUri UrlBase, RelativeUri MetaPath, RelativeUri TargetsPath, PathPattern[] MetaContent, PathPattern[] TargetsContent, Dictionary<string, object> Custom);
+        public record MirrorRole(SemanticVersion SpecVersion, uint Version, DateTimeOffset Expires, Mirror[] Mirrors) : RoleBase(SpecVersion, Version, Expires);
     }
 }
 
-
-/// <summary>
-/// A hex-encoded signature of the canonical form of a metadata object
-/// </summary>
-public record struct Signature();
-
-public record struct KeyId(string hexDigestSha256hash);
+public record struct KeyId(HexDigest digest);
 
 public record SignatureResult(KeyId keyId, Signature Signature);
 
 public interface ISigner
 {
-    public SignatureResult Sign<T>(Metadata<T> metadata);
+    public SignatureResult Sign<T>(Metadata<T> metadata) where T: Roles.IRole;
 }
 
 public record Metadata<T>(
     T Signed,
     Dictionary<KeyId, Signature> Signatures,
     Dictionary<string, object>? UnrecognizedFields)
+    where T: Roles.IRole
 {
     public byte[] SignedBytes => CanonicalJsonSerializer.Serialize(Signed);
 
@@ -227,6 +272,11 @@ public record Metadata<T>(
 
         Signatures[sig.keyId] = sig.Signature;
         return sig;
+    }
+
+    public bool IsExpired(DateTimeOffset reference)
+    {
+        return reference > Signed.Expires;
     }
 }
 
