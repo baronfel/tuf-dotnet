@@ -1,6 +1,7 @@
 namespace TUF.Signing;
 
 using TUF.Models;
+using TUF.Models.Primitives;
 using TUF.Models.Roles;
 
 public interface ISigner
