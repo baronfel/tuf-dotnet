@@ -12,7 +12,7 @@ This repository contains two libraries and tests used by the project:
 
 Prerequisites
 
-- .NET SDK 8.0 or newer
+- .NET SDK 10.0 or newer (needed for SLNX - the library targets .NET8+)
 
 Build (from repository root)
 
