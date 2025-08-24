@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using tuf_dotnet.Models;
+using static tuf_dotnet.Models.Primitives;
 
 /// <summary>
 /// The CanonicalJsonSerializer serializes objects to a canonical JSON format
@@ -253,52 +254,52 @@ internal static class TufJsonConverters
         }
     }
 
-    // Keys.KeyId converter: treat as a plain string for both property names and values
-    private sealed class KeysKeyIdConverter : JsonConverter<Keys.KeyId>
+    // KeyId converter: treat as a plain string for both property names and values
+    private sealed class KeysKeyIdConverter : JsonConverter<KeyId>
     {
-        public override Keys.KeyId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override KeyId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType != JsonTokenType.String) throw new JsonException();
-            return new Keys.KeyId(reader.GetString()!);
+            return new KeyId(new(reader.GetString()!));
         }
 
-        public override void Write(Utf8JsonWriter writer, Keys.KeyId value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, KeyId value, JsonSerializerOptions options)
         {
-            writer.WriteStringValue(value.hexDigestSha256hash);
+            writer.WriteStringValue(value.digest.sha256HexDigest);
         }
 
-        public override Keys.KeyId ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override KeyId ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             // Property name is already a string
-            return new Keys.KeyId(reader.GetString()!);
+            return new KeyId(new(reader.GetString()!));
         }
 
-        public override void WriteAsPropertyName(Utf8JsonWriter writer, Keys.KeyId value, JsonSerializerOptions options)
+        public override void WriteAsPropertyName(Utf8JsonWriter writer, KeyId value, JsonSerializerOptions options)
         {
-            writer.WritePropertyName(value.hexDigestSha256hash);
+            writer.WritePropertyName(value.digest.sha256HexDigest);
         }
     }
 
-    // Roles.RelativePath converter: property-name-friendly string
-    private sealed class RolesRelativePathConverter : JsonConverter<Roles.RelativePath>
+    // RelativePath converter: property-name-friendly string
+    private sealed class RolesRelativePathConverter : JsonConverter<RelativePath>
     {
-        public override Roles.RelativePath Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override RelativePath Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType != JsonTokenType.String) throw new JsonException();
-            return new Roles.RelativePath(reader.GetString()!);
+            return new RelativePath(reader.GetString()!);
         }
 
-        public override void Write(Utf8JsonWriter writer, Roles.RelativePath value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, RelativePath value, JsonSerializerOptions options)
         {
             writer.WriteStringValue(value.RelPath);
         }
 
-        public override Roles.RelativePath ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override RelativePath ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return new Roles.RelativePath(reader.GetString()!);
+            return new RelativePath(reader.GetString()!);
         }
 
-        public override void WriteAsPropertyName(Utf8JsonWriter writer, Roles.RelativePath value, JsonSerializerOptions options)
+        public override void WriteAsPropertyName(Utf8JsonWriter writer, RelativePath value, JsonSerializerOptions options)
         {
             writer.WritePropertyName(value.RelPath);
         }
@@ -471,7 +472,7 @@ public static class MetadataSerializer
     /// <summary>
     /// Produce canonical UTF-8 bytes for a Metadata<T> instance using the custom converters.
     /// </summary>
-    public static byte[] SerializeCanonical<T>(Models.Metadata<T> metadata)
+    public static byte[] SerializeCanonical<T>(Models.Metadata<T> metadata) where T : Roles.IRole
     {
         var opts = TufJsonConverters.CreateOptions();
         return CanonicalJsonSerializer.Serialize(metadata, opts);
@@ -481,7 +482,7 @@ public static class MetadataSerializer
     /// Produce canonical UTF-8 bytes for a Metadata<T> instance using the custom converters,
     /// but return a UTF-8 string instead of bytes.
     /// </summary>
-    public static string SerializeCanonicalToString<T>(Models.Metadata<T> metadata)
+    public static string SerializeCanonicalToString<T>(Models.Metadata<T> metadata) where T : Roles.IRole
     {
         var bytes = SerializeCanonical(metadata);
         return Encoding.UTF8.GetString(bytes);
@@ -490,7 +491,7 @@ public static class MetadataSerializer
     /// <summary>
     /// Deserialize a Metadata<T> instance from JSON bytes (canonical or not) using the custom converters.
     /// </summary>
-    public static Models.Metadata<T>? Deserialize<T>(byte[] jsonBytes)
+    public static Models.Metadata<T>? Deserialize<T>(byte[] jsonBytes) where T : Roles.IRole
     {
         var opts = TufJsonConverters.CreateOptions();
         return JsonSerializer.Deserialize<Models.Metadata<T>>(jsonBytes, opts);
@@ -499,7 +500,7 @@ public static class MetadataSerializer
     /// <summary>
     /// Deserialize a Metadata<T> instance from a UTF-8 encoded JSON string using the custom converters.
     /// </summary>
-    public static Models.Metadata<T>? DeserializeFromString<T>(string json)
+    public static Models.Metadata<T>? DeserializeFromString<T>(string json) where T : Roles.IRole
     {
         var opts = TufJsonConverters.CreateOptions();
         return JsonSerializer.Deserialize<Models.Metadata<T>>(json, opts);
