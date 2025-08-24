@@ -1,4 +1,6 @@
 <Solution>
   <Project Path="tuf-dotnet/tuf-dotnet.csproj" />
+  <Project Path="CanonicalJson.Tests/CanonicalJson.Tests.csproj" />
+  <Project Path="CanonicalJson/CanonicalJson.csproj" />
   <Project Path="tuf-dotnet.Tests/tuf-dotnet.Tests.csproj" />
 </Solution>

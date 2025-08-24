@@ -1,6 +1,6 @@
 using System.Text;
 using System.Text.Json;
-using TUF.Serialization;
+using CanonicalJson;
 
 namespace TUF.Tests;
 
@@ -83,10 +83,10 @@ public class CanonicalSerializerTests
         await Task.CompletedTask;
     }
 
-    public static IEnumerable<object[]> EncodeCanonicalErrCases()
+    public static IEnumerable<Func<object>> EncodeCanonicalErrCases()
     {
-        yield return new object[] { new Dictionary<string, object?> { ["float"] = 3.14159265359 } };
-        yield return new object[] { (object)new Action(() => { }) };
+        yield return () => new Dictionary<string, object?> { ["float"] = 3.14159265359 };
+        yield return () => new Action(() => { });
     }
 
     [Test, MethodDataSource(nameof(EncodeCanonicalHelperCases))]
@@ -103,9 +103,9 @@ public class CanonicalSerializerTests
         }
     }
 
-    public static IEnumerable<object[]> EncodeCanonicalHelperCases()
+    public static IEnumerable<Func<object>> EncodeCanonicalHelperCases()
     {
-        yield return new object[] { new Action(() => { }) };
-        yield return new object[] { new object[] { new Action(() => { }) } };
+        yield return () => new Action(() => { });
+        yield return () => new object[] { new Action(() => { }) };
     }
 }

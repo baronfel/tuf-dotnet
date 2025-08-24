@@ -1,5 +1,5 @@
-﻿using TUF.Models.Primitives;
-using TUF.Serialization;
+﻿using CanonicalJson;
+using TUF.Models.Primitives;
 using TUF.Signing;
 
 namespace TUF.Models;
