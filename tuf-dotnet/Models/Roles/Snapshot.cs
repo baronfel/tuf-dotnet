@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
 using TUF.Models.Primitives;
@@ -7,8 +8,17 @@ namespace TUF.Models.Roles.Snapshot;
 
 public record struct HashAlgorithm(string algo);
 
-public record Snapshot(SemanticVersion SpecVersion, uint Version, DateTimeOffset Expires, Dictionary<RelativePath, FileMetadata> Meta) :
-    RoleBase<Snapshot>(SpecVersion, Version, Expires),
+public record Snapshot(
+    [property: JsonPropertyName("spec_version")]
+    SemanticVersion SpecVersion,
+    [property: JsonPropertyName("version")]
+    uint Version,
+    [property: JsonPropertyName("expires")]
+    DateTimeOffset Expires,
+    [property: JsonPropertyName("meta")]
+    Dictionary<RelativePath, FileMetadata> Meta
+) :
+    IRole<Snapshot>,
     IAOTSerializable<Snapshot>
 {
     public static JsonTypeInfo<Snapshot> JsonTypeInfo => MetadataJsonContext.Default.Snapshot;

@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization.Metadata;
+﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 using CanonicalJson;
 
@@ -14,12 +15,17 @@ using TUF.Signing;
 
 namespace TUF.Models;
 
-public abstract class Metadata<TSigned>(TSigned signed, Dictionary<KeyId, Signature> signatures, Dictionary<string, object>? unrecognizedFields)
+public abstract class Metadata<TSigned>(TSigned signed, Dictionary<KeyId, Signature> signatures)
     where TSigned : IRole<TSigned>, IAOTSerializable<TSigned>
-{
+{   
+    [JsonPropertyName("signed")]
     public TSigned Signed => signed;
+
+    [JsonPropertyName("signatures")]
     public Dictionary<KeyId, Signature> Signatures => signatures;
-    public Dictionary<string, object>? UnrecognizedFields => unrecognizedFields;
+
+    [JsonExtensionData]
+    public Dictionary<string, object>? UnrecognizedFields { get; set; }
 
     public byte[] SignedBytes => CanonicalJsonSerializer.Serialize(Signed, TSigned.JsonTypeInfo);
 
@@ -47,24 +53,26 @@ public static class MetadataExtensions
     }
 }
 
-public sealed class RootMetadata(Root signed, Dictionary<KeyId, Signature> signatures, Dictionary<string, object>? unrecognizedFields) : Metadata<Root>(signed, signatures, unrecognizedFields), IAOTSerializable<RootMetadata>
+public sealed class RootMetadata(
+        Root signed,
+        Dictionary<KeyId, Signature> signatures) : Metadata<Root>(signed, signatures), IAOTSerializable<RootMetadata>
 {
     public static JsonTypeInfo<RootMetadata> JsonTypeInfo => MetadataJsonContext.Default.RootMetadata;
 }
 
-public sealed class SnapshotMetadata(Snapshot signed, Dictionary<KeyId, Signature> signatures, Dictionary<string, object>? unrecognizedFields) : Metadata<Snapshot>(signed, signatures, unrecognizedFields), IAOTSerializable<SnapshotMetadata>
+public sealed class SnapshotMetadata(Snapshot signed, Dictionary<KeyId, Signature> signatures) : Metadata<Snapshot>(signed, signatures), IAOTSerializable<SnapshotMetadata>
 {
     public static JsonTypeInfo<SnapshotMetadata> JsonTypeInfo => MetadataJsonContext.Default.SnapshotMetadata;
 }
-public sealed class TargetsMetadata(TargetsRole signed, Dictionary<KeyId, Signature> signatures, Dictionary<string, object>? unrecognizedFields) : Metadata<TargetsRole>(signed, signatures, unrecognizedFields), IAOTSerializable<TargetsMetadata>
+public sealed class TargetsMetadata(TargetsRole signed, Dictionary<KeyId, Signature> signatures) : Metadata<TargetsRole>(signed, signatures), IAOTSerializable<TargetsMetadata>
 {
     public static JsonTypeInfo<TargetsMetadata> JsonTypeInfo => MetadataJsonContext.Default.TargetsMetadata;
 }
-public sealed class TimestampMetadata(Timestamp signed, Dictionary<KeyId, Signature> signatures, Dictionary<string, object>? unrecognizedFields) : Metadata<Timestamp>(signed, signatures, unrecognizedFields), IAOTSerializable<TimestampMetadata>
+public sealed class TimestampMetadata(Timestamp signed, Dictionary<KeyId, Signature> signatures) : Metadata<Timestamp>(signed, signatures), IAOTSerializable<TimestampMetadata>
 {
     public static JsonTypeInfo<TimestampMetadata> JsonTypeInfo => MetadataJsonContext.Default.TimestampMetadata;
 }
-public sealed class MirrorMetadata(Mirror signed, Dictionary<KeyId, Signature> signatures, Dictionary<string, object>? unrecognizedFields) : Metadata<Mirror>(signed, signatures, unrecognizedFields), IAOTSerializable<MirrorMetadata>
+public sealed class MirrorMetadata(Mirror signed, Dictionary<KeyId, Signature> signatures) : Metadata<Mirror>(signed, signatures), IAOTSerializable<MirrorMetadata>
 {
     public static JsonTypeInfo<MirrorMetadata> JsonTypeInfo => MetadataJsonContext.Default.MirrorMetadata;
 }

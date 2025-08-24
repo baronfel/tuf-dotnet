@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
 using TUF.Models.Primitives;
@@ -6,14 +7,51 @@ using TUF.Serialization;
 namespace TUF.Models.Roles.Targets;
 
 public record struct DelegatedRoleName(string roleName);
-public record DelegationData(KeyId[] KeyIDs, uint Threshold, HexDigest[]? PathHashPrefixes, PathPattern[]? Paths, bool Terminating);
-public record TargetMetadata(uint Length, List<DigestAlgorithms.DigestValue> Hashes, Dictionary<string, object>? Custom);
-public record Delegations(Dictionary<KeyId, Keys.Key> Keys, Dictionary<DelegatedRoleName, DelegationData>? Roles);
+
+public record DelegationData(
+    [property: JsonPropertyName("keyids")]
+    KeyId[] KeyIDs,
+    [property: JsonPropertyName("threshold")]
+    uint Threshold,
+    [property: JsonPropertyName("paths")]
+    PathPattern[] Paths,
+    [property: JsonPropertyName("terminating")]
+    bool Terminating,
+    [property: JsonPropertyName("path_hash_prefixes")]
+    HexDigest[]? PathHashPrefixes = null
+);
+
+public record TargetMetadata(
+    [property: JsonPropertyName("length")]
+    uint Length,
+    [property: JsonPropertyName("hashes")]
+    List<DigestAlgorithms.DigestValue> Hashes,
+    [property: JsonPropertyName("custom")]
+    Dictionary<string, object>? Custom
+);
+
+public record Delegations(
+    [property: JsonPropertyName("keys")]
+    Dictionary<KeyId, Keys.Key> Keys,
+    [property: JsonPropertyName("roles")]
+    Dictionary<DelegatedRoleName, DelegationData>? Roles
+);
 
 // style nit: Can't call the type and the member Target, so in order to keep the member name aligned with TUF specifications, the member is called Targets
 //            and we 'sacrifice' the type name.
-public record TargetsRole(SemanticVersion SpecVersion, uint Version, DateTimeOffset Expires, Dictionary<RelativePath, TargetMetadata> Targets) :
-    RoleBase<TargetsRole>(SpecVersion, Version, Expires),
+public record TargetsRole(
+    [property: JsonPropertyName("spec_version")]
+    SemanticVersion SpecVersion,
+    [property: JsonPropertyName("version")]
+    uint Version,
+    [property: JsonPropertyName("expires")]
+    DateTimeOffset Expires,
+    [property: JsonPropertyName("targets")]
+    Dictionary<RelativePath, TargetMetadata> Targets,
+    [property: JsonPropertyName("delegations")]
+    Delegations? Delegations = null
+) :
+    IRole<TargetsRole>,
     IAOTSerializable<TargetsRole>
 {
     public static JsonTypeInfo<TargetsRole> JsonTypeInfo => MetadataJsonContext.Default.TargetsRole;
