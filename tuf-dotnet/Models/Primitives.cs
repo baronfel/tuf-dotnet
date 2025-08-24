@@ -1,7 +1,7 @@
 using System;
-using System.Text.Json.Serialization;
-using System.Text.Json;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace TUF.Models.Primitives;
 
@@ -49,24 +49,24 @@ public record struct RelativeUri(Uri Uri)
 }
 
 internal static class UriReader
+{
+    public static bool Read(ref Utf8JsonReader reader, bool isAbsolute, [NotNullWhen(true)] out Uri? uri)
     {
-        public static bool Read(ref Utf8JsonReader reader, bool isAbsolute, [NotNullWhen(true)] out Uri? uri)
+        if (reader.TokenType != JsonTokenType.String) throw new JsonException();
+        var s = reader.GetString();
+        if (s is null) throw new JsonException();
+        uri = null;
+        if (!isAbsolute && !s.StartsWith("/"))
         {
-            if (reader.TokenType != JsonTokenType.String) throw new JsonException();
-            var s = reader.GetString();
-            if (s is null) throw new JsonException();
-            uri = null;
-            if (!isAbsolute && !s.StartsWith("/"))
-            {
-                s = "/" + s; // dotnet uri parsing needs something to hook on to for relative paths
-            }
-            var tempUri = new Uri(s, isAbsolute ? UriKind.Absolute : UriKind.Relative);
-            if (isAbsolute && !tempUri.IsAbsoluteUri) return false;
-            if (!isAbsolute && tempUri.IsAbsoluteUri) return false;
-            uri = tempUri;
-            return true;
+            s = "/" + s; // dotnet uri parsing needs something to hook on to for relative paths
         }
+        var tempUri = new Uri(s, isAbsolute ? UriKind.Absolute : UriKind.Relative);
+        if (isAbsolute && !tempUri.IsAbsoluteUri) return false;
+        if (!isAbsolute && tempUri.IsAbsoluteUri) return false;
+        uri = tempUri;
+        return true;
     }
+}
 
 internal sealed class AbsoluteUriJsonConverter : JsonConverter<AbsoluteUri>
 {

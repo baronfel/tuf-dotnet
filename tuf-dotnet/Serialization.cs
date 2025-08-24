@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
+
 using CanonicalJson;
 
 namespace TUF.Serialization;
@@ -71,4 +72,3 @@ public static class MetadataSerializer
         return JsonSerializer.Serialize(metadata, T.JsonTypeInfo);
     }
 }
-

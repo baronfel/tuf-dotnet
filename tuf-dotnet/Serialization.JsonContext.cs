@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+
 using TUF.Models.Primitives;
 
 namespace TUF.Serialization;

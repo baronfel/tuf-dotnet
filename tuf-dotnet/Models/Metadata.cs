@@ -1,5 +1,7 @@
 ﻿using System.Text.Json.Serialization.Metadata;
+
 using CanonicalJson;
+
 using TUF.Models.Primitives;
 using TUF.Models.Roles;
 using TUF.Models.Roles.Mirrors;

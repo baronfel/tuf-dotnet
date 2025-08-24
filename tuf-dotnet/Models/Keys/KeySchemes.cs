@@ -5,7 +5,7 @@ public interface IKeyScheme<T> where T : IKeyScheme<T>
     static abstract string Name { get; }
 }
 
-public record KeyScheme<T>()  where T : IKeyScheme<T>
+public record KeyScheme<T>() where T : IKeyScheme<T>
 {
 }
 

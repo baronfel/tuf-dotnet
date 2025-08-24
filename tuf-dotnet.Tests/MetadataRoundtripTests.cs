@@ -1,14 +1,15 @@
 using TUF.Models;
-using TUF.Models.Primitives;
-using TUF.Models.Keys;
 using TUF.Models.DigestAlgorithms;
+using TUF.Models.Keys;
+using TUF.Models.Primitives;
+using TUF.Models.Roles.Root;
+using TUF.Serialization;
+
+using MirrorsRoleNs = TUF.Models.Roles.Mirrors;
 using RootRoleNs = TUF.Models.Roles.Root;
 using SnapshotRoleNs = TUF.Models.Roles.Snapshot;
 using TargetsRoleNs = TUF.Models.Roles.Targets;
 using TimestampRoleNs = TUF.Models.Roles.Timestamp;
-using MirrorsRoleNs = TUF.Models.Roles.Mirrors;
-using TUF.Serialization;
-using TUF.Models.Roles.Root;
 
 namespace tuf_dotnet.Tests;
 
@@ -84,7 +85,7 @@ public class MetadataRoundtripTests
         var spec = new SemanticVersion("1.0");
         var expires = DateTimeOffset.UtcNow.AddDays(7);
         var mirror = new MirrorsRoleNs.MirrorDefinition(
-                AbsoluteUri.From("https://example.com/"), 
+                AbsoluteUri.From("https://example.com/"),
                 RelativeUri.From("./meta.json"),
                 RelativeUri.From("./targets"),
                 Array.Empty<PathPattern>(),
