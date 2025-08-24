@@ -1,4 +1,4 @@
-namespace tuf_dotnet.Serialization;
+namespace TUF.Serialization;
 
 using System;
 using System.Collections.Generic;
@@ -8,8 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using tuf_dotnet.Models;
-using static tuf_dotnet.Models.Primitives;
+using TUF.Models;
+using TUF.Models.Primitives;
 
 /// <summary>
 /// The CanonicalJsonSerializer serializes objects to a canonical JSON format
