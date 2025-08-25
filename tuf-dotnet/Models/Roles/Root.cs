@@ -24,7 +24,19 @@ public record RootRoles(
     RoleKeys Targets,
     [property: JsonPropertyName("mirrors")]
     RoleKeys? Mirrors
-);
+)
+{
+    public RootRoles() : this(
+        Root: new RoleKeys(new List<KeyId>(), 1),
+        Timestamp: new RoleKeys(new List<KeyId>(), 1),
+        Snapshot: new RoleKeys(new List<KeyId>(), 1),
+        Targets: new RoleKeys(new List<KeyId>(), 1),
+        Mirrors: null
+    )
+    {
+
+    }
+}
 
 public record Root(
     [property: JsonPropertyName("spec_version")]
@@ -43,5 +55,16 @@ public record Root(
     IRole<Root>,
     IAOTSerializable<Root>
 {
+    public Root(DateTimeOffset? expiry) : this(
+        SpecVersion: Constants.ImplementedSpecVersion,
+        ConsistentSnapshot: true,
+        Version: 1,
+        Expires: expiry ?? DateTimeOffset.UtcNow,
+        Keys: new Dictionary<KeyId, Keys.Key>(),
+        Roles: new RootRoles()
+    )
+    {
+    }
+
     public static JsonTypeInfo<Root> JsonTypeInfo => MetadataJsonContext.Default.Root;
 }

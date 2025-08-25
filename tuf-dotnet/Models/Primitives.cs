@@ -22,7 +22,7 @@ public record struct RelativeUri(Uri Uri)
 /// <summary>
 /// A hex-encoded signature of the canonical form of a metadata object
 /// </summary>
-public record struct Signature(string Value);
+public record struct Signature(byte[] Value);
 
 /// <summary>
 /// A wrapper around a value that has been hex-encoded - that is, its SHA-256 hash has been computed and converted into a 

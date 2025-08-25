@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
 using TUF.Models.Primitives;
+using TUF.Models.Roles.Root;
 using TUF.Serialization;
 
 namespace TUF.Models.Roles.Targets;
@@ -19,7 +20,10 @@ public record DelegationData(
     bool Terminating,
     [property: JsonPropertyName("path_hash_prefixes")]
     HexDigest[]? PathHashPrefixes = null
-);
+)
+{
+    public RoleKeys RoleKeys => new(KeyIDs.ToList(), Threshold);
+}
 
 public record TargetMetadata(
     [property: JsonPropertyName("length")]

@@ -1,8 +1,10 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Reflection.Metadata;
+using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
 using CanonicalJson;
 
+using TUF.Models.Keys;
 using TUF.Models.Primitives;
 using TUF.Models.Roles;
 using TUF.Models.Roles.Mirrors;
@@ -17,7 +19,7 @@ namespace TUF.Models;
 
 public abstract class Metadata<TSigned>(TSigned signed, Dictionary<KeyId, Signature> signatures)
     where TSigned : IRole<TSigned>, IAOTSerializable<TSigned>
-{   
+{
     [JsonPropertyName("signed")]
     public TSigned Signed => signed;
 
@@ -37,19 +39,118 @@ public abstract class Metadata<TSigned>(TSigned signed, Dictionary<KeyId, Signat
 
 public static class MetadataExtensions
 {
-    public static SignatureResult Sign<T, TInner>(this T metadata, ISigner signer, bool replaceExisting = true)
+    extension<T, TInner>(T metadata)
         where T : Metadata<TInner>, IAOTSerializable<T>
         where TInner : IRole<TInner>, IAOTSerializable<TInner>
     {
-        var sig = signer.Sign<T, TInner>(metadata);
-
-        if (replaceExisting)
+        public Signature Sign(ISigner signer, bool replaceExisting = true)
         {
-            metadata.Signatures.Clear();
-        }
+            var signature = signer.SignBytes(metadata.SignedBytes);
 
-        metadata.Signatures[sig.keyId] = sig.Signature;
-        return sig;
+            if (replaceExisting)
+            {
+                metadata.Signatures.Clear();
+            }
+
+            var keyId = signer.Key.Id;
+
+            metadata.Signatures[keyId] = signature;
+            return signature;
+        }
+    }
+
+    extension<T, TInner>(T metadata)
+        where T: Metadata<TInner>, IAOTSerializable<T>
+        where TInner : IRole<TInner>, IAOTSerializable<TInner>
+    {
+        void ValidateKeys<TOther, TOtherInner>(Dictionary<KeyId, Key> allKeys, RoleKeys roleKeys, TOther otherMetadata)
+            where TOther : Metadata<TOtherInner>
+            where TOtherInner : IRole<TOtherInner>, IAOTSerializable<TOtherInner>
+        {
+            if (roleKeys.KeyIds.Count == 0)
+            {
+                throw new Exception("No delegation found");
+            }
+
+            if (roleKeys.Threshold < 1)
+            {
+                throw new Exception("Invalid threshold");
+            }
+
+            var verifiedSignatures = 0;
+
+            foreach (var keyId in roleKeys.KeyIds)
+            {
+                if (!allKeys.TryGetValue(keyId, out var key))
+                {
+                    throw new Exception($"Key {keyId} not found in keys");
+                }
+                // try to find matching signature in other metadata
+                if (!otherMetadata.Signatures.TryGetValue(key.Id, out var signature))
+                {
+                    throw new Exception($"No signature found for key {keyId}");
+                }
+
+                if (key.VerifySignature(signature.Value, otherMetadata.SignedBytes))
+                {
+                    verifiedSignatures++;
+                }
+                else
+                {
+                    throw new Exception($"Signature verification failed for key {keyId}");
+                }
+            }
+
+            if (verifiedSignatures < roleKeys.Threshold)
+            {
+                throw new Exception($"Insufficient valid signatures: {verifiedSignatures} of {roleKeys.Threshold} required");
+            }
+        }
+    }
+
+    extension<T>(T rootMetadata)
+        where T: Metadata<Root>, IAOTSerializable<T>
+    {
+        void VerifyRootRole<TOther, TOtherInner>(string roleType, TOther otherMetadata) where TOther: Metadata<TOtherInner>, IAOTSerializable<TOther> where TOtherInner: IRole<TOtherInner>, IAOTSerializable<TOtherInner>
+        {
+            // try to match the given role with one of our known roles, and get the keyids and threshold from that delegation
+            var roles = rootMetadata.Signed.Roles;
+            RoleKeys? roleKeys = roleType switch
+            {
+                "root" => roles.Root,
+                "timestamp" => roles.Timestamp,
+                "snapshot" => roles.Snapshot,
+                "targets" => roles.Targets,
+                "mirrors" => roles.Mirrors,
+                _ => null
+            };
+
+            if (roleKeys is null)
+            {
+                throw new Exception($"No delegation found for {roleType}");
+            }
+
+            ValidateKeys<T, Root, TOther, TOtherInner>(rootMetadata, rootMetadata.Signed.Keys, roleKeys, otherMetadata);
+        }
+    }
+
+    extension<T>(T targetsMetadata)
+        where T: Metadata<TargetsRole>, IAOTSerializable<T>
+    {
+        void VerifyDelegatedRole<TOther, TOtherInner>(string roleType, TOther otherMetadata) where TOther: Metadata<TOtherInner> where TOtherInner: IRole<TOtherInner>, IAOTSerializable<TOtherInner>
+        {
+            if (targetsMetadata.Signed.Delegations is null or not { Roles: { Count: > 0 } })
+            {
+                throw new Exception("No delegations defined in targets metadata");
+            }
+
+            if (!targetsMetadata.Signed.Delegations.Roles.TryGetValue(new(roleType), out var delegation))
+            {
+                throw new Exception($"No delegation found for {roleType}");
+            }
+
+            ValidateKeys<T, TargetsRole, TOther, TOtherInner>(targetsMetadata, targetsMetadata.Signed.Delegations.Keys, delegation.RoleKeys, otherMetadata);
+        }
     }
 }
 

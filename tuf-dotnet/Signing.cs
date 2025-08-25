@@ -1,13 +1,9 @@
-namespace TUF.Signing;
-
-using TUF.Models;
 using TUF.Models.Primitives;
-using TUF.Models.Roles;
-using TUF.Serialization;
+
+namespace TUF.Signing;
 
 public interface ISigner
 {
-    public SignatureResult Sign<T, TInner>(T metadata)
-        where T : Metadata<TInner>, IAOTSerializable<T>
-        where TInner : IRole<TInner>, IAOTSerializable<TInner>;
+    public Models.Keys.Key Key { get; }
+    public Signature SignBytes(ReadOnlySpan<byte> data);
 }
