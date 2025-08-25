@@ -22,9 +22,10 @@ public record Timestamp(
     DateTimeOffset Expires,
     [property: JsonPropertyName("meta")]
     SnapshotFileMetadata Meta) :
-    IRole<Timestamp>,
-    IAOTSerializable<Timestamp>
+    IRole<Timestamp>
 {
     public FileMetadata SnapshotFileMetadata => Meta.Values.First();
     public static JsonTypeInfo<Timestamp> JsonTypeInfo => MetadataJsonContext.Default.Timestamp;
+
+    public static string TypeLabel => "timestamp";
 }

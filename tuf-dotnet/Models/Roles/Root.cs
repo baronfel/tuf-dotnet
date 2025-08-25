@@ -52,8 +52,7 @@ public record Root(
     [property: JsonPropertyName("roles")]
     RootRoles Roles
 ) :
-    IRole<Root>,
-    IAOTSerializable<Root>
+    IRole<Root>
 {
     public Root(DateTimeOffset? expiry) : this(
         SpecVersion: Constants.ImplementedSpecVersion,
@@ -67,4 +66,6 @@ public record Root(
     }
 
     public static JsonTypeInfo<Root> JsonTypeInfo => MetadataJsonContext.Default.Root;
+
+    public static string TypeLabel => "root";
 }

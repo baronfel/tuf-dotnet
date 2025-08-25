@@ -23,8 +23,9 @@ public record Mirror(
     [property: JsonPropertyName("mirrors")]
     MirrorDefinition[] Mirrors
 ) :
-    IRole<Mirror>,
-    IAOTSerializable<Mirror>
+    IRole<Mirror>
 {
     public static JsonTypeInfo<Mirror> JsonTypeInfo => MetadataJsonContext.Default.Mirror;
+
+    public static string TypeLabel => "mirror";
 }

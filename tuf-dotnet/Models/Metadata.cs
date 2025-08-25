@@ -1,5 +1,4 @@
-﻿using System.Reflection.Metadata;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
 using CanonicalJson;
@@ -17,8 +16,18 @@ using TUF.Signing;
 
 namespace TUF.Models;
 
+public interface IMetadata<T, TSigned> : IAOTSerializable<T>
+    where T : IMetadata<T, TSigned>
+    where TSigned : IRole<TSigned>
+{
+    TSigned Signed { get; }
+    Dictionary<KeyId, Signature> Signatures { get; }
+    byte[] SignedBytes { get; }
+    bool IsExpired(DateTimeOffset reference);
+}
+
 public abstract class Metadata<TSigned>(TSigned signed, Dictionary<KeyId, Signature> signatures)
-    where TSigned : IRole<TSigned>, IAOTSerializable<TSigned>
+     where TSigned : IRole<TSigned>
 {
     [JsonPropertyName("signed")]
     public TSigned Signed => signed;
@@ -40,8 +49,8 @@ public abstract class Metadata<TSigned>(TSigned signed, Dictionary<KeyId, Signat
 public static class MetadataExtensions
 {
     extension<T, TInner>(T metadata)
-        where T : Metadata<TInner>, IAOTSerializable<T>
-        where TInner : IRole<TInner>, IAOTSerializable<TInner>
+        where T : IMetadata<T, TInner>
+        where TInner : IRole<TInner>
     {
         public Signature Sign(ISigner signer, bool replaceExisting = true)
         {
@@ -60,12 +69,12 @@ public static class MetadataExtensions
     }
 
     extension<T, TInner>(T metadata)
-        where T : Metadata<TInner>, IAOTSerializable<T>
-        where TInner : IRole<TInner>, IAOTSerializable<TInner>
+        where T : IMetadata<T, TInner>
+        where TInner : IRole<TInner>
     {
         void ValidateKeys<TOther, TOtherInner>(Dictionary<KeyId, Key> allKeys, RoleKeys roleKeys, TOther otherMetadata)
-            where TOther : Metadata<TOtherInner>
-            where TOtherInner : IRole<TOtherInner>, IAOTSerializable<TOtherInner>
+            where TOther : IMetadata<TOther, TOtherInner>
+            where TOtherInner : IRole<TOtherInner>
         {
             if (roleKeys.KeyIds.Count == 0)
             {
@@ -109,9 +118,9 @@ public static class MetadataExtensions
     }
 
     extension<T>(T rootMetadata)
-        where T : Metadata<Root>, IAOTSerializable<T>
+        where T : IMetadata<T, Root>
     {
-        void VerifyRootRole<TOther, TOtherInner>(string roleType, TOther otherMetadata) where TOther : Metadata<TOtherInner>, IAOTSerializable<TOther> where TOtherInner : IRole<TOtherInner>, IAOTSerializable<TOtherInner>
+        void VerifyRootRole<TOther, TOtherInner>(string roleType, TOther otherMetadata) where TOther : IMetadata<TOther, TOtherInner> where TOtherInner : IRole<TOtherInner>
         {
             // try to match the given role with one of our known roles, and get the keyids and threshold from that delegation
             var roles = rootMetadata.Signed.Roles;
@@ -130,14 +139,14 @@ public static class MetadataExtensions
                 throw new Exception($"No delegation found for {roleType}");
             }
 
-            ValidateKeys<T, Root, TOther, TOtherInner>(rootMetadata, rootMetadata.Signed.Keys, roleKeys, otherMetadata);
+            rootMetadata.ValidateKeys<T, Root, TOther, TOtherInner>(rootMetadata.Signed.Keys, roleKeys, otherMetadata);
         }
     }
 
     extension<T>(T targetsMetadata)
-        where T : Metadata<TargetsRole>, IAOTSerializable<T>
+        where T : IMetadata<T, TargetsRole>
     {
-        void VerifyDelegatedRole<TOther, TOtherInner>(string roleType, TOther otherMetadata) where TOther : Metadata<TOtherInner> where TOtherInner : IRole<TOtherInner>, IAOTSerializable<TOtherInner>
+        void VerifyDelegatedRole<TOther, TOtherInner>(string roleType, TOther otherMetadata) where TOther : IMetadata<TOther,TOtherInner> where TOtherInner : IRole<TOtherInner>
         {
             if (targetsMetadata.Signed.Delegations is null or not { Roles: { Count: > 0 } })
             {
@@ -149,31 +158,29 @@ public static class MetadataExtensions
                 throw new Exception($"No delegation found for {roleType}");
             }
 
-            ValidateKeys<T, TargetsRole, TOther, TOtherInner>(targetsMetadata, targetsMetadata.Signed.Delegations.Keys, delegation.RoleKeys, otherMetadata);
+            targetsMetadata.ValidateKeys<T, TargetsRole, TOther, TOtherInner>(targetsMetadata.Signed.Delegations.Keys, delegation.RoleKeys, otherMetadata);
         }
     }
 }
 
-public sealed class RootMetadata(
-        Root signed,
-        Dictionary<KeyId, Signature> signatures) : Metadata<Root>(signed, signatures), IAOTSerializable<RootMetadata>
+public sealed class RootMetadata(Root signed, Dictionary<KeyId, Signature> signatures) : Metadata<Root>(signed, signatures), IMetadata<RootMetadata, Root>
 {
     public static JsonTypeInfo<RootMetadata> JsonTypeInfo => MetadataJsonContext.Default.RootMetadata;
 }
 
-public sealed class SnapshotMetadata(Snapshot signed, Dictionary<KeyId, Signature> signatures) : Metadata<Snapshot>(signed, signatures), IAOTSerializable<SnapshotMetadata>
+public sealed class SnapshotMetadata(Snapshot signed, Dictionary<KeyId, Signature> signatures) : Metadata<Snapshot>(signed, signatures), IMetadata<SnapshotMetadata, Snapshot>
 {
     public static JsonTypeInfo<SnapshotMetadata> JsonTypeInfo => MetadataJsonContext.Default.SnapshotMetadata;
 }
-public sealed class TargetsMetadata(TargetsRole signed, Dictionary<KeyId, Signature> signatures) : Metadata<TargetsRole>(signed, signatures), IAOTSerializable<TargetsMetadata>
+public sealed class TargetsMetadata(TargetsRole signed, Dictionary<KeyId, Signature> signatures) : Metadata<TargetsRole>(signed, signatures), IMetadata<TargetsMetadata, TargetsRole>
 {
     public static JsonTypeInfo<TargetsMetadata> JsonTypeInfo => MetadataJsonContext.Default.TargetsMetadata;
 }
-public sealed class TimestampMetadata(Timestamp signed, Dictionary<KeyId, Signature> signatures) : Metadata<Timestamp>(signed, signatures), IAOTSerializable<TimestampMetadata>
+public sealed class TimestampMetadata(Timestamp signed, Dictionary<KeyId, Signature> signatures) : Metadata<Timestamp>(signed, signatures), IMetadata<TimestampMetadata, Timestamp>
 {
     public static JsonTypeInfo<TimestampMetadata> JsonTypeInfo => MetadataJsonContext.Default.TimestampMetadata;
 }
-public sealed class MirrorMetadata(Mirror signed, Dictionary<KeyId, Signature> signatures) : Metadata<Mirror>(signed, signatures), IAOTSerializable<MirrorMetadata>
+public sealed class MirrorMetadata(Mirror signed, Dictionary<KeyId, Signature> signatures) : Metadata<Mirror>(signed, signatures), IMetadata<MirrorMetadata, Mirror>
 {
     public static JsonTypeInfo<MirrorMetadata> JsonTypeInfo => MetadataJsonContext.Default.MirrorMetadata;
 }

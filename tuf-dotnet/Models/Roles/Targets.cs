@@ -55,8 +55,9 @@ public record TargetsRole(
     [property: JsonPropertyName("delegations")]
     Delegations? Delegations = null
 ) :
-    IRole<TargetsRole>,
-    IAOTSerializable<TargetsRole>
+    IRole<TargetsRole>
 {
     public static JsonTypeInfo<TargetsRole> JsonTypeInfo => MetadataJsonContext.Default.TargetsRole;
+
+    public static string TypeLabel => "targets";
 }

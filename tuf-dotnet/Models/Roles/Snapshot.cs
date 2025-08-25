@@ -18,8 +18,9 @@ public record Snapshot(
     [property: JsonPropertyName("meta")]
     Dictionary<RelativePath, FileMetadata> Meta
 ) :
-    IRole<Snapshot>,
-    IAOTSerializable<Snapshot>
+    IRole<Snapshot>
 {
     public static JsonTypeInfo<Snapshot> JsonTypeInfo => MetadataJsonContext.Default.Snapshot;
+
+    public static string TypeLabel => "snapshot";
 }
