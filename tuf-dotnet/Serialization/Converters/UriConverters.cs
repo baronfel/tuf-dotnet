@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using TUF.Models.Primitives;
 
 namespace Tuf.DotNet.Serialization.Converters;
+
 internal static class UriReader
 {
     public static bool Read(ref Utf8JsonReader reader, bool isAbsolute, [NotNullWhen(true)] out Uri? uri)

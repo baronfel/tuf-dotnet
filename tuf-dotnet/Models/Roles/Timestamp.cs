@@ -10,7 +10,7 @@ namespace TUF.Models.Roles.Timestamp;
 /// For the timestamp role specifically, the only metadata record is for the snapshot.json file.
 /// </summary>
 [JsonConverter(typeof(Tuf.DotNet.Serialization.Converters.SnapshotFileMetadataJsonConverter))]
-public class SnapshotFileMetadata(FileMetadata snapshotFileMetadata) : 
+public class SnapshotFileMetadata(FileMetadata snapshotFileMetadata) :
     Dictionary<RelativePath, FileMetadata>([new(new("snapshot.json"), snapshotFileMetadata)]);
 
 public record Timestamp(

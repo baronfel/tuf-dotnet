@@ -60,7 +60,7 @@ public static class MetadataExtensions
     }
 
     extension<T, TInner>(T metadata)
-        where T: Metadata<TInner>, IAOTSerializable<T>
+        where T : Metadata<TInner>, IAOTSerializable<T>
         where TInner : IRole<TInner>, IAOTSerializable<TInner>
     {
         void ValidateKeys<TOther, TOtherInner>(Dictionary<KeyId, Key> allKeys, RoleKeys roleKeys, TOther otherMetadata)
@@ -109,9 +109,9 @@ public static class MetadataExtensions
     }
 
     extension<T>(T rootMetadata)
-        where T: Metadata<Root>, IAOTSerializable<T>
+        where T : Metadata<Root>, IAOTSerializable<T>
     {
-        void VerifyRootRole<TOther, TOtherInner>(string roleType, TOther otherMetadata) where TOther: Metadata<TOtherInner>, IAOTSerializable<TOther> where TOtherInner: IRole<TOtherInner>, IAOTSerializable<TOtherInner>
+        void VerifyRootRole<TOther, TOtherInner>(string roleType, TOther otherMetadata) where TOther : Metadata<TOtherInner>, IAOTSerializable<TOther> where TOtherInner : IRole<TOtherInner>, IAOTSerializable<TOtherInner>
         {
             // try to match the given role with one of our known roles, and get the keyids and threshold from that delegation
             var roles = rootMetadata.Signed.Roles;
@@ -135,9 +135,9 @@ public static class MetadataExtensions
     }
 
     extension<T>(T targetsMetadata)
-        where T: Metadata<TargetsRole>, IAOTSerializable<T>
+        where T : Metadata<TargetsRole>, IAOTSerializable<T>
     {
-        void VerifyDelegatedRole<TOther, TOtherInner>(string roleType, TOther otherMetadata) where TOther: Metadata<TOtherInner> where TOtherInner: IRole<TOtherInner>, IAOTSerializable<TOtherInner>
+        void VerifyDelegatedRole<TOther, TOtherInner>(string roleType, TOther otherMetadata) where TOther : Metadata<TOtherInner> where TOtherInner : IRole<TOtherInner>, IAOTSerializable<TOtherInner>
         {
             if (targetsMetadata.Signed.Delegations is null or not { Roles: { Count: > 0 } })
             {
