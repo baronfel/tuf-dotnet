@@ -215,7 +215,7 @@ public class RootAndTimestampAndSnapshotTrustedMetadata(RootMetadata root, Times
                 }
             },
             (newTargets) => MetadataExtensions.VerifyRootRole<RootMetadata, TargetsMetadata, TargetsRole>(Root, delegatorRoleName, newTargets),
-            (newTargets) => new CoreTrustedMetadata(Root, Timestamp, Snapshot, roleName, newTargets)
+            (newTargets) => new CoreTrustedMetadata(Root, Timestamp, Snapshot, newTargets)
             {
                 RefTime = RefTime
             });
@@ -235,9 +235,9 @@ public class RootAndTimestampAndSnapshotTrustedMetadata(RootMetadata root, Times
 }
 
 [method: SetsRequiredMembers]
-public class CoreTrustedMetadata(RootMetadata root, TimestampMetadata timestamp, SnapshotMetadata snapshot, string targetRoleName, TargetsMetadata initialTarget) : RootAndTimestampAndSnapshotTrustedMetadata(root, timestamp, snapshot)
+public class CoreTrustedMetadata(RootMetadata root, TimestampMetadata timestamp, SnapshotMetadata snapshot, TargetsMetadata initialTarget) : RootAndTimestampAndSnapshotTrustedMetadata(root, timestamp, snapshot)
 {
-    public Dictionary<string, TargetsMetadata> Targets { get; private set; } = new() { [targetRoleName] = initialTarget };
+    public TargetsMap Targets { get; private set; } = new(initialTarget);
 
     public override CoreTrustedMetadata UpdateDelegatedTargets(byte[] delegatedTargetsData, string roleName, string delegatorRoleName)
     {
@@ -271,4 +271,9 @@ public class CoreTrustedMetadata(RootMetadata root, TimestampMetadata timestamp,
             }
             );
     }
+}
+
+public class TargetsMap(TargetsMetadata topLevelMetadata) : Dictionary<string, TargetsMetadata>([new KeyValuePair<string, TargetsMetadata>(Models.Roles.Targets.TargetsRole.TypeLabel, topLevelMetadata)])
+{
+    public TargetsMetadata TopLevelTargets => topLevelMetadata;
 }

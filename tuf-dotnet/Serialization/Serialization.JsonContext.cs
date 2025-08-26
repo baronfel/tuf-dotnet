@@ -1,5 +1,7 @@
 using System.Text.Json.Serialization;
 
+using TUF.Models.Roles.Targets;
+
 namespace TUF.Serialization;
 
 [JsonSerializable(typeof(TUF.Models.RootMetadata))]
@@ -9,6 +11,7 @@ namespace TUF.Serialization;
 [JsonSerializable(typeof(TUF.Models.MirrorMetadata))]
 [JsonSerializable(typeof(TUF.Models.Roles.Root.Root))]
 [JsonSerializable(typeof(TUF.Models.Roles.Snapshot.Snapshot))]
+[JsonSerializable(typeof(TUF.Models.Roles.Targets.TargetMetadata))]
 [JsonSerializable(typeof(TUF.Models.Roles.Targets.TargetsRole))]
 [JsonSerializable(typeof(TUF.Models.Roles.Timestamp.Timestamp))]
 [JsonSerializable(typeof(TUF.Models.Roles.Mirrors.Mirror))]
@@ -26,6 +29,8 @@ namespace TUF.Serialization;
 [JsonSerializable(typeof(TUF.Models.Primitives.RelativePath))]
 [JsonSerializable(typeof(Dictionary<TUF.Models.Primitives.RelativePath, TUF.Models.Primitives.FileMetadata>))]
 [JsonSerializable(typeof(TUF.Models.Primitives.FileMetadata))]
+[JsonSerializable(typeof(DelegationData))]
+[JsonSerializable(typeof(DelegatedRoleName))]
 public partial class MetadataJsonContext : JsonSerializerContext
 {
 }

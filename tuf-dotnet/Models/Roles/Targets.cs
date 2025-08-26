@@ -1,6 +1,8 @@
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
+using Tuf.DotNet.Serialization.Converters;
+
 using TUF.Models.Primitives;
 using TUF.Models.Roles.Root;
 using TUF.Serialization;
@@ -8,9 +10,23 @@ using TUF.Serialization.Converters;
 
 namespace TUF.Models.Roles.Targets;
 
+
 public record struct DelegatedRoleName(string roleName);
 
+/// <summary>
+/// Marks types that contain their own key for dictionary-creation purposes.
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <typeparam name="TKey"></typeparam>
+public interface IKeyHolder<T, TKey> where T : IKeyHolder<T, TKey>
+    where TKey : notnull
+{
+    static abstract TKey GetKey(T instance);
+}
+
 public record DelegationData(
+    [property: JsonPropertyName("name")]
+    DelegatedRoleName Name,
     [property: JsonPropertyName("keyids")]
     KeyId[] KeyIDs,
     [property: JsonPropertyName("threshold")]
@@ -21,9 +37,14 @@ public record DelegationData(
     bool Terminating,
     [property: JsonPropertyName("path_hash_prefixes")]
     HexDigest[]? PathHashPrefixes = null
-)
+) : IAOTSerializable<DelegationData>, IKeyHolder<DelegationData, DelegatedRoleName>
 {
+    public static JsonTypeInfo<DelegationData> JsonTypeInfo => MetadataJsonContext.Default.DelegationData;
+
     public RoleKeys RoleKeys => new(KeyIDs.ToList(), Threshold);
+
+    public static DelegatedRoleName GetKey(DelegationData instance) => instance.Name;
+
     public bool IsDelegatedPath(string targetFile)
     {
         if (Paths is null || Paths.Length == 0)
@@ -34,14 +55,27 @@ public record DelegationData(
     }
 }
 
+
 public record TargetMetadata(
     [property: JsonPropertyName("length")]
     uint Length,
     [property: JsonPropertyName("hashes")]
     List<DigestAlgorithms.DigestValue> Hashes,
     [property: JsonPropertyName("custom")]
-    Dictionary<string, object>? Custom
-);
+    Dictionary<string, object>? Custom,
+    [property: JsonPropertyName("path")]
+    RelativePath Path
+) : IAOTSerializable<TargetMetadata>,
+    IKeyHolder<TargetMetadata, RelativePath>,
+    IVerifyHashes,
+    IVerifyLength
+{
+    public static JsonTypeInfo<TargetMetadata> JsonTypeInfo => MetadataJsonContext.Default.TargetMetadata;
+
+    uint? IVerifyLength.Length => Length;
+
+    public static RelativePath GetKey(TargetMetadata instance) => instance.Path;
+}
 
 public record struct RoleResult(string Name, bool Terminating);
 
@@ -49,6 +83,7 @@ public record Delegations(
     [property: JsonPropertyName("keys")]
     Dictionary<KeyId, Keys.Key> Keys,
     [property: JsonPropertyName("roles")]
+    [property: JsonConverter(typeof(ArrayToDictionaryConverter<DelegatedRoleName, DelegationData>))]
     Dictionary<DelegatedRoleName, DelegationData>? Roles
 )
 {
@@ -73,6 +108,7 @@ public record TargetsRole(
     [property: JsonPropertyName("expires")]
     DateTimeOffset Expires,
     [property: JsonPropertyName("targets")]
+    [property: JsonConverter(typeof(ArrayToDictionaryConverter<RelativePath, TargetMetadata>))]
     Dictionary<RelativePath, TargetMetadata> Targets,
     [property: JsonPropertyName("delegations")]
     Delegations? Delegations = null

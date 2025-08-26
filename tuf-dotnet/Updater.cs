@@ -1,14 +1,9 @@
-using System.Data.SqlTypes;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 
 using TUF.Models;
 using TUF.Models.Primitives;
-using TUF.Models.Roles;
-using TUF.Serialization;
 
 namespace TUF;
-
 
 public class UpdaterConfig
 {
@@ -52,6 +47,17 @@ public class Updater
         await OnlineRefresh();
     }
 
+    public Dictionary<RelativePath, Models.Roles.Targets.TargetMetadata> GetTopLevelTargets()
+    {
+        if (_trusted is not CoreTrustedMetadata c)
+        {
+            throw new InvalidOperationException("Trusted metadata not loaded");
+        }
+        return c.Targets.TopLevelTargets.Signed.Targets;
+    }
+    
+    public TrustedMetadata GetTrustedMetadataSet() => _trusted;
+
     public async Task<TUF.Models.Roles.Targets.TargetMetadata> GetTargetInfo(string targetPath)
     {
         if (_trusted is not CoreTrustedMetadata c)
@@ -61,6 +67,64 @@ public class Updater
 
         return await preOrderDepthFirstWalk(targetPath);
     }
+
+    public async Task<(string FilePath, byte[] Data)> DownloadTarget(Models.Roles.Targets.TargetMetadata targetFile, string? destinationFilePath, Uri? baseUrl)
+    {
+        var localDestinationPath = destinationFilePath ?? GenerateTargetFilePath(targetFile);
+        var targetBaseUrl = baseUrl ?? _config.RemoteTargetsUrl;
+        var targetRemotePath = targetFile.Path.RelPath;
+        if (_trusted.Root.Signed.ConsistentSnapshot is true && _config.PrefixTargetsWithHash)
+        {
+            var hash = targetFile.Hashes.FirstOrDefault()?.HexEncodedValue;
+            var targetFileDir = Path.GetDirectoryName(targetFile.Path.RelPath);
+            var targetFileName = Path.GetFileName(targetFile.Path.RelPath)!;
+            if (targetFileDir is not null)
+            {
+                targetRemotePath = Path.Combine(targetFileDir, $"{hash}.{targetFileName}");
+            }
+            else
+            {
+                targetRemotePath = $"{hash}.{targetFileName}";
+            }
+        }
+
+        var downloadUri = new Uri(targetBaseUrl, targetRemotePath);
+        var data = await DownloadFile(downloadUri, targetFile.Length);
+        targetFile.VerifyLengthHashes(data);
+
+        if (!_config.DisableLocalCache)
+        {
+            await File.WriteAllBytesAsync(localDestinationPath, data);
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                File.SetUnixFileMode(localDestinationPath, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.GroupRead | UnixFileMode.OtherRead);
+            }
+        }
+        return (localDestinationPath, data);
+    }
+
+    public async Task<(string FilePath, byte[] Data)?> FindCachedTarget(Models.Roles.Targets.TargetMetadata targetFile, string? filePath)
+    {
+        if (_config.DisableLocalCache)
+        {
+            return null;
+        }
+
+        var localPath = filePath ?? GenerateTargetFilePath(targetFile);
+        var fileBytes = await File.ReadAllBytesAsync(localPath);
+        try
+        {
+            targetFile.VerifyLengthHashes(fileBytes);
+        }
+        catch
+        {
+            return null;
+        }
+
+        return (localPath, fileBytes);
+    }
+
+    private string GenerateTargetFilePath(Models.Roles.Targets.TargetMetadata targetFile) => Path.Combine(_config.LocalTargetsDir, targetFile.Path.RelPath);
 
     private async Task<TUF.Models.Roles.Targets.TargetMetadata> preOrderDepthFirstWalk(string targetFilePath)
     {
@@ -182,11 +246,6 @@ public class Updater
         }
     }
 
-    private async Task PersistMetadata<T, TInner>(T metadata) where T : IMetadata<T, TInner> where TInner : IRole<TInner>
-    {
-        await PersistMetadata(TInner.TypeLabel, MetadataSerializer.SerializeToUTF8Bytes(metadata));
-    }
-
     private async Task PersistMetadata(string roleName, byte[] data)
     {
         if (_config.DisableLocalCache) return;
@@ -222,11 +281,17 @@ public class Updater
     private async Task<byte[]> DownloadMetadata(string type, uint maxlength, int? version)
     {
         var uri = new Uri(_config.RemoteMetadataUrl, version is int v && v != 0 ? $"{type}.{version}.json" : $"{type}.json");
+        return await DownloadFile(uri, maxlength);
+    }
+
+    private async Task<byte[]> DownloadFile(Uri uri, uint? maxLength)
+    {
         var headers = await _config.Client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead);
         var length = headers.Content.Headers.ContentLength ?? 0;
-        if (length > maxlength)
+        if (length > maxLength)
         {
-            throw new Exception($"Metadata file {type} length {length} exceeds maximum allowed length {maxlength}");
+            var filePath = uri.ToString().TrimStart(_config.RemoteTargetsUrl.ToString());
+            throw new Exception($"File {filePath} length {length} exceeds maximum allowed length {maxLength}");
         }
         return await headers.Content.ReadAsByteArrayAsync();
     }
