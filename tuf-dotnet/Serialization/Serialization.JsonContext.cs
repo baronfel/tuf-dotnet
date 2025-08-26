@@ -1,7 +1,5 @@
 using System.Text.Json.Serialization;
 
-using TUF.Models.Primitives;
-
 namespace TUF.Serialization;
 
 [JsonSerializable(typeof(TUF.Models.RootMetadata))]
@@ -26,8 +24,8 @@ namespace TUF.Serialization;
 [JsonSerializable(typeof(TUF.Models.Primitives.HexString))]
 [JsonSerializable(typeof(TUF.Models.Primitives.HexDigest))]
 [JsonSerializable(typeof(TUF.Models.Primitives.RelativePath))]
-[JsonSerializable(typeof(Dictionary<RelativePath, FileMetadata>))]
-[JsonSerializable(typeof(FileMetadata))]
+[JsonSerializable(typeof(Dictionary<TUF.Models.Primitives.RelativePath, TUF.Models.Primitives.FileMetadata>))]
+[JsonSerializable(typeof(TUF.Models.Primitives.FileMetadata))]
 public partial class MetadataJsonContext : JsonSerializerContext
 {
 }

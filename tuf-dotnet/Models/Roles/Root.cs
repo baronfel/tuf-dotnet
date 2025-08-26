@@ -3,6 +3,7 @@ using System.Text.Json.Serialization.Metadata;
 
 using TUF.Models.Primitives;
 using TUF.Serialization;
+using TUF.Serialization.Converters;
 
 namespace TUF.Models.Roles.Root;
 
@@ -38,12 +39,12 @@ public record RootRoles(
     }
 }
 
+[JsonConverter(typeof(RoleTypeJsonConverter<Root>))]
 public record Root(
     [property: JsonPropertyName("spec_version")]
     SemanticVersion SpecVersion,
     [property: JsonPropertyName("consistent_snapshot")]
     bool? ConsistentSnapshot,
-    [property: JsonPropertyName("version")]
     uint Version,
     [property: JsonPropertyName("expires")]
     DateTimeOffset Expires,

@@ -3,6 +3,7 @@ using System.Text.Json.Serialization.Metadata;
 
 using TUF.Models.Primitives;
 using TUF.Serialization;
+using TUF.Serialization.Converters;
 
 namespace TUF.Models.Roles.Mirrors;
 
@@ -13,6 +14,8 @@ public record MirrorDefinition(
     [property: JsonPropertyName("metacontent")] PathPattern[] MetaContent,
     [property: JsonPropertyName("targetscontent")] PathPattern[] TargetsContent,
     [property: JsonPropertyName("custom")] Dictionary<string, object> Custom);
+
+[JsonConverter(typeof(RoleTypeJsonConverter<Mirror>))]
 public record Mirror(
     [property: JsonPropertyName("spec_version")]
     SemanticVersion SpecVersion,

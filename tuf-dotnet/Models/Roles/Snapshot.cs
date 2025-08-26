@@ -3,11 +3,13 @@ using System.Text.Json.Serialization.Metadata;
 
 using TUF.Models.Primitives;
 using TUF.Serialization;
+using TUF.Serialization.Converters;
 
 namespace TUF.Models.Roles.Snapshot;
 
 public record struct HashAlgorithm(string algo);
 
+[JsonConverter(typeof(RoleTypeJsonConverter<Snapshot>))]
 public record Snapshot(
     [property: JsonPropertyName("spec_version")]
     SemanticVersion SpecVersion,

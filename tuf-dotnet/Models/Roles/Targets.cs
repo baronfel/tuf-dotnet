@@ -4,6 +4,7 @@ using System.Text.Json.Serialization.Metadata;
 using TUF.Models.Primitives;
 using TUF.Models.Roles.Root;
 using TUF.Serialization;
+using TUF.Serialization.Converters;
 
 namespace TUF.Models.Roles.Targets;
 
@@ -43,6 +44,7 @@ public record Delegations(
 
 // style nit: Can't call the type and the member Target, so in order to keep the member name aligned with TUF specifications, the member is called Targets
 //            and we 'sacrifice' the type name.
+[JsonConverter(typeof(RoleTypeJsonConverter<TargetsRole>))]
 public record TargetsRole(
     [property: JsonPropertyName("spec_version")]
     SemanticVersion SpecVersion,

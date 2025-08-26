@@ -3,6 +3,7 @@ using System.Text.Json.Serialization.Metadata;
 
 using TUF.Models.Primitives;
 using TUF.Serialization;
+using TUF.Serialization.Converters;
 
 namespace TUF.Models.Roles.Timestamp;
 
@@ -13,6 +14,7 @@ namespace TUF.Models.Roles.Timestamp;
 public class SnapshotFileMetadata(FileMetadata snapshotFileMetadata) :
     Dictionary<RelativePath, FileMetadata>([new(new("snapshot.json"), snapshotFileMetadata)]);
 
+[JsonConverter(typeof(RoleTypeJsonConverter<Timestamp>))]
 public record Timestamp(
     [property: JsonPropertyName("spec_version")]
     SemanticVersion SpecVersion,
