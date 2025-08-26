@@ -10,9 +10,11 @@ using TUF.Serialization;
 
 namespace TUF;
 
-public abstract class TrustedMetadata
+public class TrustedMetadata(RootMetadata root)
 {
-    public required DateTimeOffset RefTime { get; init; } = DateTimeOffset.UtcNow;
+    public RootMetadata Root { get; private set; } = root;
+    public required DateTimeOffset RefTime { get; init; }
+
     public static TrustedMetadata CreateFromRootData(byte[] rootData)
     {
         var refTime = DateTimeOffset.UtcNow;
@@ -21,26 +23,14 @@ public abstract class TrustedMetadata
         {
             throw new Exception("Failed to deserialize root metadata");
         }
-        MetadataExtensions.VerifyRootRole<RootMetadata, RootMetadata, Root>(newRoot, Root.TypeLabel, newRoot);
-        return new RootTrustedMetadata(newRoot)
+        MetadataExtensions.VerifyRootRole<RootMetadata, RootMetadata, Root>(newRoot, Models.Roles.Root.Root.TypeLabel, newRoot);
+        return new TrustedMetadata(newRoot)
         {
             RefTime = refTime
         };
     }
 
-    public abstract TrustedMetadata UpdateRoot(byte[] rootData);
-    public abstract TrustedMetadata UpdateTimeStamp(byte[] timestampData);
-    public abstract TrustedMetadata UpdateSnapshot(byte[] snapshotData, bool isTrusted);
-    public abstract TrustedMetadata UpdateTargets(byte[] targetsData);
-    public abstract TrustedMetadata UpdateDelegatedTargets(byte[] delegatedTargetsData, string roleName, string delegatorRoleName);
-}
-
-[method: SetsRequiredMembers]
-internal class RootTrustedMetadata(RootMetadata root) : TrustedMetadata
-{
-    public RootMetadata Root { get; private set; } = root;
-
-    public override TrustedMetadata UpdateRoot(byte[] rootData)
+    public TrustedMetadata UpdateRoot(byte[] rootData)
     {
         var newRoot = MetadataSerializer.Deserialize<RootMetadata>(rootData);
         if (newRoot is null)
@@ -57,7 +47,7 @@ internal class RootTrustedMetadata(RootMetadata root) : TrustedMetadata
         return this;
     }
 
-    internal RootAndTimestampTrustedMetadata UpdateTimestampInternal(byte[] timestampData)
+    protected RootAndTimestampTrustedMetadata UpdateTimestampInternal(byte[] timestampData)
     {
         if (Root.IsExpired(RefTime))
         {
@@ -76,37 +66,35 @@ internal class RootTrustedMetadata(RootMetadata root) : TrustedMetadata
         return newTrustedMetadata;
     }
 
-    public override TrustedMetadata UpdateTimeStamp(byte[] timestampData)
+    public virtual RootAndTimestampTrustedMetadata UpdateTimeStamp(byte[] timestampData)
     {
         var newTrustedMetadata = UpdateTimestampInternal(timestampData);
         newTrustedMetadata.CheckFinalTimestamp();
         return newTrustedMetadata;
     }
 
-    public override TrustedMetadata UpdateSnapshot(byte[] snapshotData, bool isTrusted)
+    public virtual TrustedMetadata UpdateSnapshot(byte[] snapshotData, bool isTrusted)
     {
         throw new NotImplementedException("Cannot update snapshot before timestamp");
     }
-
-    public override TrustedMetadata UpdateTargets(byte[] targetsData)
+    public virtual TrustedMetadata UpdateTargets(byte[] targetsData)
     {
         return UpdateDelegatedTargets(targetsData, Models.Roles.Targets.TargetsRole.TypeLabel, Models.Roles.Root.Root.TypeLabel);
     }
-
-    public override TrustedMetadata UpdateDelegatedTargets(byte[] delegatedTargetsData, string roleName, string delegatorRoleName)
+    public virtual TrustedMetadata UpdateDelegatedTargets(byte[] delegatedTargetsData, string roleName, string delegatorRoleName)
     {
         throw new NotImplementedException("Cannot load targets before snapshot");
     }
 }
 
 [method: SetsRequiredMembers]
-internal class RootAndTimestampTrustedMetadata(RootMetadata root, TimestampMetadata timestamp) : RootTrustedMetadata(root)
+public class RootAndTimestampTrustedMetadata(RootMetadata root, TimestampMetadata timestamp) : TrustedMetadata(root)
 {
     public TimestampMetadata Timestamp { get; private set; } = timestamp;
 
-    internal FileMetadata SnapshotMeta => Timestamp.Signed.SnapshotFileMetadata;
+    protected FileMetadata SnapshotMeta => Timestamp.Signed.SnapshotFileMetadata;
 
-    public override TrustedMetadata UpdateTimeStamp(byte[] timestampData)
+    public override RootAndTimestampTrustedMetadata UpdateTimeStamp(byte[] timestampData)
     {
         var newTrustedMetadata = UpdateTimestampInternal(timestampData);
         // check that new timestamp isn't older than current timestamp
@@ -128,7 +116,7 @@ internal class RootAndTimestampTrustedMetadata(RootMetadata root, TimestampMetad
         return newTrustedMetadata;
     }
 
-    internal RootAndTimestampAndSnapshotTrustedMetadata UpdateSnapshotInternal(byte[] snapshotData, bool isTrusted)
+    protected RootAndTimestampAndSnapshotTrustedMetadata UpdateSnapshotInternal(byte[] snapshotData, bool isTrusted)
     {
         CheckFinalTimestamp();
         if (!isTrusted)
@@ -148,7 +136,7 @@ internal class RootAndTimestampTrustedMetadata(RootMetadata root, TimestampMetad
         return newThing;
     }
 
-    public override TrustedMetadata UpdateSnapshot(byte[] snapshotData, bool isTrusted)
+    public override RootAndTimestampAndSnapshotTrustedMetadata UpdateSnapshot(byte[] snapshotData, bool isTrusted)
     {
         var newThing = UpdateSnapshotInternal(snapshotData, isTrusted);
         newThing.CheckFinalSnapshot();
@@ -165,11 +153,11 @@ internal class RootAndTimestampTrustedMetadata(RootMetadata root, TimestampMetad
 }
 
 [method: SetsRequiredMembers]
-internal class RootAndTimestampAndSnapshotTrustedMetadata(RootMetadata root, TimestampMetadata timestamp, SnapshotMetadata snapshot) : RootAndTimestampTrustedMetadata(root, timestamp)
+public class RootAndTimestampAndSnapshotTrustedMetadata(RootMetadata root, TimestampMetadata timestamp, SnapshotMetadata snapshot) : RootAndTimestampTrustedMetadata(root, timestamp)
 {
     public SnapshotMetadata Snapshot { get; private set; } = snapshot;
 
-    public override TrustedMetadata UpdateSnapshot(byte[] snapshotData, bool isTrusted)
+    public override RootAndTimestampAndSnapshotTrustedMetadata UpdateSnapshot(byte[] snapshotData, bool isTrusted)
     {
         var newThing = UpdateSnapshotInternal(snapshotData, isTrusted);
         foreach (var fileEntry in Snapshot.Signed.Meta)
@@ -187,10 +175,10 @@ internal class RootAndTimestampAndSnapshotTrustedMetadata(RootMetadata root, Tim
         return newThing;
     }
 
-    internal TrustedMetadata UpdateDelegatedTargetsInternal(byte[] delegatedTargetsData, string roleName,
+    protected CoreTrustedMetadata UpdateDelegatedTargetsInternal(byte[] delegatedTargetsData, string roleName,
         Action verifyDelegator,
-        Action<TargetsMetadata> verify, Func<TargetsMetadata,
-        TrustedMetadata> acceptVerified)
+        Action<TargetsMetadata> verify,
+        Func<TargetsMetadata, CoreTrustedMetadata> acceptVerified)
     {
         CheckFinalSnapshot();
         verifyDelegator.Invoke();
@@ -216,7 +204,7 @@ internal class RootAndTimestampAndSnapshotTrustedMetadata(RootMetadata root, Tim
         return acceptVerified.Invoke(newTargets);
     }
 
-    public override TrustedMetadata UpdateDelegatedTargets(byte[] delegatedTargetsData, string roleName, string delegatorRoleName)
+    public override CoreTrustedMetadata UpdateDelegatedTargets(byte[] delegatedTargetsData, string roleName, string delegatorRoleName)
     {
         return UpdateDelegatedTargetsInternal(delegatedTargetsData, roleName,
             () =>
@@ -247,11 +235,11 @@ internal class RootAndTimestampAndSnapshotTrustedMetadata(RootMetadata root, Tim
 }
 
 [method: SetsRequiredMembers]
-internal class CoreTrustedMetadata(RootMetadata root, TimestampMetadata timestamp, SnapshotMetadata snapshot, string targetRoleName, TargetsMetadata initialTarget) : RootAndTimestampAndSnapshotTrustedMetadata(root, timestamp, snapshot)
+public class CoreTrustedMetadata(RootMetadata root, TimestampMetadata timestamp, SnapshotMetadata snapshot, string targetRoleName, TargetsMetadata initialTarget) : RootAndTimestampAndSnapshotTrustedMetadata(root, timestamp, snapshot)
 {
     public Dictionary<string, TargetsMetadata> Targets { get; private set; } = new() { [targetRoleName] = initialTarget };
 
-    public override TrustedMetadata UpdateDelegatedTargets(byte[] delegatedTargetsData, string roleName, string delegatorRoleName)
+    public override CoreTrustedMetadata UpdateDelegatedTargets(byte[] delegatedTargetsData, string roleName, string delegatorRoleName)
     {
         return UpdateDelegatedTargetsInternal(delegatedTargetsData, roleName,
             () =>

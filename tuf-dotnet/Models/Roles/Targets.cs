@@ -24,6 +24,14 @@ public record DelegationData(
 )
 {
     public RoleKeys RoleKeys => new(KeyIDs.ToList(), Threshold);
+    public bool IsDelegatedPath(string targetFile)
+    {
+        if (Paths is null || Paths.Length == 0)
+        {
+            return true;
+        }
+        return Paths.Any(p => p.IsMatch(targetFile));
+    }
 }
 
 public record TargetMetadata(
@@ -35,12 +43,24 @@ public record TargetMetadata(
     Dictionary<string, object>? Custom
 );
 
+public record struct RoleResult(string Name, bool Terminating);
+
 public record Delegations(
     [property: JsonPropertyName("keys")]
     Dictionary<KeyId, Keys.Key> Keys,
     [property: JsonPropertyName("roles")]
     Dictionary<DelegatedRoleName, DelegationData>? Roles
-);
+)
+{
+    public List<RoleResult> GetRolesForTarget(string targetFile)
+    {
+        if (Roles is null)
+        {
+            return [];
+        }
+        return Roles.Where(r => r.Value.IsDelegatedPath(targetFile)).Select(r => new RoleResult(r.Key.roleName, r.Value.Terminating)).ToList();
+    }
+}
 
 // style nit: Can't call the type and the member Target, so in order to keep the member name aligned with TUF specifications, the member is called Targets
 //            and we 'sacrifice' the type name.

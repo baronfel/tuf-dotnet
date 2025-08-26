@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
+using Microsoft.Extensions.FileSystemGlobbing;
+
 namespace TUF.Models.Primitives;
 
 public record SemanticVersion(string SemVer);
@@ -40,7 +42,14 @@ public record struct HexDigest(string sha256HexDigest);
 /// That is, a pattern like "foo/*" should match "foo/bar" but not "foo/bar/baz".
 /// </summary>
 /// <param name="Pattern"></param>
-public record struct PathPattern(string Pattern);
+public record struct PathPattern(string Pattern)
+{
+    private readonly Matcher _matcher => new Matcher(StringComparison.InvariantCulture).AddInclude(Pattern);
+    public bool IsMatch(string path)
+    {
+        return _matcher.Match(path).HasMatches;
+    }
+}
 
 /// <summary>
 /// PEM format and a string. All RSA keys MUST be at least 2048 bits.
