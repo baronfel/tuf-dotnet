@@ -72,7 +72,7 @@ public static class MetadataExtensions
         where T : IMetadata<T, TInner>
         where TInner : IRole<TInner>
     {
-        void ValidateKeys<TOther, TOtherInner>(Dictionary<KeyId, Key> allKeys, RoleKeys roleKeys, TOther otherMetadata)
+        public void ValidateKeys<TOther, TOtherInner>(Dictionary<KeyId, Key> allKeys, RoleKeys roleKeys, TOther otherMetadata)
             where TOther : IMetadata<TOther, TOtherInner>
             where TOtherInner : IRole<TOtherInner>
         {
@@ -120,7 +120,7 @@ public static class MetadataExtensions
     extension<T>(T rootMetadata)
         where T : IMetadata<T, Root>
     {
-        void VerifyRootRole<TOther, TOtherInner>(string roleType, TOther otherMetadata) where TOther : IMetadata<TOther, TOtherInner> where TOtherInner : IRole<TOtherInner>
+        public void VerifyRootRole<TOther, TOtherInner>(string roleType, TOther otherMetadata) where TOther : IMetadata<TOther, TOtherInner> where TOtherInner : IRole<TOtherInner>
         {
             // try to match the given role with one of our known roles, and get the keyids and threshold from that delegation
             var roles = rootMetadata.Signed.Roles;
@@ -146,7 +146,7 @@ public static class MetadataExtensions
     extension<T>(T targetsMetadata)
         where T : IMetadata<T, TargetsRole>
     {
-        void VerifyDelegatedRole<TOther, TOtherInner>(string roleType, TOther otherMetadata) where TOther : IMetadata<TOther,TOtherInner> where TOtherInner : IRole<TOtherInner>
+        public void VerifyDelegatedRole(string roleType, T otherMetadata)
         {
             if (targetsMetadata.Signed.Delegations is null or not { Roles: { Count: > 0 } })
             {
@@ -158,7 +158,7 @@ public static class MetadataExtensions
                 throw new Exception($"No delegation found for {roleType}");
             }
 
-            targetsMetadata.ValidateKeys<T, TargetsRole, TOther, TOtherInner>(targetsMetadata.Signed.Delegations.Keys, delegation.RoleKeys, otherMetadata);
+            targetsMetadata.ValidateKeys<T, TargetsRole, T, TargetsRole>(targetsMetadata.Signed.Delegations.Keys, delegation.RoleKeys, otherMetadata);
         }
     }
 }

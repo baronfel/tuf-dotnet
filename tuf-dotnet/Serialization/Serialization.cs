@@ -46,12 +46,26 @@ public static class MetadataSerializer
     }
 
     /// <summary>
+    /// Deserialize a Metadata<T> instance from a stream of UTF8 JSON bytes (canonical or not) using the custom converters.
+    /// </summary>
+    public static T? Deserialize<T>(Stream utf8JsonBytes) where T : IAOTSerializable<T>
+    {
+        return JsonSerializer.Deserialize(utf8JsonBytes, T.JsonTypeInfo);
+    }
+
+    /// <summary>
     /// Deserialize a Metadata<T> instance from a UTF-8 encoded JSON string using the custom converters.
     /// </summary>
     public static T? DeserializeFromString<T>(string utf8JsonString) where T : IAOTSerializable<T>
     {
         ReadOnlySpan<byte> bytes = Encoding.UTF8.GetBytes(utf8JsonString);
         return JsonSerializer.Deserialize(bytes, T.JsonTypeInfo);
+    }
+
+    public static T? LoadFromFile<T>(string filePath) where T : IAOTSerializable<T>
+    {
+        using var file = File.OpenRead(filePath);
+        return Deserialize<T>(file);
     }
 
     /// <summary>

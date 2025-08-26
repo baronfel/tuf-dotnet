@@ -56,4 +56,23 @@ public record struct KeyId(HexDigest digest);
 
 public record SignatureResult(KeyId keyId, Signature Signature);
 
-public record FileMetadata(uint Version, uint? Length, List<DigestAlgorithms.DigestValue>? Hashes);
+public record FileMetadata(uint Version, uint? Length, List<DigestAlgorithms.DigestValue>? Hashes)
+{
+    public void VerifyLengthHashes(byte[] data)
+    {
+        if (Hashes is { Count: > 0 })
+        {
+            foreach (var hash in Hashes)
+            {
+                hash.VerifyHash(data);
+            }
+        }
+        if (Length is uint l)
+        {
+            if (data.Length != l)
+            {
+                throw new Exception($"Data length {data.Length} does not match expected length {l}");
+            }
+        }
+    }
+}
