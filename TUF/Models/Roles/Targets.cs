@@ -39,7 +39,7 @@ public record DelegationData(
     HexDigest[]? PathHashPrefixes = null
 ) : IAOTSerializable<DelegationData>, IKeyHolder<DelegationData, DelegatedRoleName>
 {
-    public static JsonTypeInfo<DelegationData> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.DelegationData;
+    public static JsonTypeInfo<DelegationData> JsonTypeInfo(MetadataJsonContext context) => context.DelegationData;
 
     public RoleKeys RoleKeys => new(KeyIDs.ToList(), Threshold);
 
@@ -70,7 +70,7 @@ public record TargetMetadata(
     IVerifyHashes,
     IVerifyLength
 {
-    public static JsonTypeInfo<TargetMetadata> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.TargetMetadata;
+    public static JsonTypeInfo<TargetMetadata> JsonTypeInfo(MetadataJsonContext context) => context.TargetMetadata;
 
     uint? IVerifyLength.Length => Length;
 
@@ -114,7 +114,7 @@ public record TargetsRole(
 ) :
     IRole<TargetsRole>
 {
-    public static JsonTypeInfo<TargetsRole> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.TargetsRole;
+    public static JsonTypeInfo<TargetsRole> JsonTypeInfo(MetadataJsonContext context) => context.TargetsRole;
 
     public static string TypeLabel => "targets";
 }

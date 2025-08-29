@@ -44,10 +44,7 @@ public record struct RelativePath(string RelPath) : IParsable<RelativePath>, IJs
         return true;
     }
 
-    public string ToJsonString()
-    {
-        throw new NotImplementedException();
-    }
+    public readonly string ToJsonString() => RelPath;
 }
 
 [JsonConverter(typeof(Tuf.DotNet.Serialization.Converters.AbsoluteUriJsonConverter))]

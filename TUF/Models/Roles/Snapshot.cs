@@ -21,7 +21,7 @@ public record Snapshot(
 ) :
     IRole<Snapshot>
 {
-    public static JsonTypeInfo<Snapshot> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.Snapshot;
+    public static JsonTypeInfo<Snapshot> JsonTypeInfo(MetadataJsonContext context) => context.Snapshot;
 
     public static string TypeLabel => "snapshot";
 }

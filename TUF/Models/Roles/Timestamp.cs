@@ -26,7 +26,7 @@ public record Timestamp(
     IRole<Timestamp>
 {
     public FileMetadata SnapshotFileMetadata => Meta.Values.First();
-    public static JsonTypeInfo<Timestamp> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.Timestamp;
+    public static JsonTypeInfo<Timestamp> JsonTypeInfo(MetadataJsonContext context) => context.Timestamp;
 
     public static string TypeLabel => "timestamp";
 }

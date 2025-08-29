@@ -39,6 +39,7 @@ public record RootRoles(
     }
 }
 
+[method: JsonConstructor]
 public record Root(
     [property: JsonPropertyName("spec_version")]
     SemanticVersion SpecVersion,
@@ -65,7 +66,7 @@ public record Root(
     {
     }
 
-    public static JsonTypeInfo<Root> JsonTypeInfo => MetadataJsonContext.Default.Root;
+    public static JsonTypeInfo<Root> JsonTypeInfo(MetadataJsonContext context) => context.Root;
 
     public static string TypeLabel => "root";
 }

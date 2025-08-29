@@ -13,7 +13,7 @@ namespace TUF.Serialization.Converters;
 /// <typeparam name="T"></typeparam>
 internal sealed class RoleTypeJsonConverter<T> : JsonConverter<T> where T : IRole<T>
 {
-    private JsonTypeInfo _typeInfo => T.JsonTypeInfo;
+    private JsonTypeInfo<T> _typeInfo => T.JsonTypeInfo(MetadataJsonContext.ConverterInternal);
     private readonly string _typeLabel = T.TypeLabel;
 
     public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -31,8 +31,7 @@ internal sealed class RoleTypeJsonConverter<T> : JsonConverter<T> where T : IRol
             throw new JsonException($"Unexpected _type value: '{incoming}', expected '{_typeLabel}'");
         }
 
-        // Deserialize using generated JsonTypeInfo. The presence of _type will be ignored by the generated deserializer.
-        var result = (T?)JsonSerializer.Deserialize(root, _typeInfo);
+        var result = JsonSerializer.Deserialize<T>(root, _typeInfo);
         if (result is null) throw new JsonException("Failed to deserialize role object");
         return result;
     }

@@ -36,6 +36,10 @@ public partial class MetadataJsonContext : JsonSerializerContext
 {
     public static JsonSerializerOptions AddedOptions = CreateOptions();
     public static MetadataJsonContext DefaultWithAddedOptions = new(AddedOptions);
+    
+    // Context for use inside converters - has proper deserialization support but no custom converters
+    public static JsonSerializerOptions ConverterInternalOptions = CreateConverterInternalOptions();
+    public static MetadataJsonContext ConverterInternal = new(ConverterInternalOptions);
 
     private static JsonSerializerOptions CreateOptions()
     {
@@ -45,6 +49,16 @@ public partial class MetadataJsonContext : JsonSerializerContext
         options.Converters.Add(new TUF.Serialization.Converters.RoleTypeJsonConverter<TUF.Models.Roles.Targets.TargetsRole>());
         options.Converters.Add(new TUF.Serialization.Converters.RoleTypeJsonConverter<TUF.Models.Roles.Timestamp.Timestamp>());
         options.Converters.Add(new TUF.Serialization.Converters.RoleTypeJsonConverter<TUF.Models.Roles.Mirrors.Mirror>());
+        return options;
+    }
+    
+    private static JsonSerializerOptions CreateConverterInternalOptions()
+    {
+        var options = new JsonSerializerOptions();
+        // No custom converters added - this prevents recursion
+        // Enable support for constructor-based deserialization
+        options.AllowTrailingCommas = true;
+        options.PropertyNameCaseInsensitive = false;
         return options;
     }
 }

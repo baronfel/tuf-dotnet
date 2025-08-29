@@ -38,7 +38,7 @@ public abstract class Metadata<TSigned>(TSigned signed, Dictionary<KeyId, Signat
     [JsonExtensionData]
     public Dictionary<string, object>? UnrecognizedFields { get; set; }
 
-    public byte[] SignedBytes => CanonicalJsonSerializer.Serialize(Signed, TSigned.JsonTypeInfo);
+    public byte[] SignedBytes => CanonicalJsonSerializer.Serialize(Signed, TSigned.JsonTypeInfo(MetadataJsonContext.Default));
 
     public bool IsExpired(DateTimeOffset reference)
     {
@@ -165,22 +165,22 @@ public static class MetadataExtensions
 
 public sealed class RootMetadata(Root signed, Dictionary<KeyId, Signature> signatures) : Metadata<Root>(signed, signatures), IMetadata<RootMetadata, Root>
 {
-    public static JsonTypeInfo<RootMetadata> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.RootMetadata;
+    public static JsonTypeInfo<RootMetadata> JsonTypeInfo(MetadataJsonContext context) => context.RootMetadata;
 }
 
 public sealed class SnapshotMetadata(Snapshot signed, Dictionary<KeyId, Signature> signatures) : Metadata<Snapshot>(signed, signatures), IMetadata<SnapshotMetadata, Snapshot>
 {
-    public static JsonTypeInfo<SnapshotMetadata> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.SnapshotMetadata;
+    public static JsonTypeInfo<SnapshotMetadata> JsonTypeInfo(MetadataJsonContext context) => context.SnapshotMetadata;
 }
 public sealed class TargetsMetadata(TargetsRole signed, Dictionary<KeyId, Signature> signatures) : Metadata<TargetsRole>(signed, signatures), IMetadata<TargetsMetadata, TargetsRole>
 {
-    public static JsonTypeInfo<TargetsMetadata> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.TargetsMetadata;
+    public static JsonTypeInfo<TargetsMetadata> JsonTypeInfo(MetadataJsonContext context) => context.TargetsMetadata;
 }
 public sealed class TimestampMetadata(Timestamp signed, Dictionary<KeyId, Signature> signatures) : Metadata<Timestamp>(signed, signatures), IMetadata<TimestampMetadata, Timestamp>
 {
-    public static JsonTypeInfo<TimestampMetadata> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.TimestampMetadata;
+    public static JsonTypeInfo<TimestampMetadata> JsonTypeInfo(MetadataJsonContext context) => context.TimestampMetadata;
 }
 public sealed class MirrorMetadata(Mirror signed, Dictionary<KeyId, Signature> signatures) : Metadata<Mirror>(signed, signatures), IMetadata<MirrorMetadata, Mirror>
 {
-    public static JsonTypeInfo<MirrorMetadata> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.MirrorMetadata;
+    public static JsonTypeInfo<MirrorMetadata> JsonTypeInfo(MetadataJsonContext context) => context.MirrorMetadata;
 }

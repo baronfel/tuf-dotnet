@@ -27,7 +27,7 @@ public record Mirror(
 ) :
     IRole<Mirror>
 {
-    public static JsonTypeInfo<Mirror> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.Mirror;
+    public static JsonTypeInfo<Mirror> JsonTypeInfo(MetadataJsonContext context) => context.Mirror;
 
     public static string TypeLabel => "mirror";
 }

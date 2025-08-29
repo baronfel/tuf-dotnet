@@ -8,7 +8,7 @@ namespace TUF.Serialization;
 
 public interface IAOTSerializable<T> where T : IAOTSerializable<T>
 {
-    static abstract JsonTypeInfo<T> JsonTypeInfo { get; }
+    static abstract JsonTypeInfo<T> JsonTypeInfo(MetadataJsonContext context);
 }
 
 /// <summary>
@@ -24,7 +24,7 @@ public static class MetadataSerializer
     public static byte[] SerializeCanonicalToUTF8Bytes<T>(T metadata) where T : IAOTSerializable<T>
     {
         // For common concrete role types we can use the generated context for AOT compatibility.
-        return CanonicalJsonSerializer.Serialize(metadata, T.JsonTypeInfo);
+        return CanonicalJsonSerializer.Serialize(metadata, T.JsonTypeInfo(MetadataJsonContext.DefaultWithAddedOptions));
     }
 
     /// <summary>
@@ -43,7 +43,7 @@ public static class MetadataSerializer
     public static T? Deserialize<T>(byte[] utf8JsonBytes) where T : IAOTSerializable<T>
     {
         ReadOnlySpan<byte> bytes = utf8JsonBytes;
-        return JsonSerializer.Deserialize(bytes, T.JsonTypeInfo);
+        return JsonSerializer.Deserialize(bytes, T.JsonTypeInfo(MetadataJsonContext.DefaultWithAddedOptions));
     }
 
     /// <summary>
@@ -51,7 +51,7 @@ public static class MetadataSerializer
     /// </summary>
     public static T? Deserialize<T>(Stream utf8JsonBytes) where T : IAOTSerializable<T>
     {
-        return JsonSerializer.Deserialize(utf8JsonBytes, T.JsonTypeInfo);
+        return JsonSerializer.Deserialize(utf8JsonBytes, T.JsonTypeInfo(MetadataJsonContext.DefaultWithAddedOptions));
     }
 
     /// <summary>
@@ -60,7 +60,7 @@ public static class MetadataSerializer
     public static T? DeserializeFromString<T>(string utf8JsonString) where T : IAOTSerializable<T>
     {
         ReadOnlySpan<byte> bytes = Encoding.UTF8.GetBytes(utf8JsonString);
-        return JsonSerializer.Deserialize(bytes, T.JsonTypeInfo);
+        return JsonSerializer.Deserialize(bytes, T.JsonTypeInfo(MetadataJsonContext.DefaultWithAddedOptions));
     }
 
     public static T? LoadFromFile<T>(string filePath) where T : IAOTSerializable<T>
@@ -75,7 +75,7 @@ public static class MetadataSerializer
     public static byte[] SerializeToUTF8Bytes<T>(T metadata) where T : IAOTSerializable<T>
     {
         using var ms = new MemoryStream();
-        JsonSerializer.Serialize(ms, metadata, T.JsonTypeInfo);
+        JsonSerializer.Serialize(ms, metadata, T.JsonTypeInfo(MetadataJsonContext.DefaultWithAddedOptions));
         return ms.ToArray();
     }
 
@@ -84,6 +84,6 @@ public static class MetadataSerializer
     /// </summary>
     public static string SerializeToString<T>(T metadata) where T : IAOTSerializable<T>
     {
-        return JsonSerializer.Serialize(metadata, T.JsonTypeInfo);
+        return JsonSerializer.Serialize(metadata, T.JsonTypeInfo(MetadataJsonContext.DefaultWithAddedOptions));
     }
 }
