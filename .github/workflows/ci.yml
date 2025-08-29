@@ -47,4 +47,4 @@ jobs:
 
       - name: Test
         run: |
-          dotnet test ./TUF.Tests/TUF.Tests.csproj --configuration Release --no-build --verbosity normal
+          dotnet test --configuration Release --no-build --verbosity normal
