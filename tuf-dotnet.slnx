@@ -3,4 +3,6 @@
   <Project Path="CanonicalJson.Tests/CanonicalJson.Tests.csproj" />
   <Project Path="CanonicalJson/CanonicalJson.csproj" />
   <Project Path="tuf-dotnet.Tests/tuf-dotnet.Tests.csproj" />
+  <Project Path="examples/BasicClient/BasicClient.csproj" />
+  <Project Path="examples/CliTool/CliTool.csproj" />
 </Solution>
