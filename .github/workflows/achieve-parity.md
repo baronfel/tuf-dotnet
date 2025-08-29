@@ -4,27 +4,35 @@ on:
   schedule:
     - cron: "0 9 * * *"  # Every day at 9 AM UTC
 
-# Permissions - what can this workflow access?
 permissions:
-  contents: read
-  issues: write
-  pull-requests: write
+  contents: write # needed to create branches, files, and pull requests in this repo without a fork
+  issues: write # needed to create report issue
+  pull-requests: write # needed to create results pull request
+  actions: read
+  checks: read
+  statuses: read
 
 # Tools - what APIs and tools can the AI use?
 tools:
   github:
     allowed:
-      - get_issue
-      - add_issue_comment
       - create_issue
-      - get_pull_request
-      - get_file_contents
+      - update_issue
+      - add_issue_comment
+      - create_or_update_file
+      - create_branch
+      - delete_file
+      - push_files
+      - update_pull_request
   claude:
     allowed:
       Edit:
+      MultiEdit:
       Write:
+      NotebookEdit:
       WebFetch:
-      Bash: ["echo", "ls", "git", "dotnet"]
+      WebSearch:
+      Bash: ["gh pr create:*", "git commit:*", "git push:*", "git checkout:*", "git branch:*", "git add:*", "gh auth status", "gh repo view", "gh issue comment:*", "echo", "ls", "git", "dotnet"]
 
 # Advanced options (uncomment to use):
 # engine: claude  # AI engine (default: claude)
