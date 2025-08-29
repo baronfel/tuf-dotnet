@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "C#: tuf-dotnet.Tests",
+            "name": "C#: TUF.Tests",
             "type": "coreclr",
             "request": "launch",
-            "program": "${workspaceFolder}/tuf-dotnet.Tests/bin/Debug/net8.0/tuf-dotnet.Tests.dll",
+            "program": "${workspaceFolder}/TUF.Tests/bin/Debug/net8.0/TUF.Tests.dll",
             "args": [
                 "--treenode-filter",
                 "/*/*/*/TargetsRole_Roundtrip"

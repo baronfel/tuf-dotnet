@@ -32,11 +32,11 @@ jobs:
             nuget-${{ runner.os }}-
 
       - name: Restore
-        run: dotnet restore ./tuf-dotnet.slnx
+        run: dotnet restore ./TUF.slnx
 
       - name: Build
-        run: dotnet build ./tuf-dotnet.slnx --configuration Release --no-restore
+        run: dotnet build ./TUF.slnx --configuration Release --no-restore
 
       - name: Test
         run: |
-          dotnet test ./tuf-dotnet.Tests/tuf-dotnet.Tests.csproj --configuration Release --no-build --verbosity normal
+          dotnet test ./TUF.Tests/TUF.Tests.csproj --configuration Release --no-build --verbosity normal

@@ -1,11 +1,11 @@
-# tuf-dotnet
+# TUF for .NET
 
 A .NET implementation of parts of The Update Framework (TUF) and utilities for canonical JSON handling.
 
 This repository contains two libraries, tests, and examples:
 
 - `CanonicalJson/` — utilities for producing and parsing canonical JSON.
-- `tuf-dotnet/` — models and serialization helpers for TUF metadata and signing.
+- `TUF/` — models and serialization helpers for TUF metadata and signing.
 - `examples/` — example applications demonstrating TUF usage patterns.
 - Test projects for both libraries under `*.Tests` directories.
 
@@ -35,10 +35,10 @@ dotnet test CanonicalJson.Tests/CanonicalJson.Tests.csproj
 
 ## Project layout
 
-Root solution: `tuf-dotnet.slnx`
+Root solution: `TIF.slnx`
 
 - `CanonicalJson/` — Canonical JSON library and its tests.
-- `tuf-dotnet/` — TUF models, signing, and serialization code.
+- `TUF/` — TUF models, signing, and serialization code.
 - `examples/` — Example applications showing how to use TUF .NET:
   - `BasicClient/` — Simple TUF client demonstrating core workflow
   - `CliTool/` — Command-line interface for TUF operations
