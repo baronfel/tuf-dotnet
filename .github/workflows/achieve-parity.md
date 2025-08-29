@@ -32,7 +32,7 @@ tools:
       NotebookEdit:
       WebFetch:
       WebSearch:
-      Bash: ["gh pr create:*", "git commit:*", "git push:*", "git checkout:*", "git branch:*", "git add:*", "gh auth status", "gh repo view", "gh issue comment:*", "echo", "ls", "git", "dotnet"]
+      Bash: ["gh pr create:*", "git commit:*", "git push:*", "git checkout:*", "git branch:*", "git add:*", "gh auth status", "gh repo view", "gh issue comment:*", "echo", "ls", "git", "dotnet", "mkdir"]
 
 # Advanced options (uncomment to use):
 # engine: claude  # AI engine (default: claude)
@@ -106,3 +106,15 @@ expanding the set of samples and examples, and other such activities.
     6. Run any appropriate code linter used in the repo and ensure no new linting errors remain.
 
 [tuf]: https://theupdateframework.io/
+
+@include agentics/shared/include-link.md
+
+@include agentics/shared/job-summary.md
+
+@include agentics/shared/xpia.md
+
+@include agentics/shared/gh-extra-tools.md
+
+@include agentics/shared/tool-refused.md
+
+@include? agentics/achieve-parity.config
