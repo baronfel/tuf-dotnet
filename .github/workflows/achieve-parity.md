@@ -15,15 +15,7 @@ permissions:
 # Tools - what APIs and tools can the AI use?
 tools:
   github:
-    allowed:
-      - create_issue
-      - update_issue
-      - add_issue_comment
-      - create_or_update_file
-      - create_branch
-      - delete_file
-      - push_files
-      - update_pull_request
+    allowed: ["*"]
   claude:
     allowed:
       Edit:
@@ -32,7 +24,7 @@ tools:
       NotebookEdit:
       WebFetch:
       WebSearch:
-      Bash: ["gh pr create:*", "git commit:*", "git push:*", "git checkout:*", "git branch:*", "git add:*", "gh auth status", "gh repo view", "gh issue comment:*", "echo", "ls", "git", "dotnet", "mkdir"]
+      Bash: ["*"]
 
 # Advanced options (uncomment to use):
 # engine: claude  # AI engine (default: claude)
