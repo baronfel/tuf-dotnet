@@ -55,7 +55,7 @@ public class MetadataRoundtripTests
     {
         var spec = new SemanticVersion("1.0");
         var expires = DateTimeOffset.UtcNow.AddDays(7);
-        var targets = new Dictionary<RelativePath, TargetsRoleNs.TargetMetadata> { [new RelativePath("file.txt")] = new TargetsRoleNs.TargetMetadata(0, new List<DigestValue>(), null) };
+        var targets = new Dictionary<RelativePath, TargetsRoleNs.TargetMetadata> { [new RelativePath("file.txt")] = new TargetsRoleNs.TargetMetadata(0, new List<DigestValue>(), null, new RelativePath("thing.json")) };
         var signed = new TargetsRoleNs.TargetsRole(spec, 1, expires, targets);
         var meta = new TargetsMetadata(signed, new Dictionary<KeyId, Signature>());
 
