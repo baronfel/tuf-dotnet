@@ -83,7 +83,7 @@ public static class WellKnown
             return rsa.VerifyHash(payloadBytes, signatureBytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pss);
         }
 
-        public static JsonTypeInfo<Rsa> JsonTypeInfo => MetadataJsonContext.Default.Rsa;
+        public static JsonTypeInfo<Rsa> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.Rsa;
     }
     public sealed record Ed25519(Ed25519KeyValue Public) : Key<Types.Ed25519, Schemes.Ed25519, HexString>(Public), IAOTSerializable<Ed25519>
     {
@@ -93,7 +93,7 @@ public static class WellKnown
         {
             return false;
         }
-        public static JsonTypeInfo<Ed25519> JsonTypeInfo => MetadataJsonContext.Default.Ed25519;
+        public static JsonTypeInfo<Ed25519> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.Ed25519;
     }
     public sealed record Ecdsa(EcdsaKeyValue Public) : Key<Types.Ecdsa, Schemes.ECDSA_SHA2_NISTP256, PEMString>(Public), IAOTSerializable<Ecdsa>
     {
@@ -105,6 +105,6 @@ public static class WellKnown
             edcsa.ImportFromPem(Public.Public.PemEncodedValue);
             return edcsa.VerifyHash(payloadBytes, signatureBytes);
         }
-        public static JsonTypeInfo<Ecdsa> JsonTypeInfo => MetadataJsonContext.Default.Ecdsa;
+        public static JsonTypeInfo<Ecdsa> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.Ecdsa;
     }
 }

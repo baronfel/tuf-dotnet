@@ -165,22 +165,22 @@ public static class MetadataExtensions
 
 public sealed class RootMetadata(Root signed, Dictionary<KeyId, Signature> signatures) : Metadata<Root>(signed, signatures), IMetadata<RootMetadata, Root>
 {
-    public static JsonTypeInfo<RootMetadata> JsonTypeInfo => MetadataJsonContext.Default.RootMetadata;
+    public static JsonTypeInfo<RootMetadata> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.RootMetadata;
 }
 
 public sealed class SnapshotMetadata(Snapshot signed, Dictionary<KeyId, Signature> signatures) : Metadata<Snapshot>(signed, signatures), IMetadata<SnapshotMetadata, Snapshot>
 {
-    public static JsonTypeInfo<SnapshotMetadata> JsonTypeInfo => MetadataJsonContext.Default.SnapshotMetadata;
+    public static JsonTypeInfo<SnapshotMetadata> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.SnapshotMetadata;
 }
 public sealed class TargetsMetadata(TargetsRole signed, Dictionary<KeyId, Signature> signatures) : Metadata<TargetsRole>(signed, signatures), IMetadata<TargetsMetadata, TargetsRole>
 {
-    public static JsonTypeInfo<TargetsMetadata> JsonTypeInfo => MetadataJsonContext.Default.TargetsMetadata;
+    public static JsonTypeInfo<TargetsMetadata> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.TargetsMetadata;
 }
 public sealed class TimestampMetadata(Timestamp signed, Dictionary<KeyId, Signature> signatures) : Metadata<Timestamp>(signed, signatures), IMetadata<TimestampMetadata, Timestamp>
 {
-    public static JsonTypeInfo<TimestampMetadata> JsonTypeInfo => MetadataJsonContext.Default.TimestampMetadata;
+    public static JsonTypeInfo<TimestampMetadata> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.TimestampMetadata;
 }
 public sealed class MirrorMetadata(Mirror signed, Dictionary<KeyId, Signature> signatures) : Metadata<Mirror>(signed, signatures), IMetadata<MirrorMetadata, Mirror>
 {
-    public static JsonTypeInfo<MirrorMetadata> JsonTypeInfo => MetadataJsonContext.Default.MirrorMetadata;
+    public static JsonTypeInfo<MirrorMetadata> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.MirrorMetadata;
 }

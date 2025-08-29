@@ -17,6 +17,7 @@ public interface IAOTSerializable<T> where T : IAOTSerializable<T>
 /// </summary>
 public static class MetadataSerializer
 {
+    
     /// <summary>
     /// Produce canonical UTF-8 bytes for a Metadata<T> instance using the custom converters.
     /// </summary>

@@ -12,7 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../../tuf-dotnet/tuf-dotnet.csproj" />
+        <ProjectReference Include="../../TUF/TUF.csproj" />
     </ItemGroup>
 
 </Project>

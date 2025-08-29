@@ -13,12 +13,12 @@ using SnapshotRoleNs = TUF.Models.Roles.Snapshot;
 using TargetsRoleNs = TUF.Models.Roles.Targets;
 using TimestampRoleNs = TUF.Models.Roles.Timestamp;
 
-namespace tuf_dotnet.Tests;
+namespace TUF.Tests;
 
 public class MetadataRoundtripTests
 {
     [Test]
-    public async Task RootRole_Roundtrip()
+    public async Task RootRoleRoundtrip()
     {
         var spec = new SemanticVersion("1.0");
         var expires = DateTimeOffset.UtcNow.AddDays(30);
@@ -35,7 +35,7 @@ public class MetadataRoundtripTests
     }
 
     [Test]
-    public async Task SnapshotRole_Roundtrip()
+    public async Task SnapshotRoleRoundtrip()
     {
         var spec = new SemanticVersion("1.0");
         var expires = DateTimeOffset.UtcNow.AddDays(7);
@@ -51,7 +51,7 @@ public class MetadataRoundtripTests
     }
 
     [Test]
-    public async Task TargetsRole_Roundtrip()
+    public async Task TargetsRoleRoundtrip()
     {
         var spec = new SemanticVersion("1.0");
         var expires = DateTimeOffset.UtcNow.AddDays(7);
@@ -69,7 +69,7 @@ public class MetadataRoundtripTests
     }
 
     [Test]
-    public async Task TimestampRole_Roundtrip()
+    public async Task TimestampRoleRoundtrip()
     {
         var spec = new SemanticVersion("1.0");
         var expires = DateTimeOffset.UtcNow.AddDays(1);
@@ -84,7 +84,7 @@ public class MetadataRoundtripTests
     }
 
     [Test]
-    public async Task MirrorsRole_Roundtrip()
+    public async Task MirrorsRoleRoundtrip()
     {
         var spec = new SemanticVersion("1.0");
         var expires = DateTimeOffset.UtcNow.AddDays(7);

@@ -14,7 +14,6 @@ namespace TUF.Models.Roles.Timestamp;
 public class SnapshotFileMetadata(FileMetadata snapshotFileMetadata) :
     Dictionary<RelativePath, FileMetadata>([new(new("snapshot.json"), snapshotFileMetadata)]);
 
-[JsonConverter(typeof(RoleTypeJsonConverter<Timestamp>))]
 public record Timestamp(
     [property: JsonPropertyName("spec_version")]
     SemanticVersion SpecVersion,
@@ -27,7 +26,7 @@ public record Timestamp(
     IRole<Timestamp>
 {
     public FileMetadata SnapshotFileMetadata => Meta.Values.First();
-    public static JsonTypeInfo<Timestamp> JsonTypeInfo => MetadataJsonContext.Default.Timestamp;
+    public static JsonTypeInfo<Timestamp> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.Timestamp;
 
     public static string TypeLabel => "timestamp";
 }

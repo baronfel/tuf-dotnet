@@ -1,8 +1,8 @@
 <Solution>
-  <Project Path="tuf-dotnet/tuf-dotnet.csproj" />
+  <Project Path="TUF/TUF.csproj" />
   <Project Path="CanonicalJson.Tests/CanonicalJson.Tests.csproj" />
   <Project Path="CanonicalJson/CanonicalJson.csproj" />
-  <Project Path="tuf-dotnet.Tests/tuf-dotnet.Tests.csproj" />
+  <Project Path="TUF.Tests/TUF.Tests.csproj" />
   <Project Path="examples/BasicClient/BasicClient.csproj" />
   <Project Path="examples/CliTool/CliTool.csproj" />
 </Solution>

@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        dotnet: [8.0, 9.0, 10.0]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ matrix.dotnet }}-${{ hashFiles('**/global.json', '**/*.csproj', '**/*.sln') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-${{ matrix.dotnet }}-
+            nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore ./tuf-dotnet.slnx
+
+      - name: Build
+        run: dotnet build ./tuf-dotnet.slnx --configuration Release --no-restore
+
+      - name: Test
+        run: |
+          dotnet test ./tuf-dotnet.Tests/tuf-dotnet.Tests.csproj --configuration Release --no-build --verbosity normal

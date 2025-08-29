@@ -2,9 +2,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using CanonicalJson;
-
-namespace TUF.Tests;
+namespace CanonicalJson.Tests;
 
 [JsonSerializable(typeof(object))]
 [JsonSerializable(typeof(Dictionary<string, object?>))]

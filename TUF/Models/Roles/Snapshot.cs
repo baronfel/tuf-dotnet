@@ -9,7 +9,6 @@ namespace TUF.Models.Roles.Snapshot;
 
 public record struct HashAlgorithm(string algo);
 
-[JsonConverter(typeof(RoleTypeJsonConverter<Snapshot>))]
 public record Snapshot(
     [property: JsonPropertyName("spec_version")]
     SemanticVersion SpecVersion,
@@ -22,7 +21,7 @@ public record Snapshot(
 ) :
     IRole<Snapshot>
 {
-    public static JsonTypeInfo<Snapshot> JsonTypeInfo => MetadataJsonContext.Default.Snapshot;
+    public static JsonTypeInfo<Snapshot> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.Snapshot;
 
     public static string TypeLabel => "snapshot";
 }

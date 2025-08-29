@@ -39,7 +39,6 @@ public record RootRoles(
     }
 }
 
-[JsonConverter(typeof(RoleTypeJsonConverter<Root>))]
 public record Root(
     [property: JsonPropertyName("spec_version")]
     SemanticVersion SpecVersion,

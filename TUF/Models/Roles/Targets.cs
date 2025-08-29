@@ -39,7 +39,7 @@ public record DelegationData(
     HexDigest[]? PathHashPrefixes = null
 ) : IAOTSerializable<DelegationData>, IKeyHolder<DelegationData, DelegatedRoleName>
 {
-    public static JsonTypeInfo<DelegationData> JsonTypeInfo => MetadataJsonContext.Default.DelegationData;
+    public static JsonTypeInfo<DelegationData> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.DelegationData;
 
     public RoleKeys RoleKeys => new(KeyIDs.ToList(), Threshold);
 
@@ -70,7 +70,7 @@ public record TargetMetadata(
     IVerifyHashes,
     IVerifyLength
 {
-    public static JsonTypeInfo<TargetMetadata> JsonTypeInfo => MetadataJsonContext.Default.TargetMetadata;
+    public static JsonTypeInfo<TargetMetadata> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.TargetMetadata;
 
     uint? IVerifyLength.Length => Length;
 
@@ -99,7 +99,6 @@ public record Delegations(
 
 // style nit: Can't call the type and the member Target, so in order to keep the member name aligned with TUF specifications, the member is called Targets
 //            and we 'sacrifice' the type name.
-[JsonConverter(typeof(RoleTypeJsonConverter<TargetsRole>))]
 public record TargetsRole(
     [property: JsonPropertyName("spec_version")]
     SemanticVersion SpecVersion,
@@ -115,7 +114,7 @@ public record TargetsRole(
 ) :
     IRole<TargetsRole>
 {
-    public static JsonTypeInfo<TargetsRole> JsonTypeInfo => MetadataJsonContext.Default.TargetsRole;
+    public static JsonTypeInfo<TargetsRole> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.TargetsRole;
 
     public static string TypeLabel => "targets";
 }

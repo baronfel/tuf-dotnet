@@ -15,7 +15,6 @@ public record MirrorDefinition(
     [property: JsonPropertyName("targetscontent")] PathPattern[] TargetsContent,
     [property: JsonPropertyName("custom")] Dictionary<string, object> Custom);
 
-[JsonConverter(typeof(RoleTypeJsonConverter<Mirror>))]
 public record Mirror(
     [property: JsonPropertyName("spec_version")]
     SemanticVersion SpecVersion,
@@ -28,7 +27,7 @@ public record Mirror(
 ) :
     IRole<Mirror>
 {
-    public static JsonTypeInfo<Mirror> JsonTypeInfo => MetadataJsonContext.Default.Mirror;
+    public static JsonTypeInfo<Mirror> JsonTypeInfo => MetadataJsonContext.DefaultWithAddedOptions.Mirror;
 
     public static string TypeLabel => "mirror";
 }

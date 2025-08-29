@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using TUF.Models.Roles.Targets;
@@ -33,4 +34,17 @@ namespace TUF.Serialization;
 [JsonSerializable(typeof(DelegatedRoleName))]
 public partial class MetadataJsonContext : JsonSerializerContext
 {
+    public static JsonSerializerOptions AddedOptions = CreateOptions();
+    public static MetadataJsonContext DefaultWithAddedOptions = new(AddedOptions);
+
+    private static JsonSerializerOptions CreateOptions()
+    {
+        var options = new JsonSerializerOptions();
+        options.Converters.Add(new TUF.Serialization.Converters.RoleTypeJsonConverter<TUF.Models.Roles.Root.Root>());
+        options.Converters.Add(new TUF.Serialization.Converters.RoleTypeJsonConverter<TUF.Models.Roles.Snapshot.Snapshot>());
+        options.Converters.Add(new TUF.Serialization.Converters.RoleTypeJsonConverter<TUF.Models.Roles.Targets.TargetsRole>());
+        options.Converters.Add(new TUF.Serialization.Converters.RoleTypeJsonConverter<TUF.Models.Roles.Timestamp.Timestamp>());
+        options.Converters.Add(new TUF.Serialization.Converters.RoleTypeJsonConverter<TUF.Models.Roles.Mirrors.Mirror>());
+        return options;
+    }
 }

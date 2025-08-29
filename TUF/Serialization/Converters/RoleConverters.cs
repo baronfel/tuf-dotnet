@@ -6,11 +6,15 @@ using TUF.Models.Roles;
 
 namespace TUF.Serialization.Converters;
 
+/// <summary>
+/// We can't directly annotate this on the <see cref="IRole{T}"/> instances because it'll be an infinite loop,
+/// so instead we manually register them on the serialization context.
+/// </summary>
+/// <typeparam name="T"></typeparam>
 internal sealed class RoleTypeJsonConverter<T> : JsonConverter<T> where T : IRole<T>
 {
-    private readonly JsonTypeInfo _typeInfo = T.JsonTypeInfo;
+    private JsonTypeInfo _typeInfo => T.JsonTypeInfo;
     private readonly string _typeLabel = T.TypeLabel;
-
 
     public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
