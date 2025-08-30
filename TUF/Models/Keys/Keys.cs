@@ -40,13 +40,13 @@ public abstract record Key<TKey, TKeyScheme, TKeyValue, TKeyValInner>(TKeyValue 
     where TKeyScheme : IKeyScheme<TKeyScheme>
     where TKeyValue : IKeyValue<TKey, TKeyValInner>
 {
-    [JsonPropertyName("keytype"), JsonInclude]
+    [JsonPropertyName("keytype")]
     public string Type => TKey.Name;
 
-    [JsonPropertyName("keyscheme"), JsonInclude]
+    [JsonPropertyName("keyscheme")]  
     public string Scheme => TKeyScheme.Name;
 
-    [JsonPropertyName("keyvalue"), JsonInclude]
+    [JsonPropertyName("keyvalue")]
     public object Value => TypedKeyVal;
 
     [JsonIgnore]

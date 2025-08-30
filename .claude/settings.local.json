@@ -3,7 +3,15 @@
     "allow": [
       "Bash(dotnet test)",
       "Bash(dotnet test:*)",
-      "Bash(dotnet build)"
+      "Bash(dotnet build)",
+      "Bash(dotnet publish:*)",
+      "Bash(D:/Code/TUF/examples/TufConformanceCli/bin/Release/net10.0/win-x64/publish/TufConformanceCli.exe --help)",
+      "Bash(D:/Code/TUF/examples/TufConformanceCli/bin/Release/net10.0/win-x64/publish/TufConformanceCli.exe --metadata-dir ./test_metadata init /tmp/tuf-conformance/tuf_conformance/static_data/tuf-on-ci-0.11/initial_root.json)",
+      "Bash(echo $?)",
+      "Bash(python3:*)",
+      "Bash(D:/Code/TUF/examples/TufConformanceCli/bin/Release/net10.0/win-x64/publish/TufConformanceCli.exe --metadata-dir ./test_metadata --metadata-url http://httpbin.org/status/404 refresh)",
+      "Bash(D:/Code/TUF/examples/TufConformanceCli/bin/Debug/net10.0/TufConformanceCli.exe --metadata-dir ./test_metadata --metadata-url http://httpbin.org/status/404 refresh)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
