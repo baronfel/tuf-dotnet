@@ -79,8 +79,9 @@ public static class WellKnown
         {
             var rsa = RSA.Create();
             rsa.ImportFromPem(Public.Public.PemEncodedValue);
-            // we use these parameters because they match the signature scheme that's pinned for this particular implementation
-            return rsa.VerifyHash(payloadBytes, signatureBytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pss);
+            // Hash the payload data first, then verify the hash
+            var hash = SHA256.HashData(payloadBytes);
+            return rsa.VerifyHash(hash, signatureBytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pss);
         }
 
         public static JsonTypeInfo<Rsa> JsonTypeInfo(MetadataJsonContext context) => context.Rsa;
@@ -91,7 +92,17 @@ public static class WellKnown
 
         public override bool VerifySignature(byte[] signatureBytes, byte[] payloadBytes)
         {
-            return false;
+            try
+            {
+                var publicKeyBytes = Convert.FromHexString(Public.Public.HexEncodedValue);
+                var publicKey = NSec.Cryptography.PublicKey.Import(NSec.Cryptography.SignatureAlgorithm.Ed25519, 
+                    publicKeyBytes, NSec.Cryptography.KeyBlobFormat.RawPublicKey);
+                return NSec.Cryptography.SignatureAlgorithm.Ed25519.Verify(publicKey, payloadBytes, signatureBytes);
+            }
+            catch
+            {
+                return false;
+            }
         }
         public static JsonTypeInfo<Ed25519> JsonTypeInfo(MetadataJsonContext context) => context.Ed25519;
     }
