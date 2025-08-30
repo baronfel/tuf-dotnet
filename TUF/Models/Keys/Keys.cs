@@ -43,10 +43,10 @@ public abstract record Key<TKey, TKeyScheme, TKeyValue, TKeyValInner>(TKeyValue 
     [JsonPropertyName("keytype")]
     public string Type => TKey.Name;
 
-    [JsonPropertyName("keyscheme")]  
+    [JsonPropertyName("scheme")]  
     public string Scheme => TKeyScheme.Name;
 
-    [JsonPropertyName("keyvalue")]
+    [JsonPropertyName("keyval")]
     public object Value => TypedKeyVal;
 
     [JsonIgnore]
