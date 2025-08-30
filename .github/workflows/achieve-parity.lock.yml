@@ -30,6 +30,20 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+      - id: check_build_steps_file
+        name: Check if action.yml exists
+        run: |
+
+          if [ -f ".github/actions/achieve-parity/build-steps/action.yml" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+      - id: build-steps
+        if: steps.check_build_steps_file.outputs.exists == 'true'
+        name: Build the project
+        uses: ./.github/actions/achieve-parity/build-steps
       - name: Setup agent output
         id: setup_agent_output
         uses: actions/github-script@v7
