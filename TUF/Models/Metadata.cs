@@ -48,118 +48,108 @@ public abstract class Metadata<TSigned>(TSigned signed, Dictionary<KeyId, Signat
 
 public static class MetadataExtensions
 {
-    extension<T, TInner>(T metadata)
+    public static Signature Sign<T, TInner>(this T metadata, ISigner signer, bool replaceExisting = true)
         where T : IMetadata<T, TInner>
         where TInner : IRole<TInner>
     {
-        public Signature Sign(ISigner signer, bool replaceExisting = true)
+        var signature = signer.SignBytes(metadata.SignedBytes);
+
+        if (replaceExisting)
         {
-            var signature = signer.SignBytes(metadata.SignedBytes);
-
-            if (replaceExisting)
-            {
-                metadata.Signatures.Clear();
-            }
-
-            var keyId = signer.Key.Id;
-
-            metadata.Signatures[keyId] = signature;
-            return signature;
+            metadata.Signatures.Clear();
         }
+
+        var keyId = signer.Key.Id;
+
+        metadata.Signatures[keyId] = signature;
+        return signature;
     }
 
-    extension<T, TInner>(T metadata)
+    public static void ValidateKeys<T, TInner, TOther, TOtherInner>(this T metadata, Dictionary<KeyId, Key> allKeys, RoleKeys roleKeys, TOther otherMetadata)
         where T : IMetadata<T, TInner>
         where TInner : IRole<TInner>
+        where TOther : IMetadata<TOther, TOtherInner>
+        where TOtherInner : IRole<TOtherInner>
     {
-        public void ValidateKeys<TOther, TOtherInner>(Dictionary<KeyId, Key> allKeys, RoleKeys roleKeys, TOther otherMetadata)
-            where TOther : IMetadata<TOther, TOtherInner>
-            where TOtherInner : IRole<TOtherInner>
+        if (roleKeys.KeyIds.Count == 0)
         {
-            if (roleKeys.KeyIds.Count == 0)
+            throw new Exception("No delegation found");
+        }
+
+        if (roleKeys.Threshold < 1)
+        {
+            throw new Exception("Invalid threshold");
+        }
+
+        var verifiedSignatures = 0;
+
+        foreach (var keyId in roleKeys.KeyIds)
+        {
+            if (!allKeys.TryGetValue(keyId, out var key))
             {
-                throw new Exception("No delegation found");
+                throw new Exception($"Key {keyId} not found in keys");
+            }
+            // try to find matching signature in other metadata
+            if (!otherMetadata.Signatures.TryGetValue(key.Id, out var signature))
+            {
+                throw new Exception($"No signature found for key {keyId}");
             }
 
-            if (roleKeys.Threshold < 1)
+            if (key.VerifySignature(signature.Value, otherMetadata.SignedBytes))
             {
-                throw new Exception("Invalid threshold");
+                verifiedSignatures++;
             }
-
-            var verifiedSignatures = 0;
-
-            foreach (var keyId in roleKeys.KeyIds)
+            else
             {
-                if (!allKeys.TryGetValue(keyId, out var key))
-                {
-                    throw new Exception($"Key {keyId} not found in keys");
-                }
-                // try to find matching signature in other metadata
-                if (!otherMetadata.Signatures.TryGetValue(key.Id, out var signature))
-                {
-                    throw new Exception($"No signature found for key {keyId}");
-                }
-
-                if (key.VerifySignature(signature.Value, otherMetadata.SignedBytes))
-                {
-                    verifiedSignatures++;
-                }
-                else
-                {
-                    throw new Exception($"Signature verification failed for key {keyId}");
-                }
+                throw new Exception($"Signature verification failed for key {keyId}");
             }
+        }
 
-            if (verifiedSignatures < roleKeys.Threshold)
-            {
-                throw new Exception($"Insufficient valid signatures: {verifiedSignatures} of {roleKeys.Threshold} required");
-            }
+        if (verifiedSignatures < roleKeys.Threshold)
+        {
+            throw new Exception($"Insufficient valid signatures: {verifiedSignatures} of {roleKeys.Threshold} required");
         }
     }
 
-    extension<T>(T rootMetadata)
-        where T : IMetadata<T, Root>
+    public static void VerifyRootRole<T, TOther, TOtherInner>(this T rootMetadata, string roleType, TOther otherMetadata) 
+        where T : IMetadata<T, Root> 
+        where TOther : IMetadata<TOther, TOtherInner> 
+        where TOtherInner : IRole<TOtherInner>
     {
-        public void VerifyRootRole<TOther, TOtherInner>(string roleType, TOther otherMetadata) where TOther : IMetadata<TOther, TOtherInner> where TOtherInner : IRole<TOtherInner>
+        // try to match the given role with one of our known roles, and get the keyids and threshold from that delegation
+        var roles = rootMetadata.Signed.Roles;
+        RoleKeys? roleKeys = roleType switch
         {
-            // try to match the given role with one of our known roles, and get the keyids and threshold from that delegation
-            var roles = rootMetadata.Signed.Roles;
-            RoleKeys? roleKeys = roleType switch
-            {
-                "root" => roles.Root,
-                "timestamp" => roles.Timestamp,
-                "snapshot" => roles.Snapshot,
-                "targets" => roles.Targets,
-                "mirrors" => roles.Mirrors,
-                _ => null
-            };
+            "root" => roles.Root,
+            "timestamp" => roles.Timestamp,
+            "snapshot" => roles.Snapshot,
+            "targets" => roles.Targets,
+            "mirrors" => roles.Mirrors,
+            _ => null
+        };
 
-            if (roleKeys is null)
-            {
-                throw new Exception($"No delegation found for {roleType}");
-            }
-
-            rootMetadata.ValidateKeys<T, Root, TOther, TOtherInner>(rootMetadata.Signed.Keys, roleKeys, otherMetadata);
+        if (roleKeys is null)
+        {
+            throw new Exception($"No delegation found for {roleType}");
         }
+
+        rootMetadata.ValidateKeys<T, Root, TOther, TOtherInner>(rootMetadata.Signed.Keys, roleKeys, otherMetadata);
     }
 
-    extension<T>(T targetsMetadata)
+    public static void VerifyDelegatedRole<T>(this T targetsMetadata, string roleType, T otherMetadata)
         where T : IMetadata<T, TargetsRole>
     {
-        public void VerifyDelegatedRole(string roleType, T otherMetadata)
+        if (targetsMetadata.Signed.Delegations is null or not { Roles: { Count: > 0 } })
         {
-            if (targetsMetadata.Signed.Delegations is null or not { Roles: { Count: > 0 } })
-            {
-                throw new Exception("No delegations defined in targets metadata");
-            }
-
-            if (!targetsMetadata.Signed.Delegations.Roles.TryGetValue(new(roleType), out var delegation))
-            {
-                throw new Exception($"No delegation found for {roleType}");
-            }
-
-            targetsMetadata.ValidateKeys<T, TargetsRole, T, TargetsRole>(targetsMetadata.Signed.Delegations.Keys, delegation.RoleKeys, otherMetadata);
+            throw new Exception("No delegations defined in targets metadata");
         }
+
+        if (!targetsMetadata.Signed.Delegations.Roles.TryGetValue(new(roleType), out var delegation))
+        {
+            throw new Exception($"No delegation found for {roleType}");
+        }
+
+        targetsMetadata.ValidateKeys<T, TargetsRole, T, TargetsRole>(targetsMetadata.Signed.Delegations.Keys, delegation.RoleKeys, otherMetadata);
     }
 }
 

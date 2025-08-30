@@ -204,24 +204,21 @@ public record struct KeyId(HexDigest digest) : IParsable<KeyId>, IJsonStringWrit
 
 public static class HashVerificationExtensions
 {
-    extension<T>(T hasHashesAndLength)
+    public static void VerifyLengthHashes<T>(this T hasHashesAndLength, byte[] data)
         where T : IVerifyHashes, IVerifyLength
     {
-        public void VerifyLengthHashes(byte[] data)
+        if (hasHashesAndLength.Hashes is { Count: > 0 })
         {
-            if (hasHashesAndLength.Hashes is { Count: > 0 })
+            foreach (var hash in hasHashesAndLength.Hashes)
             {
-                foreach (var hash in hasHashesAndLength.Hashes)
-                {
-                    hash.VerifyHash(data);
-                }
+                hash.VerifyHash(data);
             }
-            if (hasHashesAndLength.Length is uint l)
+        }
+        if (hasHashesAndLength.Length is uint l)
+        {
+            if (data.Length != l)
             {
-                if (data.Length != l)
-                {
-                    throw new Exception($"Data length {data.Length} does not match expected length {l}");
-                }
+                throw new Exception($"Data length {data.Length} does not match expected length {l}");
             }
         }
     }

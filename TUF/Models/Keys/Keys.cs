@@ -39,10 +39,12 @@ public abstract record Key<TKey, TKeyScheme, TKeyValInner>(IKeyValue<TKey, TKeyV
     [JsonPropertyName("keyval")]
     public override object KeyVal => TypedKeyVal;
 
+    private KeyId? _id;
+
     [JsonIgnore]
     public override KeyId Id
     {
-        get => field == default ? field = ComputeId() : field;
+        get => _id ??= ComputeId();
     }
 
     /// <summary>
@@ -55,17 +57,14 @@ public abstract record Key<TKey, TKeyScheme, TKeyValInner>(IKeyValue<TKey, TKeyV
 
 public static class KeyExtensions
 {
-    extension<T>(T item) where T : IAOTSerializable<T>
+    /// <summary>
+    /// Computes the hexdigest of an item by serializing it to utf8 bytes via the 
+    /// canonical json format, then getting the sha256hash of that, then hex-tolowering the result.
+    /// </summary>
+    public static HexDigest ToDigest<T>(this T item) where T : IAOTSerializable<T>
     {
-        /// <summary>
-        /// Computes the hexdigest of an item by serializing it to utf8 bytes via the 
-        /// canonical json format, then getting the sha256hash of that, then hex-tolowering the result.
-        /// </summary>
-        public HexDigest ToDigest()
-        {
-            var bytes = CanonicalJson.CanonicalJsonSerializer.Serialize(item, T.JsonTypeInfo(MetadataJsonContext.Default));
-            return new HexDigest(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)).ToLowerInvariant());
-        }
+        var bytes = CanonicalJson.CanonicalJsonSerializer.Serialize(item, T.JsonTypeInfo(MetadataJsonContext.Default));
+        return new HexDigest(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)).ToLowerInvariant());
     }
 }
 

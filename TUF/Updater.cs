@@ -290,7 +290,7 @@ public class Updater
         var length = headers.Content.Headers.ContentLength ?? 0;
         if (length > maxLength)
         {
-            var filePath = uri.ToString().TrimStart(_config.RemoteTargetsUrl.ToString());
+            var filePath = uri.ToString().TrimStart(_config.RemoteTargetsUrl.ToString().ToCharArray());
             throw new Exception($"File {filePath} length {length} exceeds maximum allowed length {maxLength}");
         }
         return await headers.Content.ReadAsByteArrayAsync();
