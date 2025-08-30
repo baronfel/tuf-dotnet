@@ -75,4 +75,4 @@ jobs:
 
       - uses: theupdateframework/tuf-conformance@v2
         with:
-          entrypoint: examples/TufConformanceCli/bin/Release/net10.0/publish/TufConformanceCli
+          entrypoint: examples/TufConformanceCli/bin/Release/net10.0/TufConformanceCli
