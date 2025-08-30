@@ -11,7 +11,13 @@
       "Bash(python3:*)",
       "Bash(D:/Code/TUF/examples/TufConformanceCli/bin/Release/net10.0/win-x64/publish/TufConformanceCli.exe --metadata-dir ./test_metadata --metadata-url http://httpbin.org/status/404 refresh)",
       "Bash(D:/Code/TUF/examples/TufConformanceCli/bin/Debug/net10.0/TufConformanceCli.exe --metadata-dir ./test_metadata --metadata-url http://httpbin.org/status/404 refresh)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(D:/Code/TUF/examples/TufConformanceCli/bin/Release/net10.0/win-x64/publish/TufConformanceCli.exe --metadata-dir ./test_metadata --metadata-url http://localhost:8080/ refresh)",
+      "Bash(curl:*)",
+      "Bash(git commit:*)",
+      "Bash(D:/Code/TUF/examples/TufConformanceCli/bin/Debug/net10.0/TufConformanceCli.exe --metadata-dir ./test_metadata --metadata-url http://localhost:8080/ refresh)",
+      "Bash(dotnet build:*)",
+      "Bash(D:/Code/TUF/examples/TufConformanceCli/bin/Debug/net10.0/TufConformanceCli.exe --help)"
     ],
     "deny": [],
     "ask": []
