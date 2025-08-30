@@ -215,7 +215,7 @@ public static class HashVerificationExtensions
         }
     }
 }
-public record FileMetadata(uint Version, uint? Length, List<DigestAlgorithms.DigestValue>? Hashes):
+public record FileMetadata([property: JsonPropertyName("version")] uint Version, [property: JsonPropertyName("length")] uint? Length, [property: JsonPropertyName("hashes")] List<DigestAlgorithms.DigestValue>? Hashes):
     IVerifyHashes, IVerifyLength;
 
 public interface IVerifyHashes
