@@ -31,7 +31,7 @@ internal sealed class RoleTypeJsonConverter<T> : JsonConverter<T> where T : IRol
             throw new JsonException($"Unexpected _type value: '{incoming}', expected '{_typeLabel}'");
         }
 
-        var result = JsonSerializer.Deserialize<T>(root, _typeInfo);
+        var result = JsonSerializer.Deserialize(root, _typeInfo);
         if (result is null) throw new JsonException("Failed to deserialize role object");
         return result;
     }

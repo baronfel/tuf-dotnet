@@ -81,7 +81,7 @@ public record struct RoleResult(string Name, bool Terminating);
 
 public record Delegations(
     [property: JsonPropertyName("keys")]
-    Dictionary<KeyId, Keys.Key> Keys,
+    Dictionary<KeyId, Keys.IKey> Keys,
     [property: JsonPropertyName("roles")]
     [property: JsonConverter(typeof(ArrayToDictionaryConverter<DelegatedRoleName, DelegationData>))]
     Dictionary<DelegatedRoleName, DelegationData>? Roles

@@ -25,7 +25,8 @@ public class ArrayToDictionaryConverter<TKey, TValue> : JsonConverter<Dictionary
             foreach (var elem in root.EnumerateArray())
             {
                 if (elem.ValueKind != JsonValueKind.Object) throw new JsonException("Array elements must be objects");
-                var value = JsonSerializer.Deserialize(elem.GetRawText(), TValue.JsonTypeInfo(MetadataJsonContext.DefaultWithAddedOptions));
+                
+                var value = JsonSerializer.Deserialize(elem, TValue.JsonTypeInfo(MetadataJsonContext.DefaultWithAddedOptions));
                 if (value is null) throw new JsonException($"Failed to deserialize {typeof(TValue)}");
                 var key = TValue.GetKey(value);
                 dict[key] = value;

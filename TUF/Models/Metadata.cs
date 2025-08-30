@@ -3,6 +3,8 @@ using System.Text.Json.Serialization.Metadata;
 
 using CanonicalJson;
 
+using Tuf.DotNet.Serialization.Converters;
+
 using TUF.Models.Keys;
 using TUF.Models.Primitives;
 using TUF.Models.Roles;
@@ -33,6 +35,7 @@ public abstract class Metadata<TSigned>(TSigned signed, Dictionary<KeyId, Signat
     public TSigned Signed => signed;
 
     [JsonPropertyName("signatures")]
+    [JsonConverter(typeof(ArrayToDictionaryConverter<KeyId, Signature>))]
     public Dictionary<KeyId, Signature> Signatures => signatures;
 
     [JsonExtensionData]
@@ -72,7 +75,7 @@ public static class MetadataExtensions
         where T : IMetadata<T, TInner>
         where TInner : IRole<TInner>
     {
-        public void ValidateKeys<TOther, TOtherInner>(Dictionary<KeyId, Key> allKeys, RoleKeys roleKeys, TOther otherMetadata)
+        public void ValidateKeys<TOther, TOtherInner>(Dictionary<KeyId, IKey> allKeys, RoleKeys roleKeys, TOther otherMetadata)
             where TOther : IMetadata<TOther, TOtherInner>
             where TOtherInner : IRole<TOtherInner>
         {
@@ -100,7 +103,7 @@ public static class MetadataExtensions
                     throw new Exception($"No signature found for key {keyId}");
                 }
 
-                if (key.VerifySignature(signature.Value, otherMetadata.SignedBytes))
+                if (key.VerifySignature(signature.sig, otherMetadata.SignedBytes))
                 {
                     verifiedSignatures++;
                 }

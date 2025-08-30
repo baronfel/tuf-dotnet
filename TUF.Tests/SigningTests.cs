@@ -28,11 +28,11 @@ public class SigningTests
 
         // Act
         var signature = signer.SignBytes(testData);
-        var verified = signer.Key.VerifySignature(signature.Value, testData);
+        var verified = signer.Key.VerifySignature(signature.sig, testData);
 
         // Assert
-        await Assert.That(signature.Value).IsNotEmpty();
-        await Assert.That(signature.Value.Length).IsEqualTo(64); // Ed25519 signatures are 64 bytes
+        await Assert.That(signature.sig).IsNotEmpty();
+        await Assert.That(signature.sig.Length).IsEqualTo(64); // Ed25519 signatures are 64 bytes
         await Assert.That(verified).IsTrue();
     }
 
@@ -46,7 +46,7 @@ public class SigningTests
 
         // Act
         var signature = signer.SignBytes(originalData);
-        var verified = signer.Key.VerifySignature(signature.Value, tamperedData);
+        var verified = signer.Key.VerifySignature(signature.sig, tamperedData);
 
         // Assert
         await Assert.That(verified).IsFalse();
@@ -62,15 +62,15 @@ public class SigningTests
         // Act
         var signature1 = testSigner.SignBytes(testData);
         var signature2 = testSigner.SignBytes(testData);
-        var verified1 = testSigner.Key.VerifySignature(signature1.Value, testData);
-        var verified2 = testSigner.Key.VerifySignature(signature2.Value, testData);
+        var verified1 = testSigner.Key.VerifySignature(signature1.sig, testData);
+        var verified2 = testSigner.Key.VerifySignature(signature2.sig, testData);
 
         // Assert
         await Assert.That(testSigner.Key).IsNotNull();
         await Assert.That(verified1).IsTrue();
         await Assert.That(verified2).IsTrue();
-        await Assert.That(signature1.Value).IsNotEmpty();
-        await Assert.That(signature2.Value).IsNotEmpty();
+        await Assert.That(signature1.sig).IsNotEmpty();
+        await Assert.That(signature2.sig).IsNotEmpty();
     }
 
     [Test]
@@ -105,11 +105,11 @@ public class SigningTests
 
         // Act
         var signature = signer.SignBytes(testData);
-        var verified = signer.Key.VerifySignature(signature.Value, testData);
+        var verified = signer.Key.VerifySignature(signature.sig, testData);
 
         // Assert
-        await Assert.That(signature.Value).IsNotEmpty();
-        await Assert.That(signature.Value.Length).IsGreaterThan(0);
+        await Assert.That(signature.sig).IsNotEmpty();
+        await Assert.That(signature.sig.Length).IsGreaterThan(0);
         await Assert.That(verified).IsTrue();
     }
 
@@ -123,7 +123,7 @@ public class SigningTests
 
         // Act
         var signature = signer.SignBytes(originalData);
-        var verified = signer.Key.VerifySignature(signature.Value, tamperedData);
+        var verified = signer.Key.VerifySignature(signature.sig, tamperedData);
 
         // Assert
         await Assert.That(verified).IsFalse();
@@ -140,7 +140,7 @@ public class SigningTests
         var signer = RsaSigner.FromPem(privatePem);
         var testData = "Test data for PEM import"u8.ToArray();
         var signature = signer.SignBytes(testData);
-        var verified = signer.Key.VerifySignature(signature.Value, testData);
+        var verified = signer.Key.VerifySignature(signature.sig, testData);
 
         // Assert
         await Assert.That(signer).IsNotNull();
@@ -160,9 +160,9 @@ public class SigningTests
         var rsaSignature = rsaSigner.SignBytes(testData);
 
         // Assert
-        await Assert.That(ed25519Signature.Value).IsNotEqualTo(rsaSignature.Value);
-        await Assert.That(ed25519Signer.Key.KeyType).IsEqualTo("ed25519");
-        await Assert.That(rsaSigner.Key.KeyType).IsEqualTo("rsa");
+        await Assert.That(ed25519Signature.sig).IsNotEqualTo(rsaSignature.sig);
+        await Assert.That(ed25519Signer.Key.Type).IsEqualTo("ed25519");
+        await Assert.That(rsaSigner.Key.Type).IsEqualTo("rsa");
     }
 
     [Test]
@@ -190,10 +190,10 @@ public class SigningTests
 
         // Act
         var signature = signer.SignBytes(largeData);
-        var verified = signer.Key.VerifySignature(signature.Value, largeData);
+        var verified = signer.Key.VerifySignature(signature.sig, largeData);
 
         // Assert
-        await Assert.That(signature.Value).IsNotEmpty();
+        await Assert.That(signature.sig).IsNotEmpty();
         await Assert.That(verified).IsTrue();
     }
 
@@ -206,10 +206,10 @@ public class SigningTests
 
         // Act
         var signature = signer.SignBytes(emptyData);
-        var verified = signer.Key.VerifySignature(signature.Value, emptyData);
+        var verified = signer.Key.VerifySignature(signature.sig, emptyData);
 
         // Assert
-        await Assert.That(signature.Value).IsNotEmpty();
+        await Assert.That(signature.sig).IsNotEmpty();
         await Assert.That(verified).IsTrue();
     }
 }

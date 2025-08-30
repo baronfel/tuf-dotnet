@@ -1,5 +1,9 @@
 <Solution>
   <Project Path="TUF/TUF.csproj" />
+  <Folder Name="/examples/">
+    <Project Path="examples/SigningDemo/SigningDemo.csproj" />
+    <Project Path="examples/TufConformanceCli/TufConformanceCli.csproj" />
+  </Folder>
   <Project Path="CanonicalJson.Tests/CanonicalJson.Tests.csproj" />
   <Project Path="CanonicalJson/CanonicalJson.csproj" />
   <Project Path="TUF.Tests/TUF.Tests.csproj" />

@@ -1,5 +1,7 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
@@ -8,18 +10,19 @@ using TUF.Models.Keys.Types;
 using TUF.Models.Keys.Values;
 using TUF.Models.Primitives;
 using TUF.Serialization;
+using TUF.Serialization.Converters;
 
 namespace TUF.Models.Keys;
 
-public abstract record Key(
-    [property: JsonPropertyName("keytype")] string KeyType,
-    [property: JsonPropertyName("scheme")] string Scheme)
+[JsonConverter(typeof(KeyConverter))]
+public interface IKey
 {
-    [JsonPropertyName("keyval")]
-    public abstract object KeyVal { get; }
+    string Type { get; }
+    string Scheme { get; }
+    object Value { get; }
 
     [JsonIgnore]
-    public abstract KeyId Id { get; }
+    public KeyId Id { get; }
 
     /// <summary>
     /// Using the parameters of a given Key<type, scheme, value> to create the verification algorithm, 
@@ -27,23 +30,32 @@ public abstract record Key(
     /// </summary>
     /// <param name="signatureBytes"></param>
     /// <param name="payloadBytes"></param>
-    public abstract bool VerifySignature(byte[] signatureBytes, byte[] payloadBytes);
+    public bool VerifySignature(string signatureBytes, byte[] payloadBytes);
 }
 
-public abstract record Key<TKey, TKeyScheme, TKeyValInner>(IKeyValue<TKey, TKeyValInner> TypedKeyVal) :
-    Key(TKey.Name, TKeyScheme.Name)
+[JsonConverter(typeof(KeyConverter))]
+public abstract record Key<TKey, TKeyScheme, TKeyValue, TKeyValInner>(TKeyValue TypedKeyVal) :
+    IKey
     where TKey : IKeyType<TKey>
     where TKeyScheme : IKeyScheme<TKeyScheme>
+    where TKeyValue : IKeyValue<TKey, TKeyValInner>
 {
+    [JsonPropertyName("keytype"), JsonInclude]
+    public string Type => TKey.Name;
 
-    [JsonPropertyName("keyval")]
-    public override object KeyVal => TypedKeyVal;
+    [JsonPropertyName("keyscheme"), JsonInclude]
+    public string Scheme => TKeyScheme.Name;
+
+    [JsonPropertyName("keyvalue"), JsonInclude]
+    public object Value => TypedKeyVal;
 
     [JsonIgnore]
-    public override KeyId Id
+    public KeyId Id
     {
         get => field == default ? field = ComputeId() : field;
     }
+
+    public abstract bool VerifySignature(string signatureBytes, byte[] payloadBytes);
 
     /// <summary>
     /// KeyIds are computed in part by serializing the type in canonicalJson, and we only want to do that in a strongly typed way.
@@ -70,34 +82,37 @@ public static class KeyExtensions
 }
 
 public static class WellKnown
-{
-    public sealed record Rsa(RsaKeyValue Public) : Key<Types.Rsa, Schemes.RSASSA_PSS_SHA256, PEMString>(Public), IAOTSerializable<Rsa>
+{   
+    [method: SetsRequiredMembers]
+    public sealed record Rsa(RsaKeyValue Public) : Key<Types.Rsa, Schemes.RSASSA_PSS_SHA256, RsaKeyValue, PEMString>(Public), IAOTSerializable<Rsa>
     {
         protected override KeyId ComputeId() => new(this.ToDigest());
 
-        public override bool VerifySignature(byte[] signatureBytes, byte[] payloadBytes)
+        public override bool VerifySignature(string signatureBytes, byte[] payloadBytes)
         {
             var rsa = RSA.Create();
             rsa.ImportFromPem(Public.Public.PemEncodedValue);
             // Hash the payload data first, then verify the hash
             var hash = SHA256.HashData(payloadBytes);
-            return rsa.VerifyHash(hash, signatureBytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pss);
+            return rsa.VerifyHash(hash, Encoding.UTF8.GetBytes(signatureBytes), HashAlgorithmName.SHA256, RSASignaturePadding.Pss);
         }
 
         public static JsonTypeInfo<Rsa> JsonTypeInfo(MetadataJsonContext context) => context.Rsa;
     }
-    public sealed record Ed25519(Ed25519KeyValue Public) : Key<Types.Ed25519, Schemes.Ed25519, HexString>(Public), IAOTSerializable<Ed25519>
+
+    [method: SetsRequiredMembers]
+    public sealed record Ed25519(Ed25519KeyValue Public) : Key<Types.Ed25519, Schemes.Ed25519, Ed25519KeyValue, HexString>(Public), IAOTSerializable<Ed25519>
     {
         override protected KeyId ComputeId() => new(this.ToDigest());
 
-        public override bool VerifySignature(byte[] signatureBytes, byte[] payloadBytes)
+        public override bool VerifySignature(string signatureBytes, byte[] payloadBytes)
         {
             try
             {
                 var publicKeyBytes = Convert.FromHexString(Public.Public.HexEncodedValue);
-                var publicKey = NSec.Cryptography.PublicKey.Import(NSec.Cryptography.SignatureAlgorithm.Ed25519, 
+                var publicKey = NSec.Cryptography.PublicKey.Import(NSec.Cryptography.SignatureAlgorithm.Ed25519,
                     publicKeyBytes, NSec.Cryptography.KeyBlobFormat.RawPublicKey);
-                return NSec.Cryptography.SignatureAlgorithm.Ed25519.Verify(publicKey, payloadBytes, signatureBytes);
+                return NSec.Cryptography.SignatureAlgorithm.Ed25519.Verify(publicKey, payloadBytes, Encoding.UTF8.GetBytes(signatureBytes));
             }
             catch
             {
@@ -106,15 +121,17 @@ public static class WellKnown
         }
         public static JsonTypeInfo<Ed25519> JsonTypeInfo(MetadataJsonContext context) => context.Ed25519;
     }
-    public sealed record Ecdsa(EcdsaKeyValue Public) : Key<Types.Ecdsa, Schemes.ECDSA_SHA2_NISTP256, PEMString>(Public), IAOTSerializable<Ecdsa>
+
+    [method: SetsRequiredMembers]
+    public sealed record Ecdsa(EcdsaKeyValue Public) : Key<Types.Ecdsa, Schemes.ECDSA_SHA2_NISTP256, EcdsaKeyValue, PEMString>(Public), IAOTSerializable<Ecdsa>
     {
         override protected KeyId ComputeId() => new(this.ToDigest());
 
-        public override bool VerifySignature(byte[] signatureBytes, byte[] payloadBytes)
+        public override bool VerifySignature(string signatureBytes, byte[] payloadBytes)
         {
             var edcsa = System.Security.Cryptography.ECDsa.Create(ECCurve.NamedCurves.nistP256);
             edcsa.ImportFromPem(Public.Public.PemEncodedValue);
-            return edcsa.VerifyHash(payloadBytes, signatureBytes);
+            return edcsa.VerifyHash(payloadBytes, Encoding.UTF8.GetBytes(signatureBytes));
         }
         public static JsonTypeInfo<Ecdsa> JsonTypeInfo(MetadataJsonContext context) => context.Ecdsa;
     }

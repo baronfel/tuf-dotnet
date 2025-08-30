@@ -1,10 +1,12 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 using Microsoft.Extensions.FileSystemGlobbing;
 
 using Tuf.DotNet.Serialization.Converters;
 
+using TUF.Models.Roles.Targets;
 using TUF.Serialization;
 
 namespace TUF.Models.Primitives;
@@ -58,26 +60,13 @@ public record struct RelativeUri(Uri Uri)
     public static RelativeUri From([StringSyntax("uri")] string relativeUri) => new(new Uri(relativeUri, UriKind.Relative));
 }
 
-/// <summary>
-/// A hex-encoded signature of the canonical form of a metadata object
-/// </summary>
-[JsonConverter(typeof(ParseableStringConverter<Signature>))]
-public record struct Signature(byte[] Value): IParsable<Signature>, IJsonStringWriteable<Signature>
+public record struct Signature(KeyId keyId, string sig) : IAOTSerializable<Signature>, IKeyHolder<Signature, KeyId>
 {
-    public static Signature Parse(string s, IFormatProvider? provider) => new(Convert.FromHexString(s));
+    public static KeyId GetKey(Signature value) => value.keyId;
 
-    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out Signature result)
-    {
-        if (s is null)
-        {
-            result = default;
-            return false;
-        }
-        result = new(Convert.FromHexString(s));
-        return true;
-    }
+    public static JsonTypeInfo<Signature> JsonTypeInfo(MetadataJsonContext context) => context.Signature;
 
-    public string ToJsonString() => Convert.ToHexString(Value).ToLowerInvariant();
+    public byte[] Bytes => System.Text.Encoding.UTF8.GetBytes(sig);
 }
 
 /// <summary>

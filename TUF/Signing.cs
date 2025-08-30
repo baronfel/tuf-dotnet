@@ -1,4 +1,7 @@
 using System.Security.Cryptography;
+using System.Text;
+using System.Text.Unicode;
+
 using NSec.Cryptography;
 using TUF.Models.Keys;
 using TUF.Models.Keys.Types;
@@ -9,7 +12,7 @@ namespace TUF.Signing;
 
 public interface ISigner
 {
-    public Models.Keys.Key Key { get; }
+    public Models.Keys.IKey Key { get; }
     public Signature SignBytes(ReadOnlySpan<byte> data);
 }
 
@@ -20,7 +23,7 @@ public sealed class Ed25519Signer : ISigner
 {
     private readonly NSec.Cryptography.Key _privateKey;
     
-    public Models.Keys.Key Key { get; }
+    public Models.Keys.IKey Key { get; }
 
     public Ed25519Signer(NSec.Cryptography.Key privateKey)
     {
@@ -51,7 +54,7 @@ public sealed class Ed25519Signer : ISigner
     public Signature SignBytes(ReadOnlySpan<byte> data)
     {
         var signatureBytes = SignatureAlgorithm.Ed25519.Sign(_privateKey, data);
-        return new Signature(signatureBytes);
+        return new Signature(Key.Id, Encoding.UTF8.GetString(signatureBytes));
     }
 }
 
@@ -62,7 +65,7 @@ public sealed class RsaSigner : ISigner
 {
     private readonly RSA _rsa;
     
-    public Models.Keys.Key Key { get; }
+    public Models.Keys.IKey Key { get; }
 
     public RsaSigner(RSA rsa)
     {
@@ -93,7 +96,7 @@ public sealed class RsaSigner : ISigner
         // Hash the data first - TUF expects the signature to be over the hash
         var hash = SHA256.HashData(data);
         var signatureBytes = _rsa.SignHash(hash, HashAlgorithmName.SHA256, RSASignaturePadding.Pss);
-        return new Signature(signatureBytes);
+        return new Signature(Key.Id, Encoding.UTF8.GetString(signatureBytes));
     }
 
     public void Dispose()

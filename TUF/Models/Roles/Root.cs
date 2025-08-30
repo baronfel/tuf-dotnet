@@ -1,6 +1,8 @@
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
+using Tuf.DotNet.Serialization.Converters;
+
 using TUF.Models.Primitives;
 using TUF.Serialization;
 using TUF.Serialization.Converters;
@@ -49,7 +51,7 @@ public record Root(
     [property: JsonPropertyName("expires")]
     DateTimeOffset Expires,
     [property: JsonPropertyName("keys")]
-    Dictionary<KeyId, Keys.Key> Keys,
+    Dictionary<KeyId, Keys.IKey> Keys,
     [property: JsonPropertyName("roles")]
     RootRoles Roles
 ) :
@@ -60,7 +62,7 @@ public record Root(
         ConsistentSnapshot: true,
         Version: 1,
         Expires: expiry ?? DateTimeOffset.UtcNow,
-        Keys: new Dictionary<KeyId, Keys.Key>(),
+        Keys: new Dictionary<KeyId, Keys.IKey>(),
         Roles: new RootRoles()
     )
     {
