@@ -38,23 +38,17 @@ public class Updater
 
     public Updater(UpdaterConfig config)
     {
-        Console.WriteLine("DEBUG: Creating Updater");
         _config = config ?? throw new ArgumentNullException(nameof(config));
-        Console.WriteLine("DEBUG: Config validated");
         
         if (config.LocalTrustedRoot == null)
             throw new ArgumentNullException(nameof(config.LocalTrustedRoot));
-        Console.WriteLine($"DEBUG: LocalTrustedRoot length: {config.LocalTrustedRoot.Length}");
         
         _trusted = TrustedMetadata.CreateFromRootData(config.LocalTrustedRoot);
-        Console.WriteLine("DEBUG: TrustedMetadata created successfully");
     }
 
     public async Task Refresh()
     {
-        Console.WriteLine("DEBUG: Starting Refresh()");
         await OnlineRefresh();
-        Console.WriteLine("DEBUG: Refresh() completed");
     }
 
     public Dictionary<RelativePath, Models.Roles.Targets.TargetMetadata> GetTopLevelTargets()
@@ -183,25 +177,10 @@ public class Updater
 
     private async Task OnlineRefresh()
     {
-        Console.WriteLine("DEBUG: Starting OnlineRefresh");
-        
-        Console.WriteLine("DEBUG: Loading Root");
         await LoadRoot();
-        Console.WriteLine("DEBUG: Root loaded successfully");
-        
-        Console.WriteLine("DEBUG: Loading Timestamp");
         await LoadTimestamp();
-        Console.WriteLine("DEBUG: Timestamp loaded successfully");
-        
-        Console.WriteLine("DEBUG: Loading Snapshot");
         await LoadSnapshot();
-        Console.WriteLine("DEBUG: Snapshot loaded successfully");
-        
-        Console.WriteLine("DEBUG: Loading Targets");
         await LoadTargets(Models.Roles.Targets.TargetsRole.TypeLabel, Models.Roles.Root.Root.TypeLabel);
-        Console.WriteLine("DEBUG: Targets loaded successfully");
-        
-        Console.WriteLine("DEBUG: OnlineRefresh completed");
     }
 
     private async Task LoadRoot()

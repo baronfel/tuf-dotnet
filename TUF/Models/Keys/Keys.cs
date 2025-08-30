@@ -14,7 +14,6 @@ using TUF.Serialization.Converters;
 
 namespace TUF.Models.Keys;
 
-[JsonConverter(typeof(KeyConverter))]
 public interface IKey
 {
     string Type { get; }
@@ -31,9 +30,10 @@ public interface IKey
     /// <param name="signatureBytes"></param>
     /// <param name="payloadBytes"></param>
     public bool VerifySignature(string signatureBytes, byte[] payloadBytes);
+    
+    public JsonTypeInfo KeyJsonTypeInfo(MetadataJsonContext context);
 }
 
-[JsonConverter(typeof(KeyConverter))]
 public abstract record Key<TKey, TKeyScheme, TKeyValue, TKeyValInner>(TKeyValue TypedKeyVal) :
     IKey
     where TKey : IKeyType<TKey>
@@ -56,6 +56,8 @@ public abstract record Key<TKey, TKeyScheme, TKeyValue, TKeyValInner>(TKeyValue 
     }
 
     public abstract bool VerifySignature(string signatureBytes, byte[] payloadBytes);
+    
+    public abstract JsonTypeInfo KeyJsonTypeInfo(MetadataJsonContext context);
 
     /// <summary>
     /// KeyIds are computed in part by serializing the type in canonicalJson, and we only want to do that in a strongly typed way.
@@ -98,6 +100,7 @@ public static class WellKnown
             return rsa.VerifyHash(hash, Encoding.UTF8.GetBytes(signatureBytes), HashAlgorithmName.SHA256, RSASignaturePadding.Pss);
         }
 
+        public override JsonTypeInfo KeyJsonTypeInfo(MetadataJsonContext context) => context.Rsa;
         public static JsonTypeInfo<Rsa> JsonTypeInfo(MetadataJsonContext context) => context.Rsa;
     }
 
@@ -120,6 +123,7 @@ public static class WellKnown
                 return false;
             }
         }
+        public override JsonTypeInfo KeyJsonTypeInfo(MetadataJsonContext context) => context.Ed25519;
         public static JsonTypeInfo<Ed25519> JsonTypeInfo(MetadataJsonContext context) => context.Ed25519;
     }
 
@@ -146,6 +150,7 @@ public static class WellKnown
                 return false;
             }
         }
+        public override JsonTypeInfo KeyJsonTypeInfo(MetadataJsonContext context) => context.Ecdsa;
         public static JsonTypeInfo<Ecdsa> JsonTypeInfo(MetadataJsonContext context) => context.Ecdsa;
     }
 }

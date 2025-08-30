@@ -110,24 +110,44 @@ public static class CanonicalJsonSerializer
             return;
         }
 
-        // otherwise, canonicalize string by escaping only the backslash and double quote characters, and wrapping the escaped string in quotes
-        var searchValues = SearchValues.Create(['\\', '\"']);
+        // otherwise, canonicalize string by escaping backslash, double quote, and newline characters, and wrapping the escaped string in quotes
+        var searchValues = SearchValues.Create(['\\', '\"', '\n', '\r', '\t']);
         var sourceSpan = s.AsSpan();
-        var destSpan = new StringBuilder(capacity: s.Length);
+        var destSpan = new StringBuilder(capacity: s.Length * 2); // Double capacity for potential escaping
         destSpan.Append('\"');
-        var found = false;
+        
         while (sourceSpan.IndexOfAny(searchValues) is int idx && idx != -1)
         {
-            found = true;
+            // Append the part before the special character
             destSpan.Append(sourceSpan[..idx]);
+            
+            // Escape the special character
+            var ch = sourceSpan[idx];
             destSpan.Append('\\');
-            destSpan.Append(sourceSpan[idx]);
+            switch (ch)
+            {
+                case '\\':
+                    destSpan.Append('\\');
+                    break;
+                case '\"':
+                    destSpan.Append('\"');
+                    break;
+                case '\n':
+                    destSpan.Append('n');
+                    break;
+                case '\r':
+                    destSpan.Append('r');
+                    break;
+                case '\t':
+                    destSpan.Append('t');
+                    break;
+            }
+            
             sourceSpan = sourceSpan[(idx + 1)..];
         }
-        if (!found)
-        {
-            destSpan.Append(sourceSpan);
-        }
+        
+        // Append any remaining characters
+        destSpan.Append(sourceSpan);
         destSpan.Append('\"');
 
         writer.WriteRawValue(destSpan.ToString());

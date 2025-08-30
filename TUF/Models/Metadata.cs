@@ -41,7 +41,14 @@ public abstract class Metadata<TSigned>(TSigned signed, Dictionary<KeyId, Signat
     [JsonExtensionData]
     public Dictionary<string, object>? UnrecognizedFields { get; set; }
 
-    public byte[] SignedBytes => CanonicalJsonSerializer.Serialize(Signed, TSigned.JsonTypeInfo(MetadataJsonContext.Default));
+    public byte[] SignedBytes 
+    {
+        get
+        {
+            var typeInfo = TSigned.JsonTypeInfo(MetadataJsonContext.Default);
+            return CanonicalJsonSerializer.Serialize(Signed, typeInfo);
+        }
+    }
 
     public bool IsExpired(DateTimeOffset reference)
     {

@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using TUF.Models.Keys;
 using TUF.Models.Roles.Targets;
 
 namespace TUF.Serialization;
@@ -49,6 +50,7 @@ public partial class MetadataJsonContext : JsonSerializerContext
         options.Converters.Add(new TUF.Serialization.Converters.RoleTypeJsonConverter<TUF.Models.Roles.Targets.TargetsRole>());
         options.Converters.Add(new TUF.Serialization.Converters.RoleTypeJsonConverter<TUF.Models.Roles.Timestamp.Timestamp>());
         options.Converters.Add(new TUF.Serialization.Converters.RoleTypeJsonConverter<TUF.Models.Roles.Mirrors.Mirror>());
+        options.Converters.Add(new TUF.Serialization.Converters.OneOfKeyConverter([new WellKnown.Rsa(null!), new WellKnown.Ed25519(null!), new WellKnown.Ecdsa(null!)]));
         return options;
     }
     

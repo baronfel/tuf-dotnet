@@ -1,7 +1,41 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using TUF.Models.Keys;
+
 namespace TUF.Serialization.Converters;
+
+internal sealed class OneOfKeyConverter(IKey[] possibilities) : JsonConverter<IKey>
+{
+   public override IKey Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+   {
+       using var doc = JsonDocument.ParseValue(ref reader);
+       var root = doc.RootElement;
+
+       foreach (var possibility in possibilities)
+       {
+           if (root.TryGetProperty("keytype", out var keytypeProp) &&
+               root.TryGetProperty("scheme", out var schemeProp))
+           {
+               var keytype = keytypeProp.GetString();
+               var scheme = schemeProp.GetString();
+
+               if (keytype == possibility.Type && scheme == possibility.Scheme)
+               {
+                   // deserialize the root using the specific possibility type
+                   return (IKey)JsonSerializer.Deserialize(root, possibility.KeyJsonTypeInfo(MetadataJsonContext.ConverterInternal)) ?? throw new JsonException("Failed to deserialize key");
+               }
+           }
+       }
+
+       throw new JsonException("Unrecognized keytype/scheme pair");
+   }
+
+   public override void Write(Utf8JsonWriter writer, IKey value, JsonSerializerOptions options)
+   {
+       JsonSerializer.Serialize(writer, value, value.KeyJsonTypeInfo(MetadataJsonContext.ConverterInternal));
+   }
+}
 
 internal sealed class KeyConverter : JsonConverter<TUF.Models.Keys.IKey>
 {
@@ -39,12 +73,12 @@ internal sealed class KeyConverter : JsonConverter<TUF.Models.Keys.IKey>
             string.Equals(scheme, TUF.Models.Keys.Schemes.ECDSA_SHA2_NISTP256.Name, StringComparison.Ordinal))
         {
             if (!root.TryGetProperty("keyval", out var keyvalProp)) throw new JsonException("Missing 'keyval' property");
-            
+
             var keyvalTi = MetadataJsonContext.ConverterInternal.EcdsaKeyValue;
             var keyval = JsonSerializer.Deserialize<TUF.Models.Keys.Values.EcdsaKeyValue>(keyvalProp, keyvalTi);
-            
+
             if (keyval is null) throw new JsonException("Failed to deserialize EcdsaKeyValue");
-            
+
             var res = new TUF.Models.Keys.WellKnown.Ecdsa(keyval);
             return res;
         }
