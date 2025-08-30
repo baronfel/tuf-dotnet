@@ -60,7 +60,7 @@ public record struct RelativeUri(Uri Uri)
     public static RelativeUri From([StringSyntax("uri")] string relativeUri) => new(new Uri(relativeUri, UriKind.Relative));
 }
 
-public record struct Signature(KeyId keyId, string sig) : IAOTSerializable<Signature>, IKeyHolder<Signature, KeyId>
+public record struct Signature([property: JsonPropertyName("keyid")] KeyId keyId, [property: JsonPropertyName("sig")] string sig) : IAOTSerializable<Signature>, IKeyHolder<Signature, KeyId>
 {
     public static KeyId GetKey(Signature value) => value.keyId;
 

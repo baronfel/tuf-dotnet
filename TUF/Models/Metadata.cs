@@ -98,7 +98,7 @@ public static class MetadataExtensions
                     throw new Exception($"Key {keyId} not found in keys");
                 }
                 // try to find matching signature in other metadata
-                if (!otherMetadata.Signatures.TryGetValue(key.Id, out var signature))
+                if (!otherMetadata.Signatures.TryGetValue(keyId, out var signature))
                 {
                     throw new Exception($"No signature found for key {keyId}");
                 }
