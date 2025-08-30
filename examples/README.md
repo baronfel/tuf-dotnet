@@ -22,6 +22,15 @@ A comprehensive command-line interface built with `System.CommandLine` that prov
 
 **Best for**: Understanding how to build production TUF applications or using as a development tool.
 
+### [TufConformanceCli](./TufConformanceCli/)
+A specialized CLI tool that implements the [TUF conformance test suite protocol](https://github.com/theupdateframework/tuf-conformance/blob/main/CLIENT-CLI.md):
+- Implements `init`, `refresh`, and `download` commands per conformance specification
+- Enables .NET TUF implementation to participate in official TUF conformance testing
+- Follows exact client-under-test protocol for compatibility testing
+- Provides foundation for systematic TUF protocol validation
+
+**Best for**: TUF conformance testing, validating implementation correctness, and interoperability testing.
+
 ## Getting Started
 
 1. **Prerequisites**
@@ -33,6 +42,7 @@ A comprehensive command-line interface built with `System.CommandLine` that prov
    # From the repository root
    dotnet build examples/BasicClient/
    dotnet build examples/CliTool/
+   dotnet build examples/TufConformanceCli/
    ```
 
 3. **Run Examples**
@@ -43,6 +53,10 @@ A comprehensive command-line interface built with `System.CommandLine` that prov
 
    # CLI tool example
    cd examples/CliTool
+   dotnet run -- --help
+
+   # TUF conformance CLI
+   cd examples/TufConformanceCli
    dotnet run -- --help
    ```
 
