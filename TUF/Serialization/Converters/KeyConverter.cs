@@ -38,9 +38,14 @@ internal sealed class KeyConverter : JsonConverter<TUF.Models.Keys.IKey>
         if (string.Equals(keytype, TUF.Models.Keys.Types.Ecdsa.Name, StringComparison.Ordinal) &&
             string.Equals(scheme, TUF.Models.Keys.Schemes.ECDSA_SHA2_NISTP256.Name, StringComparison.Ordinal))
         {
-            var ti = TUF.Models.Keys.WellKnown.Ecdsa.JsonTypeInfo(MetadataJsonContext.ConverterInternal);
-            var res = JsonSerializer.Deserialize<TUF.Models.Keys.WellKnown.Ecdsa>(root, ti);
-            if (res is null) throw new JsonException("Failed to deserialize Ecdsa key");
+            if (!root.TryGetProperty("keyval", out var keyvalProp)) throw new JsonException("Missing 'keyval' property");
+            
+            var keyvalTi = MetadataJsonContext.ConverterInternal.EcdsaKeyValue;
+            var keyval = JsonSerializer.Deserialize<TUF.Models.Keys.Values.EcdsaKeyValue>(keyvalProp, keyvalTi);
+            
+            if (keyval is null) throw new JsonException("Failed to deserialize EcdsaKeyValue");
+            
+            var res = new TUF.Models.Keys.WellKnown.Ecdsa(keyval);
             return res;
         }
 

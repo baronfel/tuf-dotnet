@@ -67,6 +67,7 @@ public abstract record Key<TKey, TKeyScheme, TKeyValue, TKeyValInner>(TKeyValue 
 
 public static class KeyExtensions
 {
+    
     extension<T>(T item) where T : IAOTSerializable<T>
     {
         /// <summary>
@@ -129,9 +130,21 @@ public static class WellKnown
 
         public override bool VerifySignature(string signatureBytes, byte[] payloadBytes)
         {
-            var edcsa = System.Security.Cryptography.ECDsa.Create(ECCurve.NamedCurves.nistP256);
-            edcsa.ImportFromPem(Public.Public.PemEncodedValue);
-            return edcsa.VerifyHash(payloadBytes, Encoding.UTF8.GetBytes(signatureBytes));
+            try 
+            {
+                var edcsa = System.Security.Cryptography.ECDsa.Create(ECCurve.NamedCurves.nistP256);
+                edcsa.ImportFromPem(Public.Public.PemEncodedValue);
+                
+                // Hash the payload data first, then verify the hash
+                var hash = SHA256.HashData(payloadBytes);
+                var sigBytes = Encoding.UTF8.GetBytes(signatureBytes);
+                
+                return edcsa.VerifyHash(hash, sigBytes);
+            } 
+            catch
+            {
+                return false;
+            }
         }
         public static JsonTypeInfo<Ecdsa> JsonTypeInfo(MetadataJsonContext context) => context.Ecdsa;
     }

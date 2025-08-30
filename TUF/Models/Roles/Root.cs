@@ -47,6 +47,7 @@ public record Root(
     SemanticVersion SpecVersion,
     [property: JsonPropertyName("consistent_snapshot")]
     bool? ConsistentSnapshot,
+    [property: JsonPropertyName("version")]
     uint Version,
     [property: JsonPropertyName("expires")]
     DateTimeOffset Expires,

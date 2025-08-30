@@ -18,12 +18,16 @@ public class TrustedMetadata(RootMetadata root)
     public static TrustedMetadata CreateFromRootData(byte[] rootData)
     {
         var refTime = DateTimeOffset.UtcNow;
+        
         var newRoot = MetadataSerializer.Deserialize<RootMetadata>(rootData);
+        
         if (newRoot is null)
         {
             throw new Exception("Failed to deserialize root metadata");
         }
+        
         MetadataExtensions.VerifyRootRole<RootMetadata, RootMetadata, Root>(newRoot, Models.Roles.Root.Root.TypeLabel, newRoot);
+        
         return new TrustedMetadata(newRoot)
         {
             RefTime = refTime

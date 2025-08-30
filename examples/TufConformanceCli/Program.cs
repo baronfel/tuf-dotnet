@@ -158,19 +158,27 @@ public class Program
                 return 1;
             }
 
+            Console.WriteLine("DEBUG: Reading root bytes");
             byte[] rootBytes = await File.ReadAllBytesAsync(rootPath);
+            Console.WriteLine($"DEBUG: Root bytes length: {rootBytes.Length}");
 
+            Console.WriteLine("DEBUG: Creating UpdaterConfig");
             var config = new UpdaterConfig(rootBytes, new Uri(metadataUrl))
             {
                 LocalMetadataDir = metadataDir.FullName,
                 LocalTargetsDir = Path.Combine(metadataDir.FullName, "targets_temp"), // temp dir
                 Client = new HttpClient()
             };
+            Console.WriteLine("DEBUG: UpdaterConfig created");
 
+            Console.WriteLine("DEBUG: Creating Updater");
             var updater = new Updater(config);
+            Console.WriteLine("DEBUG: Updater created");
 
             // Update top-level metadata per TUF workflow
+            Console.WriteLine("DEBUG: Calling Refresh");
             await updater.Refresh();
+            Console.WriteLine("DEBUG: Refresh completed");
 
             return 0; // Success
         }

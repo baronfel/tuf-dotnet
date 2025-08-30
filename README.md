@@ -35,7 +35,7 @@ dotnet test CanonicalJson.Tests/CanonicalJson.Tests.csproj
 
 ## Project layout
 
-Root solution: `TIF.slnx`
+Root solution: `TUF.slnx`
 
 - `CanonicalJson/` — Canonical JSON library and its tests.
 - `TUF/` — TUF models, signing, and serialization code.
