@@ -50,15 +50,13 @@ public partial class MetadataJsonContext : JsonSerializerContext
         options.Converters.Add(new TUF.Serialization.Converters.RoleTypeJsonConverter<TUF.Models.Roles.Targets.TargetsRole>());
         options.Converters.Add(new TUF.Serialization.Converters.RoleTypeJsonConverter<TUF.Models.Roles.Timestamp.Timestamp>());
         options.Converters.Add(new TUF.Serialization.Converters.RoleTypeJsonConverter<TUF.Models.Roles.Mirrors.Mirror>());
-        options.Converters.Add(new TUF.Serialization.Converters.OneOfKeyConverter([new WellKnown.Rsa(null!), new WellKnown.Ed25519(null!), new WellKnown.Ecdsa(null!)]));
         return options;
     }
     
     private static JsonSerializerOptions CreateConverterInternalOptions()
     {
         var options = new JsonSerializerOptions();
-        // No custom converters added - this prevents recursion
-        // Enable support for constructor-based deserialization
+        // I know we said no converters, but that's _really_ only for the top-level role stuff
         options.AllowTrailingCommas = true;
         options.PropertyNameCaseInsensitive = false;
         return options;

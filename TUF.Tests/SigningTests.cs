@@ -31,8 +31,8 @@ public class SigningTests
         var verified = signer.Key.VerifySignature(signature.sig, testData);
 
         // Assert
-        await Assert.That(signature.sig).IsNotEmpty();
-        await Assert.That(signature.sig.Length).IsEqualTo(64); // Ed25519 signatures are 64 bytes
+        await Assert.That(signature.Bytes).IsNotEmpty();
+        await Assert.That(signature.Bytes.Length).IsEqualTo(64); // Ed25519 signatures are 64 bytes
         await Assert.That(verified).IsTrue();
     }
 
@@ -69,8 +69,8 @@ public class SigningTests
         await Assert.That(testSigner.Key).IsNotNull();
         await Assert.That(verified1).IsTrue();
         await Assert.That(verified2).IsTrue();
-        await Assert.That(signature1.sig).IsNotEmpty();
-        await Assert.That(signature2.sig).IsNotEmpty();
+        await Assert.That(signature1.Bytes).IsNotEmpty();
+        await Assert.That(signature2.Bytes).IsNotEmpty();
     }
 
     [Test]
@@ -108,8 +108,8 @@ public class SigningTests
         var verified = signer.Key.VerifySignature(signature.sig, testData);
 
         // Assert
-        await Assert.That(signature.sig).IsNotEmpty();
-        await Assert.That(signature.sig.Length).IsGreaterThan(0);
+        await Assert.That(signature.Bytes).IsNotEmpty();
+        await Assert.That(signature.Bytes.Length).IsGreaterThan(0);
         await Assert.That(verified).IsTrue();
     }
 
@@ -193,7 +193,7 @@ public class SigningTests
         var verified = signer.Key.VerifySignature(signature.sig, largeData);
 
         // Assert
-        await Assert.That(signature.sig).IsNotEmpty();
+        await Assert.That(signature.Bytes).IsNotEmpty();
         await Assert.That(verified).IsTrue();
     }
 
@@ -209,7 +209,7 @@ public class SigningTests
         var verified = signer.Key.VerifySignature(signature.sig, emptyData);
 
         // Assert
-        await Assert.That(signature.sig).IsNotEmpty();
+        await Assert.That(signature.Bytes).IsNotEmpty();
         await Assert.That(verified).IsTrue();
     }
 }

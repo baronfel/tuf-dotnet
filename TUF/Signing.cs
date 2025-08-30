@@ -54,7 +54,7 @@ public sealed class Ed25519Signer : ISigner
     public Signature SignBytes(ReadOnlySpan<byte> data)
     {
         var signatureBytes = SignatureAlgorithm.Ed25519.Sign(_privateKey, data);
-        return new Signature(Key.Id, Encoding.UTF8.GetString(signatureBytes));
+        return new Signature(Key.Id, new(Convert.ToHexString(signatureBytes).ToLowerInvariant()));
     }
 }
 
@@ -96,7 +96,7 @@ public sealed class RsaSigner : ISigner
         // Hash the data first - TUF expects the signature to be over the hash
         var hash = SHA256.HashData(data);
         var signatureBytes = _rsa.SignHash(hash, HashAlgorithmName.SHA256, RSASignaturePadding.Pss);
-        return new Signature(Key.Id, Encoding.UTF8.GetString(signatureBytes));
+        return new Signature(Key.Id, new(Convert.ToHexString(signatureBytes).ToLowerInvariant()));
     }
 
     public void Dispose()

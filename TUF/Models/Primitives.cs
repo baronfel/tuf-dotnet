@@ -60,13 +60,13 @@ public record struct RelativeUri(Uri Uri)
     public static RelativeUri From([StringSyntax("uri")] string relativeUri) => new(new Uri(relativeUri, UriKind.Relative));
 }
 
-public record struct Signature([property: JsonPropertyName("keyid")] KeyId keyId, [property: JsonPropertyName("sig")] string sig) : IAOTSerializable<Signature>, IKeyHolder<Signature, KeyId>
+public record struct Signature([property: JsonPropertyName("keyid")] KeyId keyId, [property: JsonPropertyName("sig")] HexDigest sig) : IAOTSerializable<Signature>, IKeyHolder<Signature, KeyId>
 {
     public static KeyId GetKey(Signature value) => value.keyId;
 
     public static JsonTypeInfo<Signature> JsonTypeInfo(MetadataJsonContext context) => context.Signature;
 
-    public byte[] Bytes => System.Text.Encoding.UTF8.GetBytes(sig);
+    public byte[] Bytes => sig.Bytes;
 }
 
 /// <summary>
@@ -90,6 +90,8 @@ public record struct HexDigest(string sha256HexDigest) : IParsable<HexDigest>, I
     }
 
     public string ToJsonString() => sha256HexDigest;
+
+    public byte[] Bytes => Convert.FromHexString(sha256HexDigest);
 
 }
 

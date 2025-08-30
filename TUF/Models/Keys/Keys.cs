@@ -14,6 +14,7 @@ using TUF.Serialization.Converters;
 
 namespace TUF.Models.Keys;
 
+[JsonConverter(typeof(KeyConverter))]
 public interface IKey
 {
     string Type { get; }
@@ -29,9 +30,7 @@ public interface IKey
     /// </summary>
     /// <param name="signatureBytes"></param>
     /// <param name="payloadBytes"></param>
-    public bool VerifySignature(string signatureBytes, byte[] payloadBytes);
-    
-    public JsonTypeInfo KeyJsonTypeInfo(MetadataJsonContext context);
+    public bool VerifySignature(HexDigest signatureBytes, byte[] payloadBytes);
 }
 
 public abstract record Key<TKey, TKeyScheme, TKeyValue, TKeyValInner>(TKeyValue TypedKeyVal) :
@@ -55,9 +54,7 @@ public abstract record Key<TKey, TKeyScheme, TKeyValue, TKeyValInner>(TKeyValue 
         get => field == default ? field = ComputeId() : field;
     }
 
-    public abstract bool VerifySignature(string signatureBytes, byte[] payloadBytes);
-    
-    public abstract JsonTypeInfo KeyJsonTypeInfo(MetadataJsonContext context);
+    public abstract bool VerifySignature(HexDigest signatureBytes, byte[] payloadBytes);
 
     /// <summary>
     /// KeyIds are computed in part by serializing the type in canonicalJson, and we only want to do that in a strongly typed way.
@@ -85,22 +82,21 @@ public static class KeyExtensions
 }
 
 public static class WellKnown
-{   
+{
     [method: SetsRequiredMembers]
     public sealed record Rsa(RsaKeyValue Public) : Key<Types.Rsa, Schemes.RSASSA_PSS_SHA256, RsaKeyValue, PEMString>(Public), IAOTSerializable<Rsa>
     {
         protected override KeyId ComputeId() => new(this.ToDigest());
 
-        public override bool VerifySignature(string signatureBytes, byte[] payloadBytes)
+        public override bool VerifySignature(HexDigest signatureBytes, byte[] payloadBytes)
         {
             var rsa = RSA.Create();
             rsa.ImportFromPem(Public.Public.PemEncodedValue);
             // Hash the payload data first, then verify the hash
             var hash = SHA256.HashData(payloadBytes);
-            return rsa.VerifyHash(hash, Encoding.UTF8.GetBytes(signatureBytes), HashAlgorithmName.SHA256, RSASignaturePadding.Pss);
+            return rsa.VerifyHash(hash, signatureBytes.Bytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pss);
         }
 
-        public override JsonTypeInfo KeyJsonTypeInfo(MetadataJsonContext context) => context.Rsa;
         public static JsonTypeInfo<Rsa> JsonTypeInfo(MetadataJsonContext context) => context.Rsa;
     }
 
@@ -109,21 +105,20 @@ public static class WellKnown
     {
         override protected KeyId ComputeId() => new(this.ToDigest());
 
-        public override bool VerifySignature(string signatureBytes, byte[] payloadBytes)
+        public override bool VerifySignature(HexDigest signatureBytes, byte[] payloadBytes)
         {
             try
             {
                 var publicKeyBytes = Convert.FromHexString(Public.Public.HexEncodedValue);
                 var publicKey = NSec.Cryptography.PublicKey.Import(NSec.Cryptography.SignatureAlgorithm.Ed25519,
                     publicKeyBytes, NSec.Cryptography.KeyBlobFormat.RawPublicKey);
-                return NSec.Cryptography.SignatureAlgorithm.Ed25519.Verify(publicKey, payloadBytes, Encoding.UTF8.GetBytes(signatureBytes));
+                return NSec.Cryptography.SignatureAlgorithm.Ed25519.Verify(publicKey, payloadBytes, signatureBytes.Bytes);
             }
             catch
             {
                 return false;
             }
         }
-        public override JsonTypeInfo KeyJsonTypeInfo(MetadataJsonContext context) => context.Ed25519;
         public static JsonTypeInfo<Ed25519> JsonTypeInfo(MetadataJsonContext context) => context.Ed25519;
     }
 
@@ -132,7 +127,7 @@ public static class WellKnown
     {
         override protected KeyId ComputeId() => new(this.ToDigest());
 
-        public override bool VerifySignature(string signatureBytes, byte[] payloadBytes)
+        public override bool VerifySignature(HexDigest signatureBytes, byte[] payloadBytes)
         {
             try 
             {
@@ -141,16 +136,13 @@ public static class WellKnown
                 
                 // Hash the payload data first, then verify the hash
                 var hash = SHA256.HashData(payloadBytes);
-                var sigBytes = Encoding.UTF8.GetBytes(signatureBytes);
-                
-                return edcsa.VerifyHash(hash, sigBytes);
+                return edcsa.VerifyHash(hash, signatureBytes.Bytes);
             } 
             catch
             {
                 return false;
             }
         }
-        public override JsonTypeInfo KeyJsonTypeInfo(MetadataJsonContext context) => context.Ecdsa;
         public static JsonTypeInfo<Ecdsa> JsonTypeInfo(MetadataJsonContext context) => context.Ecdsa;
     }
 }

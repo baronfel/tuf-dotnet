@@ -104,9 +104,32 @@ public class SerializationTests
 }
 """;
         var root = MetadataSerializer.Deserialize<RootMetadata>(Encoding.UTF8.GetBytes(golden));
-        await Assert.That(root).IsNotNull();
-        await Assert.That(root!.Signatures.Count).IsEqualTo(1);
-        await Assert.That(root!.Signed.Keys.Count).IsEqualTo(3);
+        Dictionary<KeyId, IKey> expectedKeys = new()
+        {
+            [new(new("5c4d6edf3bdd156946bc6f1f5d9ebf39a83e1d89daac11a119101aba634a6ccb"))] = new Models.Keys.WellKnown.Ecdsa(new(new("-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEepGd26fJXuJFPDW0zlcEKjHheZjR\n5CE9cI9Rd0UQ6hohIAbifafu7TBad8q4HGPHAxJZyO3JyHhrAwD6yaGUbA==\n-----END PUBLIC KEY-----\n"))),
+            [new(new("767194bc72565e86affb884a0f8f614c9bda7d843bf4b09128cb7272fe957d69"))] = new Models.Keys.WellKnown.Ecdsa(new(new("-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEtvVVPV...cDQgAEK2pN0hcEitsU5ZKnTVqGoLn0ljvO\nNAO2ditxpiLWUUkXoGDG5X7j0ZQmWEHpK0k3LRPQLggf4A9jiUqxM6K5Dw==\n-----END PUBLIC KEY-----\n"))),
+            [new(new("a05136c6ff6cbb5d275f4b03ce03369fb34e5ff5a3b044fdd246e093bd97f511"))] = new Models.Keys.WellKnown.Ecdsa(new(new("-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEI0/dhnPZtVKoAlpfH68rc8ybhux6\nJedfCrX63vW2LLVNqQuoQ73q/xhZsTV+ubEGTMU77+TLMQz929TMzqjANQ==\n-----END PUBLIC KEY-----\n"))),
+        };
+        RootRoles expectedRootRoles = new(
+            new RoleKeys([
+                new(new("767194bc72565e86affb884a0f8f614c9bda7d843bf4b09128cb7272fe957d69"))
+            ], 1),
+            new RoleKeys([
+                new(new("5c4d6edf3bdd156946bc6f1f5d9ebf39a83e1d89daac11a119101aba634a6ccb"))
+            ], 1),
+            new RoleKeys([
+                new(new("a05136c6ff6cbb5d275f4b03ce03369fb34e5ff5a3b044fdd246e093bd97f511"))
+            ], 1),
+            new RoleKeys([
+                new(new("936fba625bad647370da662f6b41c2044b4503de20407d536d35eec26cdc3dd9"))
+            ], 1)
+        );
+        Dictionary<KeyId, Signature> expectedSigs = new()
+        {
+            [new(new("767194bc72565e86affb884a0f8f614c9bda7d843bf4b09128cb7272fe957d69"))] = new(new(new("767194bc72565e86affb884a0f8f614c9bda7d843bf4b09128cb7272fe957d69")), new("3045022100fd6960dfbffc58507245803cd2930625dfabc7d126fd898da6dfc6259c9f2faf0220173e756e7c195dbad5b00c80443e6ace2810d1b007bb7001dd85ed0f1be2f938"))
+        };
+        RootMetadata expectedRoot = new(new(new("1.0.31"), true, 1, DateTimeOffset.Parse("2025-09-29T02:43:28Z"), expectedKeys, expectedRootRoles), expectedSigs);
+        await Assert.That(root).IsEquivalentTo(expectedRoot);
     }
 
     [Test]

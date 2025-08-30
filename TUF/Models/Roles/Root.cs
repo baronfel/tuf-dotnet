@@ -26,7 +26,7 @@ public record RootRoles(
     [property: JsonPropertyName("targets")]
     RoleKeys Targets,
     [property: JsonPropertyName("mirrors")]
-    RoleKeys? Mirrors
+    RoleKeys? Mirrors = null
 )
 {
     public RootRoles() : this(

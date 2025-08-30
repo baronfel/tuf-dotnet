@@ -5,38 +5,6 @@ using TUF.Models.Keys;
 
 namespace TUF.Serialization.Converters;
 
-internal sealed class OneOfKeyConverter(IKey[] possibilities) : JsonConverter<IKey>
-{
-   public override IKey Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-   {
-       using var doc = JsonDocument.ParseValue(ref reader);
-       var root = doc.RootElement;
-
-       foreach (var possibility in possibilities)
-       {
-           if (root.TryGetProperty("keytype", out var keytypeProp) &&
-               root.TryGetProperty("scheme", out var schemeProp))
-           {
-               var keytype = keytypeProp.GetString();
-               var scheme = schemeProp.GetString();
-
-               if (keytype == possibility.Type && scheme == possibility.Scheme)
-               {
-                   // deserialize the root using the specific possibility type
-                   return (IKey)JsonSerializer.Deserialize(root, possibility.KeyJsonTypeInfo(MetadataJsonContext.ConverterInternal)) ?? throw new JsonException("Failed to deserialize key");
-               }
-           }
-       }
-
-       throw new JsonException("Unrecognized keytype/scheme pair");
-   }
-
-   public override void Write(Utf8JsonWriter writer, IKey value, JsonSerializerOptions options)
-   {
-       JsonSerializer.Serialize(writer, value, value.KeyJsonTypeInfo(MetadataJsonContext.ConverterInternal));
-   }
-}
-
 internal sealed class KeyConverter : JsonConverter<TUF.Models.Keys.IKey>
 {
     public override bool CanConvert(Type typeToConvert)
