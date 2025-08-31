@@ -39,6 +39,18 @@ public static class CanonicalJsonSerializer
         return ms.ToArray();
     }
 
+    /// <summary>
+    /// Serialize an object to canonical JSON using Serde.NET's serialization infrastructure.
+    /// This provides explicit, low-level control of the JSON output format.
+    /// </summary>
+    public static T Deserialize<T>(string content) where T : IDeserializeProvider<T> => Deserialize<T, T>(content);
+
+    /// <summary>
+    /// Serialize an object to canonical JSON using Serde.NET's serialization infrastructure.
+    /// This provides explicit, low-level control of the JSON output format.
+    /// </summary>
+    public static T Deserialize<T, TProvider>(string content) where TProvider : IDeserializeProvider<T> => Serde.Json.JsonSerializer.Deserialize<T, TProvider>(content);
+
     // Compare two strings by their UTF-8 byte sequence (lexicographic order)
     public static int CompareUtf8(string a, string b)
     {
