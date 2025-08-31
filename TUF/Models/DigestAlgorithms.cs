@@ -1,5 +1,7 @@
 using System.Security.Cryptography;
 
+using Serde;
+
 namespace TUF.Models.DigestAlgorithms;
 
 public interface IDigestAlgorithm<T> where T : IDigestAlgorithm<T>
@@ -20,13 +22,15 @@ public sealed record SHA512 : IDigestAlgorithm<SHA512>
     public static Func<byte[], byte[]> Hasher => System.Security.Cryptography.SHA512.HashData;
 }
 
-public record DigestValue(string Algorithm, string HexEncodedValue)
+[GenerateSerde]
+public partial record DigestValue(string Algorithm, string HexEncodedValue)
 {
     // should be implemented in child class only
     public virtual void VerifyHash(byte[] data) => throw new NotImplementedException();
 }
 
-public sealed record DigestValue<T>(string HexEncodedValue) : DigestValue(T.Name, HexEncodedValue) where T : IDigestAlgorithm<T>
+[GenerateSerde]
+public partial record DigestValue<T>(string HexEncodedValue) : DigestValue(T.Name, HexEncodedValue) where T : IDigestAlgorithm<T>
 {
     public override void VerifyHash(byte[] data)
     {

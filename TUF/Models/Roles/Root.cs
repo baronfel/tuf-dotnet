@@ -1,20 +1,24 @@
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
+using Serde;
+
 using TUF.Models.Primitives;
 using TUF.Serialization;
 using TUF.Serialization.Converters;
 
 namespace TUF.Models.Roles.Root;
 
-public record RoleKeys(
+[GenerateSerde]
+public partial record RoleKeys(
     [property: JsonPropertyName("keyids")]
     List<KeyId> KeyIds,
     [property: JsonPropertyName("threshold")]
     uint Threshold
 );
 
-public record RootRoles(
+[GenerateSerde]
+public partial record RootRoles(
     [property: JsonPropertyName("root")]
     RoleKeys Root,
     [property: JsonPropertyName("timestamp")]
@@ -39,8 +43,8 @@ public record RootRoles(
     }
 }
 
-[method: JsonConstructor]
-public record Root(
+[GenerateSerde]
+public partial record Root(
     [property: JsonPropertyName("spec_version")]
     SemanticVersion SpecVersion,
     [property: JsonPropertyName("consistent_snapshot")]
@@ -49,7 +53,7 @@ public record Root(
     [property: JsonPropertyName("expires")]
     DateTimeOffset Expires,
     [property: JsonPropertyName("keys")]
-    Dictionary<KeyId, Keys.Key> Keys,
+    Dictionary<KeyId, Keys.KeyBase> Keys,
     [property: JsonPropertyName("roles")]
     RootRoles Roles
 ) :
@@ -60,13 +64,11 @@ public record Root(
         ConsistentSnapshot: true,
         Version: 1,
         Expires: expiry ?? DateTimeOffset.UtcNow,
-        Keys: new Dictionary<KeyId, Keys.Key>(),
+        Keys: new Dictionary<KeyId, Keys.KeyBase>(),
         Roles: new RootRoles()
     )
     {
     }
-
-    public static JsonTypeInfo<Root> JsonTypeInfo(MetadataJsonContext context) => context.Root;
 
     public static string TypeLabel => "root";
 }

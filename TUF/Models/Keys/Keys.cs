@@ -1,78 +1,32 @@
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
 
-using TUF.Models.Keys.Schemes;
-using TUF.Models.Keys.Types;
+using Serde;
+
 using TUF.Models.Keys.Values;
 using TUF.Models.Primitives;
-using TUF.Serialization;
 
 namespace TUF.Models.Keys;
 
-public abstract record Key(
-    [property: JsonPropertyName("keytype")] string KeyType,
-    [property: JsonPropertyName("scheme")] string Scheme)
+[GenerateSerde]
+public abstract partial record KeyBase
 {
-    [JsonPropertyName("keyval")]
-    public abstract object KeyVal { get; }
+    private KeyBase() {}
 
-    [JsonIgnore]
-    public abstract KeyId Id { get; }
-
-    /// <summary>
-    /// Using the parameters of a given Key<type, scheme, value> to create the verification algorithm, 
-    /// verify that the given signature matches the hashing of the payload using this Key.
-    /// </summary>
-    /// <param name="signatureBytes"></param>
-    /// <param name="payloadBytes"></param>
-    public abstract bool VerifySignature(byte[] signatureBytes, byte[] payloadBytes);
-}
-
-public abstract record Key<TKey, TKeyScheme, TKeyValInner>(IKeyValue<TKey, TKeyValInner> TypedKeyVal) :
-    Key(TKey.Name, TKeyScheme.Name)
-    where TKey : IKeyType<TKey>
-    where TKeyScheme : IKeyScheme<TKeyScheme>
-{
-
-    [JsonPropertyName("keyval")]
-    public override object KeyVal => TypedKeyVal;
-
-    [JsonIgnore]
-    public override KeyId Id
-    {
-        get => field == default ? field = ComputeId() : field;
-    }
-
-    /// <summary>
-    /// KeyIds are computed in part by serializing the type in canonicalJson, and we only want to do that in a strongly typed way.
-    /// Having this extensibility point allows the concrete variants of this type to forward along their type information for the 
-    /// IAOTSerializable<T> interface. 
-    /// </summary>
     protected abstract KeyId ComputeId();
-}
 
-public static class KeyExtensions
-{
-    extension<T>(T item) where T : IAOTSerializable<T>
-    {
-        /// <summary>
-        /// Computes the hexdigest of an item by serializing it to utf8 bytes via the 
-        /// canonical json format, then getting the sha256hash of that, then hex-tolowering the result.
-        /// </summary>
-        public HexDigest ToDigest()
-        {
-            var bytes = CanonicalJson.CanonicalJsonSerializer.Serialize(item, T.JsonTypeInfo(MetadataJsonContext.Default));
-            return new HexDigest(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)).ToLowerInvariant());
-        }
-    }
-}
+    public abstract string Type { get; }
+    public abstract string Scheme { get; }
 
-public static class WellKnown
-{
-    public sealed record Rsa(RsaKeyValue Public) : Key<Types.Rsa, Schemes.RSASSA_PSS_SHA256, PEMString>(Public), IAOTSerializable<Rsa>
-    {
+    public KeyId Id => ComputeId();
+
+    public abstract bool VerifySignature(byte[] signatureBytes, byte[] payloadBytes);
+
+    [GenerateSerde]
+    public partial record Rsa(RsaKeyValue Public) : KeyBase
+    {   
+        public override string Type => Types.Rsa.Name;
+        public override string Scheme => Schemes.RSASSA_PSS_SHA256.Name;
+
         protected override KeyId ComputeId() => new(this.ToDigest());
 
         public override bool VerifySignature(byte[] signatureBytes, byte[] payloadBytes)
@@ -83,11 +37,14 @@ public static class WellKnown
             var hash = SHA256.HashData(payloadBytes);
             return rsa.VerifyHash(hash, signatureBytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pss);
         }
-
-        public static JsonTypeInfo<Rsa> JsonTypeInfo(MetadataJsonContext context) => context.Rsa;
     }
-    public sealed record Ed25519(Ed25519KeyValue Public) : Key<Types.Ed25519, Schemes.Ed25519, HexString>(Public), IAOTSerializable<Ed25519>
+    
+    [GenerateSerde]
+    public partial record Ed25519(Ed25519KeyValue Public) : KeyBase
     {
+        public override string Type => Types.Ed25519.Name;
+        public override string Scheme => Schemes.Ed25519.Name;
+
         override protected KeyId ComputeId() => new(this.ToDigest());
 
         public override bool VerifySignature(byte[] signatureBytes, byte[] payloadBytes)
@@ -95,7 +52,7 @@ public static class WellKnown
             try
             {
                 var publicKeyBytes = Convert.FromHexString(Public.Public.HexEncodedValue);
-                var publicKey = NSec.Cryptography.PublicKey.Import(NSec.Cryptography.SignatureAlgorithm.Ed25519, 
+                var publicKey = NSec.Cryptography.PublicKey.Import(NSec.Cryptography.SignatureAlgorithm.Ed25519,
                     publicKeyBytes, NSec.Cryptography.KeyBlobFormat.RawPublicKey);
                 return NSec.Cryptography.SignatureAlgorithm.Ed25519.Verify(publicKey, payloadBytes, signatureBytes);
             }
@@ -104,10 +61,14 @@ public static class WellKnown
                 return false;
             }
         }
-        public static JsonTypeInfo<Ed25519> JsonTypeInfo(MetadataJsonContext context) => context.Ed25519;
     }
-    public sealed record Ecdsa(EcdsaKeyValue Public) : Key<Types.Ecdsa, Schemes.ECDSA_SHA2_NISTP256, PEMString>(Public), IAOTSerializable<Ecdsa>
+
+    [GenerateSerde]
+    public partial record Ecdsa(EcdsaKeyValue Public) : KeyBase
     {
+        public override string Type => Types.Ecdsa.Name;
+        public override string Scheme => Schemes.ECDSA_SHA2_NISTP256.Name;
+
         override protected KeyId ComputeId() => new(this.ToDigest());
 
         public override bool VerifySignature(byte[] signatureBytes, byte[] payloadBytes)
@@ -116,6 +77,21 @@ public static class WellKnown
             edcsa.ImportFromPem(Public.Public.PemEncodedValue);
             return edcsa.VerifyHash(payloadBytes, signatureBytes);
         }
-        public static JsonTypeInfo<Ecdsa> JsonTypeInfo(MetadataJsonContext context) => context.Ecdsa;
+    }
+}
+
+public static class KeyExtensions
+{
+    extension<T>(T item) where T : ISerializeProvider<T>
+    {
+        /// <summary>
+        /// Computes the hexdigest of an item by serializing it to utf8 bytes via the 
+        /// canonical json format, then getting the sha256hash of that, then hex-tolowering the result.
+        /// </summary>
+        public HexDigest ToDigest()
+        {
+            var bytes = CanonicalJson.CanonicalJsonSerializer.Serialize(item);
+            return new HexDigest(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)).ToLowerInvariant());
+        }
     }
 }

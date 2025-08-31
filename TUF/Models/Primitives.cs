@@ -3,14 +3,16 @@ using System.Text.Json.Serialization;
 
 using Microsoft.Extensions.FileSystemGlobbing;
 
+using Serde;
+
 using Tuf.DotNet.Serialization.Converters;
 
 using TUF.Serialization;
 
 namespace TUF.Models.Primitives;
 
-[JsonConverter(typeof(ParseableStringConverter<SemanticVersion>))]
-public record SemanticVersion(string SemVer) : IParsable<SemanticVersion>, IJsonStringWriteable<SemanticVersion>
+[GenerateSerde]
+public partial record SemanticVersion(string SemVer) : IParsable<SemanticVersion>, IJsonStringWriteable<SemanticVersion>
 {
     public static SemanticVersion Parse(string s, IFormatProvider? provider) => new(s);
 
@@ -47,13 +49,52 @@ public record struct RelativePath(string RelPath) : IParsable<RelativePath>, IJs
     public readonly string ToJsonString() => RelPath;
 }
 
-[JsonConverter(typeof(Tuf.DotNet.Serialization.Converters.AbsoluteUriJsonConverter))]
-public record struct AbsoluteUri(Uri Uri)
+public class AbsoluteUriSerdeProxy : ISerdeProvider<Uri>, ISerde<Uri>
+{
+    public static ISerialize<Uri> Instance => new AbsoluteUriSerdeProxy();
+
+    static IDeserialize<Uri> IDeserializeProvider<Uri>.Instance => new AbsoluteUriSerdeProxy();
+
+    public ISerdeInfo SerdeInfo => Serde.SerdeInfo.MakePrimitive("uri", PrimitiveKind.String);
+
+    public Uri Deserialize(IDeserializer deserializer)
+    {
+        return new Uri(deserializer.ReadString(), uriKind: UriKind.Absolute);
+    }
+
+    public void Serialize(Uri value, ISerializer serializer)
+    {
+        serializer.WriteString(value.ToString());
+    }
+}
+
+public class RelativeUriSerdeProxy : ISerde<Uri>, ISerdeProvider<Uri>
+{
+    public static ISerialize<Uri> Instance => throw new NotImplementedException();
+
+    static IDeserialize<Uri> IDeserializeProvider<Uri>.Instance => throw new NotImplementedException();
+
+    public ISerdeInfo SerdeInfo => Serde.SerdeInfo.MakePrimitive("uri", PrimitiveKind.String);
+
+    public Uri Deserialize(IDeserializer deserializer)
+    {
+        return new Uri(deserializer.ReadString(), uriKind: UriKind.Relative);
+    }
+
+    public void Serialize(Uri value, ISerializer serializer)
+    {
+        serializer.WriteString(value.ToString());
+    }
+}
+
+[GenerateSerde]
+public partial record struct AbsoluteUri([property: SerdeMemberOptions(Proxy = typeof(AbsoluteUriSerdeProxy))] Uri Uri)
 {
     public static AbsoluteUri From([StringSyntax("uri")] string absoluteUri) => new(new Uri(absoluteUri, UriKind.Absolute));
 }
-[JsonConverter(typeof(Tuf.DotNet.Serialization.Converters.RelativeUriJsonConverter))]
-public record struct RelativeUri(Uri Uri)
+
+[GenerateSerde]
+public partial record struct RelativeUri([property: SerdeMemberOptions(Proxy = typeof(RelativeUriSerdeProxy))] Uri Uri)
 {
     public static RelativeUri From([StringSyntax("uri")] string relativeUri) => new(new Uri(relativeUri, UriKind.Relative));
 }
@@ -85,8 +126,8 @@ public record struct Signature(byte[] Value): IParsable<Signature>, IJsonStringW
 /// hexadecimal string.
 /// </summary>
 /// <param name="sha256HexDigest"></param>
-[JsonConverter(typeof(ParseableStringConverter<HexDigest>))]
-public record struct HexDigest(string sha256HexDigest) : IParsable<HexDigest>, IJsonStringWriteable<HexDigest>
+[GenerateSerde]
+public partial record struct HexDigest(string sha256HexDigest) : IParsable<HexDigest>, IJsonStringWriteable<HexDigest>
 {
     public static HexDigest Parse(string s, IFormatProvider? provider) => new(s);
     public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out HexDigest result)
@@ -112,8 +153,8 @@ public record struct HexDigest(string sha256HexDigest) : IParsable<HexDigest>, I
 /// Implementation note: A wildcard in this pattern SHOULD NOT match a directory in a candidate path.
 /// That is, a pattern like "foo/*" should match "foo/bar" but not "foo/bar/baz".
 /// </summary>
-[JsonConverter(typeof(ParseableStringConverter<PathPattern>))]
-public record struct PathPattern(string Pattern): IParsable<PathPattern>, IJsonStringWriteable<PathPattern>
+[GenerateSerde]
+public partial record struct PathPattern(string Pattern): IParsable<PathPattern>, IJsonStringWriteable<PathPattern>
 {
     private readonly Matcher _matcher => new Matcher(StringComparison.InvariantCulture).AddInclude(Pattern);
 
@@ -141,8 +182,8 @@ public record struct PathPattern(string Pattern): IParsable<PathPattern>, IJsonS
 /// <summary>
 /// PEM format and a string. All RSA keys MUST be at least 2048 bits.
 /// </summary>
-[JsonConverter(typeof(ParseableStringConverter<PEMString>))]
-public record struct PEMString(string PemEncodedValue): IParsable<PEMString>, IJsonStringWriteable<PEMString>
+[GenerateSerde]
+public partial record struct PEMString(string PemEncodedValue): IParsable<PEMString>, IJsonStringWriteable<PEMString>
 {
     public static PEMString Parse(string s, IFormatProvider? provider) => new(s);
 
@@ -163,8 +204,8 @@ public record struct PEMString(string PemEncodedValue): IParsable<PEMString>, IJ
 /// <summary>
 /// 64-bit hex-encoded string
 /// </summary>
-[JsonConverter(typeof(ParseableStringConverter<HexString>))]
-public record struct HexString(string HexEncodedValue): IParsable<HexString>, IJsonStringWriteable<HexString>
+[GenerateSerde]
+public partial record struct HexString(string HexEncodedValue): IParsable<HexString>, IJsonStringWriteable<HexString>
 {
     public static HexString Parse(string s, IFormatProvider? provider) => new(s);
 
@@ -183,8 +224,8 @@ public record struct HexString(string HexEncodedValue): IParsable<HexString>, IJ
 
 }
 
-[JsonConverter(typeof(ParseableStringConverter<KeyId>))]
-public record struct KeyId(HexDigest digest) : IParsable<KeyId>, IJsonStringWriteable<KeyId>
+[GenerateSerde]
+public partial record struct KeyId(HexDigest digest) : IParsable<KeyId>, IJsonStringWriteable<KeyId>
 {
     public static KeyId Parse(string s, IFormatProvider? provider) => new(new HexDigest(s));
 

@@ -4,6 +4,8 @@ using System.Text.Json.Serialization.Metadata;
 
 using CanonicalJson;
 
+using Serde;
+
 namespace TUF.Serialization;
 
 public interface IAOTSerializable<T> where T : IAOTSerializable<T>
@@ -21,17 +23,17 @@ public static class MetadataSerializer
     /// <summary>
     /// Produce canonical UTF-8 bytes for a Metadata<T> instance using the custom converters.
     /// </summary>
-    public static byte[] SerializeCanonicalToUTF8Bytes<T>(T metadata) where T : IAOTSerializable<T>
+    public static byte[] SerializeCanonicalToUTF8Bytes<T>(T metadata) where T : ISerdeProvider<T>
     {
         // For common concrete role types we can use the generated context for AOT compatibility.
-        return CanonicalJsonSerializer.Serialize(metadata, T.JsonTypeInfo(MetadataJsonContext.DefaultWithAddedOptions));
+        return CanonicalJsonSerializer.Serialize(metadata);
     }
 
     /// <summary>
     /// Produce canonical UTF-8 bytes for a Metadata<T> instance using the custom converters,
     /// but return a UTF-8 string instead of bytes.
     /// </summary>
-    public static string SerializeCanonicalToUTF8String<T>(T metadata) where T : IAOTSerializable<T>
+    public static string SerializeCanonicalToUTF8String<T>(T metadata) where T : ISerdeProvider<T>
     {
         var bytes = SerializeCanonicalToUTF8Bytes(metadata);
         return Encoding.UTF8.GetString(bytes);

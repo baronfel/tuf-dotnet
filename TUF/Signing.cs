@@ -9,7 +9,7 @@ namespace TUF.Signing;
 
 public interface ISigner
 {
-    public Models.Keys.Key Key { get; }
+    public Models.Keys.KeyBase Key { get; }
     public Signature SignBytes(ReadOnlySpan<byte> data);
 }
 
@@ -20,7 +20,7 @@ public sealed class Ed25519Signer : ISigner
 {
     private readonly NSec.Cryptography.Key _privateKey;
     
-    public Models.Keys.Key Key { get; }
+    public Models.Keys.KeyBase Key { get; }
 
     public Ed25519Signer(NSec.Cryptography.Key privateKey)
     {
@@ -33,7 +33,7 @@ public sealed class Ed25519Signer : ISigner
         var publicKeyBytes = privateKey.PublicKey.Export(KeyBlobFormat.RawPublicKey);
         var hexString = new HexString(Convert.ToHexString(publicKeyBytes).ToLowerInvariant());
         var keyValue = new Ed25519KeyValue(hexString);
-        Key = new WellKnown.Ed25519(keyValue);
+        Key = new KeyBase.Ed25519(keyValue);
     }
 
     public static Ed25519Signer Generate()
@@ -62,7 +62,7 @@ public sealed class RsaSigner : ISigner
 {
     private readonly RSA _rsa;
     
-    public Models.Keys.Key Key { get; }
+    public Models.Keys.KeyBase Key { get; }
 
     public RsaSigner(RSA rsa)
     {
@@ -72,7 +72,7 @@ public sealed class RsaSigner : ISigner
         var publicKeyPem = rsa.ExportRSAPublicKeyPem();
         var pemString = new PEMString(publicKeyPem);
         var keyValue = new RsaKeyValue(pemString);
-        Key = new WellKnown.Rsa(keyValue);
+        Key = new KeyBase.Rsa(keyValue);
     }
 
     public static RsaSigner Generate(int keySize = 2048)

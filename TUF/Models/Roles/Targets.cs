@@ -1,6 +1,8 @@
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
+using Serde;
+
 using Tuf.DotNet.Serialization.Converters;
 
 using TUF.Models.Primitives;
@@ -11,7 +13,8 @@ using TUF.Serialization.Converters;
 namespace TUF.Models.Roles.Targets;
 
 
-public record struct DelegatedRoleName(string roleName);
+[GenerateSerde]
+public partial record struct DelegatedRoleName(string roleName);
 
 /// <summary>
 /// Marks types that contain their own key for dictionary-creation purposes.
@@ -24,7 +27,8 @@ public interface IKeyHolder<T, TKey> where T : IKeyHolder<T, TKey>
     static abstract TKey GetKey(T instance);
 }
 
-public record DelegationData(
+[GenerateSerde]
+public partial record DelegationData(
     [property: JsonPropertyName("name")]
     DelegatedRoleName Name,
     [property: JsonPropertyName("keyids")]
@@ -55,8 +59,8 @@ public record DelegationData(
     }
 }
 
-
-public record TargetMetadata(
+[GenerateSerde]
+public partial record TargetMetadata(
     [property: JsonPropertyName("length")]
     uint Length,
     [property: JsonPropertyName("hashes")]
@@ -65,23 +69,22 @@ public record TargetMetadata(
     Dictionary<string, object>? Custom,
     [property: JsonPropertyName("path")]
     RelativePath Path
-) : IAOTSerializable<TargetMetadata>,
-    IKeyHolder<TargetMetadata, RelativePath>,
+) : IKeyHolder<TargetMetadata, RelativePath>,
     IVerifyHashes,
     IVerifyLength
 {
-    public static JsonTypeInfo<TargetMetadata> JsonTypeInfo(MetadataJsonContext context) => context.TargetMetadata;
-
     uint? IVerifyLength.Length => Length;
 
     public static RelativePath GetKey(TargetMetadata instance) => instance.Path;
 }
 
-public record struct RoleResult(string Name, bool Terminating);
+[GenerateSerde]
+public partial record struct RoleResult(string Name, bool Terminating);
 
-public record Delegations(
+[GenerateSerde]
+public partial record Delegations(
     [property: JsonPropertyName("keys")]
-    Dictionary<KeyId, Keys.Key> Keys,
+    Dictionary<KeyId, Keys.KeyBase> Keys,
     [property: JsonPropertyName("roles")]
     [property: JsonConverter(typeof(ArrayToDictionaryConverter<DelegatedRoleName, DelegationData>))]
     Dictionary<DelegatedRoleName, DelegationData>? Roles
@@ -99,7 +102,8 @@ public record Delegations(
 
 // style nit: Can't call the type and the member Target, so in order to keep the member name aligned with TUF specifications, the member is called Targets
 //            and we 'sacrifice' the type name.
-public record TargetsRole(
+[GenerateSerde]
+public partial record TargetsRole(
     [property: JsonPropertyName("spec_version")]
     SemanticVersion SpecVersion,
     [property: JsonPropertyName("version")]
@@ -107,14 +111,11 @@ public record TargetsRole(
     [property: JsonPropertyName("expires")]
     DateTimeOffset Expires,
     [property: JsonPropertyName("targets")]
-    [property: JsonConverter(typeof(ArrayToDictionaryConverter<RelativePath, TargetMetadata>))]
     Dictionary<RelativePath, TargetMetadata> Targets,
     [property: JsonPropertyName("delegations")]
     Delegations? Delegations = null
 ) :
     IRole<TargetsRole>
 {
-    public static JsonTypeInfo<TargetsRole> JsonTypeInfo(MetadataJsonContext context) => context.TargetsRole;
-
     public static string TypeLabel => "targets";
 }

@@ -1,6 +1,8 @@
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
+using Serde;
+
 using TUF.Models.Primitives;
 using TUF.Serialization;
 using TUF.Serialization.Converters;
@@ -14,7 +16,8 @@ namespace TUF.Models.Roles.Timestamp;
 public class SnapshotFileMetadata(FileMetadata snapshotFileMetadata) :
     Dictionary<RelativePath, FileMetadata>([new(new("snapshot.json"), snapshotFileMetadata)]);
 
-public record Timestamp(
+[GenerateSerde]
+public partial record Timestamp(
     [property: JsonPropertyName("spec_version")]
     SemanticVersion SpecVersion,
     [property: JsonPropertyName("version")]

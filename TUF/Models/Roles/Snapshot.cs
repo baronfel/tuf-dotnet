@@ -1,15 +1,19 @@
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
+using Serde;
+
 using TUF.Models.Primitives;
 using TUF.Serialization;
 using TUF.Serialization.Converters;
 
 namespace TUF.Models.Roles.Snapshot;
 
-public record struct HashAlgorithm(string algo);
+[GenerateSerde]
+public partial record struct HashAlgorithm(string algo);
 
-public record Snapshot(
+[GenerateSerde]
+public partial record Snapshot(
     [property: JsonPropertyName("spec_version")]
     SemanticVersion SpecVersion,
     [property: JsonPropertyName("version")]
@@ -21,7 +25,5 @@ public record Snapshot(
 ) :
     IRole<Snapshot>
 {
-    public static JsonTypeInfo<Snapshot> JsonTypeInfo(MetadataJsonContext context) => context.Snapshot;
-
     public static string TypeLabel => "snapshot";
 }

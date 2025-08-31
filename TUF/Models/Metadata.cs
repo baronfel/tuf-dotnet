@@ -3,6 +3,8 @@ using System.Text.Json.Serialization.Metadata;
 
 using CanonicalJson;
 
+using Serde;
+
 using TUF.Models.Keys;
 using TUF.Models.Primitives;
 using TUF.Models.Roles;
@@ -16,7 +18,7 @@ using TUF.Signing;
 
 namespace TUF.Models;
 
-public interface IMetadata<T, TSigned> : IAOTSerializable<T>
+public interface IMetadata<T, TSigned> : ISerdeProvider<T>
     where T : IMetadata<T, TSigned>
     where TSigned : IRole<TSigned>
 {
@@ -38,7 +40,7 @@ public abstract class Metadata<TSigned>(TSigned signed, Dictionary<KeyId, Signat
     [JsonExtensionData]
     public Dictionary<string, object>? UnrecognizedFields { get; set; }
 
-    public byte[] SignedBytes => CanonicalJsonSerializer.Serialize(Signed, TSigned.JsonTypeInfo(MetadataJsonContext.Default));
+    public byte[] SignedBytes => CanonicalJsonSerializer.Serialize(Signed);
 
     public bool IsExpired(DateTimeOffset reference)
     {
@@ -72,7 +74,7 @@ public static class MetadataExtensions
         where T : IMetadata<T, TInner>
         where TInner : IRole<TInner>
     {
-        public void ValidateKeys<TOther, TOtherInner>(Dictionary<KeyId, Key> allKeys, RoleKeys roleKeys, TOther otherMetadata)
+        public void ValidateKeys<TOther, TOtherInner>(Dictionary<KeyId, KeyBase> allKeys, RoleKeys roleKeys, TOther otherMetadata)
             where TOther : IMetadata<TOther, TOtherInner>
             where TOtherInner : IRole<TOtherInner>
         {
@@ -163,24 +165,26 @@ public static class MetadataExtensions
     }
 }
 
-public sealed class RootMetadata(Root signed, Dictionary<KeyId, Signature> signatures) : Metadata<Root>(signed, signatures), IMetadata<RootMetadata, Root>
+[GenerateSerde]
+public partial class RootMetadata(Root signed, Dictionary<KeyId, Signature> signatures) : Metadata<Root>(signed, signatures), IMetadata<RootMetadata, Root>
 {
-    public static JsonTypeInfo<RootMetadata> JsonTypeInfo(MetadataJsonContext context) => context.RootMetadata;
+
 }
 
-public sealed class SnapshotMetadata(Snapshot signed, Dictionary<KeyId, Signature> signatures) : Metadata<Snapshot>(signed, signatures), IMetadata<SnapshotMetadata, Snapshot>
+[GenerateSerde]
+public partial class SnapshotMetadata(Snapshot signed, Dictionary<KeyId, Signature> signatures) : Metadata<Snapshot>(signed, signatures), IMetadata<SnapshotMetadata, Snapshot>
 {
-    public static JsonTypeInfo<SnapshotMetadata> JsonTypeInfo(MetadataJsonContext context) => context.SnapshotMetadata;
 }
-public sealed class TargetsMetadata(TargetsRole signed, Dictionary<KeyId, Signature> signatures) : Metadata<TargetsRole>(signed, signatures), IMetadata<TargetsMetadata, TargetsRole>
+
+[GenerateSerde]
+public partial class TargetsMetadata(TargetsRole signed, Dictionary<KeyId, Signature> signatures) : Metadata<TargetsRole>(signed, signatures), IMetadata<TargetsMetadata, TargetsRole>
 {
-    public static JsonTypeInfo<TargetsMetadata> JsonTypeInfo(MetadataJsonContext context) => context.TargetsMetadata;
 }
-public sealed class TimestampMetadata(Timestamp signed, Dictionary<KeyId, Signature> signatures) : Metadata<Timestamp>(signed, signatures), IMetadata<TimestampMetadata, Timestamp>
+[GenerateSerde]
+public partial class TimestampMetadata(Timestamp signed, Dictionary<KeyId, Signature> signatures) : Metadata<Timestamp>(signed, signatures), IMetadata<TimestampMetadata, Timestamp>
 {
-    public static JsonTypeInfo<TimestampMetadata> JsonTypeInfo(MetadataJsonContext context) => context.TimestampMetadata;
 }
-public sealed class MirrorMetadata(Mirror signed, Dictionary<KeyId, Signature> signatures) : Metadata<Mirror>(signed, signatures), IMetadata<MirrorMetadata, Mirror>
+[GenerateSerde]
+public partial class MirrorMetadata(Mirror signed, Dictionary<KeyId, Signature> signatures) : Metadata<Mirror>(signed, signatures), IMetadata<MirrorMetadata, Mirror>
 {
-    public static JsonTypeInfo<MirrorMetadata> JsonTypeInfo(MetadataJsonContext context) => context.MirrorMetadata;
 }
