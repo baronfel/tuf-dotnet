@@ -1,4 +1,5 @@
 using System.CommandLine;
+
 using TUF;
 
 namespace CliTool;
@@ -20,7 +21,7 @@ public class Program
     private static Command CreateRefreshCommand()
     {
         var metadataUrlOption = new Option<string>(
-            "--metadata-url", 
+            "--metadata-url",
             description: "URL to the TUF metadata repository")
         { IsRequired = true };
 
@@ -30,7 +31,7 @@ public class Program
         { IsRequired = true };
 
         var targetsDirOption = new Option<DirectoryInfo>(
-            "--targets-dir", 
+            "--targets-dir",
             description: "Local directory to store targets")
         { IsRequired = true };
 
@@ -58,7 +59,7 @@ public class Program
     private static Command CreateDownloadCommand()
     {
         var metadataUrlOption = new Option<string>(
-            "--metadata-url", 
+            "--metadata-url",
             description: "URL to the TUF metadata repository")
         { IsRequired = true };
 
@@ -68,7 +69,7 @@ public class Program
         { IsRequired = true };
 
         var targetsDirOption = new Option<DirectoryInfo>(
-            "--targets-dir", 
+            "--targets-dir",
             description: "Local directory to store targets")
         { IsRequired = true };
 
@@ -102,7 +103,7 @@ public class Program
     private static Command CreateInfoCommand()
     {
         var metadataUrlOption = new Option<string>(
-            "--metadata-url", 
+            "--metadata-url",
             description: "URL to the TUF metadata repository")
         { IsRequired = true };
 
@@ -112,7 +113,7 @@ public class Program
         { IsRequired = true };
 
         var targetsDirOption = new Option<DirectoryInfo>(
-            "--targets-dir", 
+            "--targets-dir",
             description: "Local directory for targets")
         { IsRequired = true };
 
@@ -156,7 +157,7 @@ public class Program
             targetsDir.Create();
 
             byte[] rootBytes = await File.ReadAllBytesAsync(trustedRoot.FullName);
-            
+
             var config = new UpdaterConfig(rootBytes, new Uri(metadataUrl))
             {
                 LocalMetadataDir = metadataDir.FullName,
@@ -180,12 +181,12 @@ public class Program
         try
         {
             Console.WriteLine($"Downloading target file: {targetFile}");
-            
+
             metadataDir.Create();
             targetsDir.Create();
 
             byte[] rootBytes = await File.ReadAllBytesAsync(trustedRoot.FullName);
-            
+
             var config = new UpdaterConfig(rootBytes, new Uri(metadataUrl))
             {
                 LocalMetadataDir = metadataDir.FullName,
@@ -194,13 +195,13 @@ public class Program
             };
 
             var updater = new Updater(config);
-            
+
             Console.WriteLine("Refreshing metadata...");
             await updater.Refresh();
 
             Console.WriteLine("Getting target information...");
             var targetInfo = await updater.GetTargetInfo(targetFile);
-            
+
             Console.WriteLine($"Target found: {targetInfo.Path}");
             Console.WriteLine($"Length: {targetInfo.Length} bytes");
 
@@ -231,7 +232,7 @@ public class Program
             targetsDir.Create();
 
             byte[] rootBytes = await File.ReadAllBytesAsync(trustedRoot.FullName);
-            
+
             var config = new UpdaterConfig(rootBytes, new Uri(metadataUrl))
             {
                 LocalMetadataDir = metadataDir.FullName,
@@ -240,12 +241,12 @@ public class Program
             };
 
             var updater = new Updater(config);
-            
+
             Console.WriteLine("Refreshing metadata...");
             await updater.Refresh();
 
             var trustedMetadata = updater.GetTrustedMetadataSet();
-            
+
             Console.WriteLine("=== TUF Repository Information ===");
             Console.WriteLine($"Root version: {trustedMetadata.Root.Signed.Version}");
             Console.WriteLine($"Root expires: {trustedMetadata.Root.Signed.Expires}");

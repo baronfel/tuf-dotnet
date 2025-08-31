@@ -5,7 +5,7 @@ using TUF.Serialization;
 
 namespace Tuf.DotNet.Serialization.Converters;
 
-internal class ParseableStringConverter<T> : JsonConverter<T> where T: IParsable<T>, IJsonStringWriteable<T>
+internal class ParseableStringConverter<T> : JsonConverter<T> where T : IParsable<T>, IJsonStringWriteable<T>
 {
     public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
     {

@@ -1,7 +1,8 @@
 using System.Text;
-using TUF.Signing;
+
 using TUF.Models.Keys;
 using TUF.Models.Primitives;
+using TUF.Signing;
 
 namespace TUF.Tests;
 

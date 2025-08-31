@@ -62,7 +62,7 @@ public record struct RelativeUri(Uri Uri)
 /// A hex-encoded signature of the canonical form of a metadata object
 /// </summary>
 [JsonConverter(typeof(ParseableStringConverter<Signature>))]
-public record struct Signature(byte[] Value): IParsable<Signature>, IJsonStringWriteable<Signature>
+public record struct Signature(byte[] Value) : IParsable<Signature>, IJsonStringWriteable<Signature>
 {
     public static Signature Parse(string s, IFormatProvider? provider) => new(Convert.FromHexString(s));
 
@@ -113,7 +113,7 @@ public record struct HexDigest(string sha256HexDigest) : IParsable<HexDigest>, I
 /// That is, a pattern like "foo/*" should match "foo/bar" but not "foo/bar/baz".
 /// </summary>
 [JsonConverter(typeof(ParseableStringConverter<PathPattern>))]
-public record struct PathPattern(string Pattern): IParsable<PathPattern>, IJsonStringWriteable<PathPattern>
+public record struct PathPattern(string Pattern) : IParsable<PathPattern>, IJsonStringWriteable<PathPattern>
 {
     private readonly Matcher _matcher => new Matcher(StringComparison.InvariantCulture).AddInclude(Pattern);
 
@@ -142,7 +142,7 @@ public record struct PathPattern(string Pattern): IParsable<PathPattern>, IJsonS
 /// PEM format and a string. All RSA keys MUST be at least 2048 bits.
 /// </summary>
 [JsonConverter(typeof(ParseableStringConverter<PEMString>))]
-public record struct PEMString(string PemEncodedValue): IParsable<PEMString>, IJsonStringWriteable<PEMString>
+public record struct PEMString(string PemEncodedValue) : IParsable<PEMString>, IJsonStringWriteable<PEMString>
 {
     public static PEMString Parse(string s, IFormatProvider? provider) => new(s);
 
@@ -164,7 +164,7 @@ public record struct PEMString(string PemEncodedValue): IParsable<PEMString>, IJ
 /// 64-bit hex-encoded string
 /// </summary>
 [JsonConverter(typeof(ParseableStringConverter<HexString>))]
-public record struct HexString(string HexEncodedValue): IParsable<HexString>, IJsonStringWriteable<HexString>
+public record struct HexString(string HexEncodedValue) : IParsable<HexString>, IJsonStringWriteable<HexString>
 {
     public static HexString Parse(string s, IFormatProvider? provider) => new(s);
 
@@ -226,7 +226,7 @@ public static class HashVerificationExtensions
         }
     }
 }
-public record FileMetadata(uint Version, uint? Length, List<DigestAlgorithms.DigestValue>? Hashes):
+public record FileMetadata(uint Version, uint? Length, List<DigestAlgorithms.DigestValue>? Hashes) :
     IVerifyHashes, IVerifyLength;
 
 public interface IVerifyHashes

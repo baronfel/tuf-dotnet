@@ -36,7 +36,7 @@ public partial class MetadataJsonContext : JsonSerializerContext
 {
     public static JsonSerializerOptions AddedOptions = CreateOptions();
     public static MetadataJsonContext DefaultWithAddedOptions = new(AddedOptions);
-    
+
     // Context for use inside converters - has proper deserialization support but no custom converters
     public static JsonSerializerOptions ConverterInternalOptions = CreateConverterInternalOptions();
     public static MetadataJsonContext ConverterInternal = new(ConverterInternalOptions);
@@ -51,7 +51,7 @@ public partial class MetadataJsonContext : JsonSerializerContext
         options.Converters.Add(new TUF.Serialization.Converters.RoleTypeJsonConverter<TUF.Models.Roles.Mirrors.Mirror>());
         return options;
     }
-    
+
     private static JsonSerializerOptions CreateConverterInternalOptions()
     {
         var options = new JsonSerializerOptions();

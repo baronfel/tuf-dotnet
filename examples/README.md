@@ -22,6 +22,15 @@ A comprehensive command-line interface built with `System.CommandLine` that prov
 
 **Best for**: Understanding how to build production TUF applications or using as a development tool.
 
+### [MultiRepositoryClient](./MultiRepositoryClient/)
+An implementation of **TAP 4: Multiple repository consensus on entrusted targets** that demonstrates:
+- Multi-repository configuration with map.json files
+- Consensus validation across multiple TUF repositories
+- Enhanced security through distributed trust
+- Flexible mapping rules for different target types
+
+**Best for**: High-security environments requiring multiple repositories to agree on targets before trusting them.
+
 ## Getting Started
 
 1. **Prerequisites**
@@ -33,6 +42,7 @@ A comprehensive command-line interface built with `System.CommandLine` that prov
    # From the repository root
    dotnet build examples/BasicClient/
    dotnet build examples/CliTool/
+   dotnet build examples/MultiRepositoryClient/
    ```
 
 3. **Run Examples**
@@ -44,6 +54,10 @@ A comprehensive command-line interface built with `System.CommandLine` that prov
    # CLI tool example
    cd examples/CliTool
    dotnet run -- --help
+
+   # Multi-repository client example
+   cd examples/MultiRepositoryClient
+   dotnet run ./demo-map.json target-file.txt
    ```
 
 ## Understanding TUF

@@ -95,7 +95,7 @@ public static class WellKnown
             try
             {
                 var publicKeyBytes = Convert.FromHexString(Public.Public.HexEncodedValue);
-                var publicKey = NSec.Cryptography.PublicKey.Import(NSec.Cryptography.SignatureAlgorithm.Ed25519, 
+                var publicKey = NSec.Cryptography.PublicKey.Import(NSec.Cryptography.SignatureAlgorithm.Ed25519,
                     publicKeyBytes, NSec.Cryptography.KeyBlobFormat.RawPublicKey);
                 return NSec.Cryptography.SignatureAlgorithm.Ed25519.Verify(publicKey, payloadBytes, signatureBytes);
             }

@@ -1,5 +1,7 @@
 using System.Security.Cryptography;
+
 using NSec.Cryptography;
+
 using TUF.Models.Keys;
 using TUF.Models.Keys.Types;
 using TUF.Models.Keys.Values;
@@ -19,16 +21,16 @@ public interface ISigner
 public sealed class Ed25519Signer : ISigner
 {
     private readonly NSec.Cryptography.Key _privateKey;
-    
+
     public Models.Keys.Key Key { get; }
 
     public Ed25519Signer(NSec.Cryptography.Key privateKey)
     {
         if (privateKey.Algorithm != SignatureAlgorithm.Ed25519)
             throw new ArgumentException("Private key must be Ed25519", nameof(privateKey));
-            
+
         _privateKey = privateKey;
-        
+
         // Get the public key bytes and create the TUF Key
         var publicKeyBytes = privateKey.PublicKey.Export(KeyBlobFormat.RawPublicKey);
         var hexString = new HexString(Convert.ToHexString(publicKeyBytes).ToLowerInvariant());
@@ -61,13 +63,13 @@ public sealed class Ed25519Signer : ISigner
 public sealed class RsaSigner : ISigner
 {
     private readonly RSA _rsa;
-    
+
     public Models.Keys.Key Key { get; }
 
     public RsaSigner(RSA rsa)
     {
         _rsa = rsa ?? throw new ArgumentNullException(nameof(rsa));
-        
+
         // Export public key as PEM and create TUF Key
         var publicKeyPem = rsa.ExportRSAPublicKeyPem();
         var pemString = new PEMString(publicKeyPem);

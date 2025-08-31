@@ -7,7 +7,7 @@ using TUF.Serialization;
 
 namespace Tuf.DotNet.Serialization.Converters;
 
-public class ArrayToDictionaryConverter<TKey, TValue> : JsonConverter<Dictionary<TKey, TValue>> 
+public class ArrayToDictionaryConverter<TKey, TValue> : JsonConverter<Dictionary<TKey, TValue>>
     where TValue : IAOTSerializable<TValue>, IKeyHolder<TValue, TKey>
     where TKey : notnull
 {

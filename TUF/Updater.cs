@@ -55,7 +55,7 @@ public class Updater
         }
         return c.Targets.TopLevelTargets.Signed.Targets;
     }
-    
+
     public TrustedMetadata GetTrustedMetadataSet() => _trusted;
 
     public async Task<TUF.Models.Roles.Targets.TargetMetadata> GetTargetInfo(string targetPath)
@@ -220,7 +220,8 @@ public class Updater
             _trusted = _trusted.UpdateSnapshot(data, isTrusted: false);
             await PersistMetadata(Models.Roles.Snapshot.Snapshot.TypeLabel, data);
         }
-        else {
+        else
+        {
             throw new Exception("trusted timestamp not loaded");
         }
     }
