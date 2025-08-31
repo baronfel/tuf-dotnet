@@ -7,4 +7,8 @@
     <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Serde" Version="0.8.0" />
+  </ItemGroup>
+
 </Project>
