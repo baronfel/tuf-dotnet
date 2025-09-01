@@ -6,4 +6,5 @@
   <Project Path="examples/BasicClient/BasicClient.csproj" />
   <Project Path="examples/CliTool/CliTool.csproj" />
   <Project Path="examples/SigningDemo/SigningDemo.csproj" />
+  <Project Path="examples/TufConformanceCli/TufConformanceCli.csproj" />
 </Solution>
