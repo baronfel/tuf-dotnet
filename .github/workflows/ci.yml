@@ -48,3 +48,31 @@ jobs:
       - name: Test
         run: |
           dotnet test --configuration Release --no-build --verbosity normal
+
+  tuf-conformance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Install .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: build TUF conformance CLI
+        run: dotnet publish examples/TufConformanceCli/TufConformanceCli.csproj
+
+      - uses: theupdateframework/tuf-conformance@v2
+        with:
+          entrypoint: examples/TufConformanceCli/bin/Release/net10.0/linux-x64/publish/TufConformanceCli
