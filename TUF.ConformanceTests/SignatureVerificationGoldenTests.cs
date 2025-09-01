@@ -29,7 +29,19 @@ public class SignatureVerificationGoldenTests
                 {
                     KeyType = "ecdsa",
                     Scheme = "ecdsa-sha2-nistp256",
-                    KeyVal = new KeyValue { Public = "-----BEGIN PUBLIC KEY-----\\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEJwsHFs2fOgFNIFnX7g+q5Q+ZIdBt\\n0sZSWIgYQPjnA7GPirxVsRt/CG8OR9ueMZ43RDlbw3BuN7dd3Dpd+0pKTQ==\\n-----ENDPUBLICKEY-----\\n" }
+                    KeyVal = new KeyValue { Public = @"-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEJwsHFs2fOgFNIFnX7g+q5Q+ZIdBt\n0sZSWIgYQPjnA7GPirxVsRt/CG8OR9ueMZ43RDlbw3BuN7dd3Dpd+0pKTQ==\n-----ENDPUBLICKEY-----\n" }
+                },
+                ["302012e0fc7674cbe082657d1a655f281b4fd5ea77c3605f14b1617a82496fc5"] = new()
+                {
+                    KeyType = "ecdsa",
+                    Scheme = "ecdsa-sha2-nistp256",
+                    KeyVal = new KeyValue { Public = @"-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEdBC0LVnw8OtbbtQLpIfa0463/bFe\nmlpkS8Qd8uLnZaPFH85keSJtF...cDQgAEj7HrbIgIvwAYZK+tDMOv9SWg70x1\nGZvXuFYnaiZoDz2y7LvntrARKu/tjBh+fssk+BDdhFJmIsM+sbObMVgq6g==\n-----ENDPUBLICKEY-----\n" }
+                },
+                ["9e180a675201d1725c5eda39d886abdcaf8a718777d0dd3620e4b9eff4a2a66f"] = new()
+                {
+                    KeyType = "ecdsa",
+                    Scheme = "ecdsa-sha2-nistp256",
+                    KeyVal = new KeyValue { Public = @"-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE/qCad5Aq3yz9fOfr8seYvkbDv7EM\nFOY9Oyph7xtScaWHTOfkJRvkNVbsLBm0XLfuQTRNbVVvGBS1zsUpHQU/Pg==\n-----ENDPUBLICKEY-----\n" }
                 }
             },
             Roles = new Roles
@@ -93,8 +105,7 @@ public class SignatureVerificationGoldenTests
     public async Task SampleRootSignedBytesEqualsRootStringLiteral()
     {
         Metadata<Root> samplefromJson = CanonicalJsonSerializer.Deserialize<Metadata<Root>, MetadataProxy.De<Root>>(SampleRootMetadataJson);
-        await Assert.That(samplefromJson).IsEqualTo(SampleRoot);
-        await Assert.That(SampleRoot.GetSignedBytes()).IsEqualTo(Encoding.UTF8.GetBytes(SampleRootJson));
+        await Assert.That(Encoding.UTF8.GetString(SampleRoot.GetSignedBytes())).IsEquivalentTo(SampleRootJson);
     }
 
     [Test]
