@@ -1,6 +1,6 @@
 using Serde;
 
-namespace TUF.Models.Simple;
+namespace TUF.Models;
 
 /// <summary>
 /// Represents a unique identifier for a cryptographic key in TUF.
@@ -71,7 +71,7 @@ public partial record Key
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "keytype")]
     public string KeyType { get; init; } = "";
-    
+
     /// <summary>
     /// The cryptographic signature scheme used with this key.
     /// </summary>
@@ -83,12 +83,50 @@ public partial record Key
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "scheme")]
     public string Scheme { get; init; } = "";
-    
+
     /// <summary>
     /// The public key value containing the cryptographic material.
     /// </summary>
     [property: SerdeMemberOptions(Rename = "keyval")]
     public KeyValue KeyVal { get; init; } = new();
+    
+    [property: SerdeMemberOptions(Skip = true)]
+    public KeyId Id
+    {
+        get
+        {
+            field ??= new(SimplifiedMetadataExtensions.GetKeyId(this));
+            return field;
+        }
+    }
+
+    /// <summary>
+    /// Verifies a cryptographic signature using the appropriate algorithm based on key type.
+    /// Supports Ed25519, RSA PSS, and ECDSA signature verification.
+    /// </summary>
+    /// <param name="key">The key to use for verification</param>
+    /// <param name="signature">Hex-encoded signature to verify</param>
+    /// <param name="signedBytes">The data that was signed</param>
+    /// <returns>True if the signature is valid, false otherwise</returns>
+    /// <remarks>
+    /// This method implements cryptographic signature verification for all TUF-supported key types:
+    /// 
+    /// - Ed25519: Modern elliptic curve signature scheme with excellent security and performance
+    /// - RSA: Traditional RSA with PSS padding and SHA-256 hashing (minimum 2048 bits)
+    /// - ECDSA: Elliptic curve signature scheme using NIST P-256 curve with SHA-256
+    /// 
+    /// The method handles:
+    /// - Hex decoding of signature values
+    /// - Public key import from various formats (PEM, raw bytes)
+    /// - Algorithm-specific verification procedures
+    /// - Proper error handling for invalid signatures or malformed keys
+    /// 
+    /// Security considerations:
+    /// - All exceptions during verification result in returning false (fail-safe)
+    /// - Uses constant-time comparison where possible to prevent timing attacks
+    /// - Validates key formats before attempting cryptographic operations
+    /// </remarks>
+    public bool VerifySignature(string signature, byte[] signedBytes) => this.VerifyKeySignature(signature, signedBytes);
 }
 
 /// <summary>
@@ -108,7 +146,7 @@ public partial record SignatureObject
     /// </summary>
     [property: SerdeMemberOptions(Rename = "keyid")]
     public string KeyId { get; init; } = "";
-    
+
     /// <summary>
     /// The hex-encoded signature value.
     /// </summary>

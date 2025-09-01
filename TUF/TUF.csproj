@@ -7,23 +7,8 @@
     <Nullable>enable</Nullable>
     <IsAotCompatible>true</IsAotCompatible>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Include="Models/Simple/Primitives.cs" />
-    <Compile Include="Models/Simple/Roles.cs" />
-    <Compile Include="Models/Simple/Root.cs" />
-    <Compile Include="Models/Simple/Timestamp.cs" />
-    <Compile Include="Models/Simple/Snapshot.cs" />
-    <Compile Include="Models/Simple/Targets.cs" />
-    <Compile Include="Models/Simple/Mirrors.cs" />
-    <Compile Include="Models/Simple/Metadata.cs" />
-    <Compile Include="Models/Simple/Extensions.cs" />
-    <Compile Include="Models/Simple/Signing.cs" />
-    <Compile Include="Models/Simple/TrustedMetadata.cs" />
-  </ItemGroup>
-
+  
   <ItemGroup>
     <ProjectReference Include="..\CanonicalJson\CanonicalJson.csproj" />
   </ItemGroup>

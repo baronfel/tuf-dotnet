@@ -1,6 +1,8 @@
+using Microsoft.Extensions.FileSystemGlobbing;
+
 using Serde;
 
-namespace TUF.Models.Simple;
+namespace TUF.Models;
 
 /// <summary>
 /// Represents a target file with its metadata including size and cryptographic hashes.
@@ -89,21 +91,21 @@ public partial record DelegatedRole
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "name")]
     public string Name { get; init; } = "";
-    
+
     /// <summary>
     /// List of key identifiers authorized to sign for this delegated role.
     /// Keys must be defined in the delegation's key dictionary.
     /// </summary>
     [property: SerdeMemberOptions(Rename = "keyids")]
     public List<string> KeyIds { get; init; } = new();
-    
+
     /// <summary>
     /// Minimum number of signatures required from the authorized keys.
     /// Provides multi-signature security for delegated roles.
     /// </summary>
     [property: SerdeMemberOptions(Rename = "threshold")]
     public int Threshold { get; init; } = 1;
-    
+
     /// <summary>
     /// Optional list of path patterns this role is responsible for.
     /// Uses glob patterns to specify which target files this role can sign for.
@@ -120,7 +122,7 @@ public partial record DelegatedRole
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "paths")]
     public List<string>? Paths { get; init; }
-    
+
     /// <summary>
     /// Optional list of path hash prefixes this role is responsible for.
     /// Alternative to 'paths' that uses hash-based path distribution.
@@ -136,7 +138,7 @@ public partial record DelegatedRole
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "path_hash_prefixes")]
     public List<string>? PathHashPrefixes { get; init; }
-    
+
     /// <summary>
     /// Whether this role terminates the delegation search.
     /// If true, no further delegated roles are consulted for paths this role handles.
@@ -150,6 +152,21 @@ public partial record DelegatedRole
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "terminating")]
     public bool Terminating { get; init; } = false;
+
+    public bool IsDelegatedPath(string targetFile)
+    {
+        if (Paths is null || Paths.Count == 0)
+        {
+            return true;
+        }
+        return Paths.Any(p => PathIsMatch(p, targetFile));
+    }
+
+    public static bool PathIsMatch(string path, string targetFile)
+    {
+        var matcher = new Matcher(StringComparison.InvariantCulture).AddInclude(path);
+        return matcher.Match(targetFile).HasMatches;
+    }
 }
 
 /// <summary>
@@ -175,7 +192,7 @@ public partial record Delegations
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "keys")]
     public Dictionary<string, Key> Keys { get; init; } = new();
-    
+
     /// <summary>
     /// List of delegated role definitions in priority order.
     /// Earlier roles in the list are consulted before later roles.
@@ -189,7 +206,17 @@ public partial record Delegations
     /// Careful ordering ensures predictable behavior and optimal performance.
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "roles")]
+
     public List<DelegatedRole> Roles { get; init; } = new();
+    
+    public List<(string Name, bool Terminating)> GetRolesForTarget(string targetFile)
+    {
+        if (Roles is null)
+        {
+            return [];
+        }
+        return Roles.Where(r => r.IsDelegatedPath(targetFile)).Select(r => (r.Name, r.Terminating)).ToList();
+    }
 }
 
 /// <summary>

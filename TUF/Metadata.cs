@@ -2,7 +2,7 @@ using System.Reflection;
 
 using Serde;
 
-namespace TUF.Models.Simple;
+namespace TUF.Models;
 
 /// <summary>
 /// Generic wrapper for TUF metadata that combines signed content with cryptographic signatures.

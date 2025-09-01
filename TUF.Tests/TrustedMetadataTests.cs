@@ -1,4 +1,4 @@
-using TUF.Models.Simple;
+using TUF.Models;
 using TUnit.Core;
 using TUnit.Assertions;
 

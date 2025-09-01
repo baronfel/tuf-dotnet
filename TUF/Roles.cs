@@ -1,6 +1,6 @@
 using Serde;
 
-namespace TUF.Models.Simple;
+namespace TUF.Models;
 
 /// <summary>
 /// Represents the key assignment and threshold for a TUF role.

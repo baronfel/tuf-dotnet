@@ -1,11 +1,6 @@
 using System.Text;
 using System.Text.Json;
 using TUF.Models;
-using TUF.Models.Keys;
-using TUF.Models.Primitives;
-using TUF.Models.Roles;
-using TUF.Serialization;
-using TUF.Signing;
 
 namespace SigningDemo;
 
@@ -46,22 +41,22 @@ public class Program
 
         // Generate an Ed25519 key pair
         var signer = Ed25519Signer.Generate();
-        Console.WriteLine($"✓ Generated Ed25519 key: {signer.Key.Id.ToJsonString()[..16]}...");
+        Console.WriteLine($"✓ Generated Ed25519 key: {signer.Key.Id.Value[..16]}...");
 
         // Sign some data
         var testMessage = "Hello, TUF World! This message is signed with Ed25519."u8.ToArray();
         var signature = signer.SignBytes(testMessage);
 
         Console.WriteLine($"✓ Signed {testMessage.Length} bytes of data");
-        Console.WriteLine($"✓ Signature length: {signature.Value.Length} bytes");
+        Console.WriteLine($"✓ Signature length: {signature.Sig.Length} bytes");
 
         // Verify the signature
-        var isValid = signer.Key.VerifySignature(signature.Value, testMessage);
+        var isValid = signer.Key.VerifySignature(signature.Sig, testMessage);
         Console.WriteLine($"✓ Signature verification: {(isValid ? "VALID" : "INVALID")}");
 
         // Demonstrate that tampering breaks verification
         var tamperedMessage = "Hello, TUF World! This message has been tampered with."u8.ToArray();
-        var isTamperedValid = signer.Key.VerifySignature(signature.Value, tamperedMessage);
+        var isTamperedValid = signer.Key.VerifySignature(signature.Sig, tamperedMessage);
         Console.WriteLine($"✓ Tampered message verification: {(isTamperedValid ? "VALID (UNEXPECTED!)" : "INVALID (EXPECTED)")}");
     }
 
@@ -72,23 +67,23 @@ public class Program
 
         // Generate an RSA key pair
         var signer = RsaSigner.Generate(2048);
-        Console.WriteLine($"✓ Generated RSA-PSS key: {signer.Key.Id.ToJsonString()[..16]}...");
+        Console.WriteLine($"✓ Generated RSA-PSS key: {signer.Key.Id.Value[..16]}...");
 
         // Sign some data
         var testMessage = "This message demonstrates RSA-PSS signing in TUF .NET."u8.ToArray();
         var signature = signer.SignBytes(testMessage);
 
         Console.WriteLine($"✓ Signed {testMessage.Length} bytes of data");
-        Console.WriteLine($"✓ Signature length: {signature.Value.Length} bytes");
+        Console.WriteLine($"✓ Signature length: {signature.Sig.Length} bytes");
 
         // Verify the signature
-        var isValid = signer.Key.VerifySignature(signature.Value, testMessage);
+        var isValid = signer.Key.VerifySignature(signature.Sig, testMessage);
         Console.WriteLine($"✓ Signature verification: {(isValid ? "VALID" : "INVALID")}");
 
         // Demonstrate different signers produce different signatures
         var signer2 = RsaSigner.Generate(2048);
         var signature2 = signer2.SignBytes(testMessage);
-        Console.WriteLine($"✓ Different signers produce different signatures: {!signature.Value.SequenceEqual(signature2.Value)}");
+        Console.WriteLine($"✓ Different signers produce different signatures: {!signature.Sig.SequenceEqual(signature2.Sig)}");
     }
 
     private static async Task DemonstrateKeyCompatibility()
@@ -102,9 +97,9 @@ public class Program
         var rsa4096Signer = RsaSigner.Generate(4096);
 
         Console.WriteLine("✓ Generated multiple signers:");
-        Console.WriteLine($"  Ed25519 Key ID:   {ed25519Signer.Key.Id.ToJsonString()}");
-        Console.WriteLine($"  RSA-2048 Key ID:  {rsaSigner.Key.Id.ToJsonString()}");
-        Console.WriteLine($"  RSA-4096 Key ID:  {rsa4096Signer.Key.Id.ToJsonString()}");
+        Console.WriteLine($"  Ed25519 Key ID:   {ed25519Signer.Key.Id.Value}");
+        Console.WriteLine($"  RSA-2048 Key ID:  {rsaSigner.Key.Id.Value}");
+        Console.WriteLine($"  RSA-4096 Key ID:  {rsa4096Signer.Key.Id.Value}");
 
         // Demonstrate key types and schemes
         Console.WriteLine("\n✓ Key algorithm information:");
@@ -118,18 +113,18 @@ public class Program
         var rsaSignature = rsaSigner.SignBytes(testData);
 
         Console.WriteLine("\n✓ Cross-algorithm verification tests:");
-        Console.WriteLine($"  Ed25519 verifying RSA signature:    {ed25519Signer.Key.VerifySignature(rsaSignature.Value, testData)} (Expected: False)");
-        Console.WriteLine($"  RSA verifying Ed25519 signature:    {rsaSigner.Key.VerifySignature(ed25519Signature.Value, testData)} (Expected: False)");
+        Console.WriteLine($"  Ed25519 verifying RSA signature:    {ed25519Signer.Key.VerifySignature(rsaSignature.Sig, testData)} (Expected: False)");
+        Console.WriteLine($"  RSA verifying Ed25519 signature:    {rsaSigner.Key.VerifySignature(ed25519Signature.Sig, testData)} (Expected: False)");
         
         // Demonstrate proper verification
         Console.WriteLine("\n✓ Proper algorithm verification:");
-        Console.WriteLine($"  Ed25519 verifying own signature:    {ed25519Signer.Key.VerifySignature(ed25519Signature.Value, testData)} (Expected: True)");
-        Console.WriteLine($"  RSA verifying own signature:        {rsaSigner.Key.VerifySignature(rsaSignature.Value, testData)} (Expected: True)");
+        Console.WriteLine($"  Ed25519 verifying own signature:    {ed25519Signer.Key.VerifySignature(ed25519Signature.Sig, testData)} (Expected: True)");
+        Console.WriteLine($"  RSA verifying own signature:        {rsaSigner.Key.VerifySignature(rsaSignature.Sig, testData)} (Expected: True)");
 
         // Show signature sizes
         Console.WriteLine("\n✓ Signature size comparison:");
-        Console.WriteLine($"  Ed25519 signature size: {ed25519Signature.Value.Length} bytes");
-        Console.WriteLine($"  RSA-2048 signature size: {rsaSignature.Value.Length} bytes");
-        Console.WriteLine($"  RSA-4096 signature size: {rsa4096Signer.SignBytes(testData).Value.Length} bytes");
+        Console.WriteLine($"  Ed25519 signature size: {ed25519Signature.Sig.Length} bytes");
+        Console.WriteLine($"  RSA-2048 signature size: {rsaSignature.Sig.Length} bytes");
+        Console.WriteLine($"  RSA-4096 signature size: {rsa4096Signer.SignBytes(testData).Sig.Length} bytes");
     }
 }

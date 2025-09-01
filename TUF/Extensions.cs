@@ -2,7 +2,7 @@ using Serde;
 
 using System.Security.Cryptography;
 
-namespace TUF.Models.Simple;
+namespace TUF.Models;
 
 /// <summary>
 /// Extension methods for TUF metadata validation and verification.
@@ -233,52 +233,52 @@ public static class SimplifiedMetadataExtensions
             var hashBytes = System.Security.Cryptography.SHA256.HashData(keyBytes);
             return Convert.ToHexString(hashBytes).ToLowerInvariant();
         }
-    }
 
-    /// <summary>
-    /// Verifies a cryptographic signature using the appropriate algorithm based on key type.
-    /// Supports Ed25519, RSA PSS, and ECDSA signature verification.
-    /// </summary>
-    /// <param name="key">The key to use for verification</param>
-    /// <param name="signature">Hex-encoded signature to verify</param>
-    /// <param name="signedBytes">The data that was signed</param>
-    /// <returns>True if the signature is valid, false otherwise</returns>
-    /// <remarks>
-    /// This method implements cryptographic signature verification for all TUF-supported key types:
-    /// 
-    /// - Ed25519: Modern elliptic curve signature scheme with excellent security and performance
-    /// - RSA: Traditional RSA with PSS padding and SHA-256 hashing (minimum 2048 bits)
-    /// - ECDSA: Elliptic curve signature scheme using NIST P-256 curve with SHA-256
-    /// 
-    /// The method handles:
-    /// - Hex decoding of signature values
-    /// - Public key import from various formats (PEM, raw bytes)
-    /// - Algorithm-specific verification procedures
-    /// - Proper error handling for invalid signatures or malformed keys
-    /// 
-    /// Security considerations:
-    /// - All exceptions during verification result in returning false (fail-safe)
-    /// - Uses constant-time comparison where possible to prevent timing attacks
-    /// - Validates key formats before attempting cryptographic operations
-    /// </remarks>
-    private static bool VerifyKeySignature(Key key, string signature, byte[] signedBytes)
-    {
-        try
+        /// <summary>
+        /// Verifies a cryptographic signature using the appropriate algorithm based on key type.
+        /// Supports Ed25519, RSA PSS, and ECDSA signature verification.
+        /// </summary>
+        /// <param name="key">The key to use for verification</param>
+        /// <param name="signature">Hex-encoded signature to verify</param>
+        /// <param name="signedBytes">The data that was signed</param>
+        /// <returns>True if the signature is valid, false otherwise</returns>
+        /// <remarks>
+        /// This method implements cryptographic signature verification for all TUF-supported key types:
+        /// 
+        /// - Ed25519: Modern elliptic curve signature scheme with excellent security and performance
+        /// - RSA: Traditional RSA with PSS padding and SHA-256 hashing (minimum 2048 bits)
+        /// - ECDSA: Elliptic curve signature scheme using NIST P-256 curve with SHA-256
+        /// 
+        /// The method handles:
+        /// - Hex decoding of signature values
+        /// - Public key import from various formats (PEM, raw bytes)
+        /// - Algorithm-specific verification procedures
+        /// - Proper error handling for invalid signatures or malformed keys
+        /// 
+        /// Security considerations:
+        /// - All exceptions during verification result in returning false (fail-safe)
+        /// - Uses constant-time comparison where possible to prevent timing attacks
+        /// - Validates key formats before attempting cryptographic operations
+        /// </remarks>
+        public bool VerifyKeySignature(string signature, byte[] signedBytes)
         {
-            var signatureBytes = Convert.FromHexString(signature);
-
-            // Verify signature based on key type and scheme combination (pinned types)
-            return (key.KeyType, key.Scheme) switch
+            try
             {
-                ("ed25519", "ed25519") => VerifyEd25519Signature(key.KeyVal.Public, signatureBytes, signedBytes),
-                ("rsa", "rsassa-pss-sha256") => VerifyRsaSignature(key.KeyVal.Public, signatureBytes, signedBytes),
-                ("ecdsa", "ecdsa-sha2-nistp256") => VerifyEcdsaSignature(key.KeyVal.Public, signatureBytes, signedBytes),
-                _ => throw new NotSupportedException($"Key type/scheme combination {key.KeyType}/{key.Scheme} is not supported")
-            };
-        }
-        catch
-        {
-            return false;
+                var signatureBytes = Convert.FromHexString(signature);
+
+                // Verify signature based on key type and scheme combination (pinned types)
+                return (key.KeyType, key.Scheme) switch
+                {
+                    ("ed25519", "ed25519") => VerifyEd25519Signature(key.KeyVal.Public, signatureBytes, signedBytes),
+                    ("rsa", "rsassa-pss-sha256") => VerifyRsaSignature(key.KeyVal.Public, signatureBytes, signedBytes),
+                    ("ecdsa", "ecdsa-sha2-nistp256") => VerifyEcdsaSignature(key.KeyVal.Public, signatureBytes, signedBytes),
+                    _ => throw new NotSupportedException($"Key type/scheme combination {key.KeyType}/{key.Scheme} is not supported")
+                };
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 

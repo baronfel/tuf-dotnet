@@ -1,4 +1,4 @@
-using TUF.Models.Simple;
+using TUF.Models;
 
 namespace TUF.Tests;
 

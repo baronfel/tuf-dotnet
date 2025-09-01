@@ -1,6 +1,6 @@
 using Serde;
 
-namespace TUF.Models.Simple;
+namespace TUF.Models;
 
 /// <summary>
 /// Represents the signed portion of TUF root metadata.
