@@ -6,21 +6,46 @@ namespace TufConformanceCli;
 /// <summary>
 /// TUF Conformance CLI implementation following the CLIENT-CLI.md specification
 /// from the TUF conformance test suite: https://github.com/theupdateframework/tuf-conformance
+/// 
+/// Note: The TUF conformance spec designers clearly didn't think through CLI design patterns.
+/// This mess of repetitive global options could have been avoided with better API design.
 /// </summary>
 public class Program
 {
-    // Shared options to reduce duplication
+    // All options moved to root and made recursive to reduce the insanity
     private static readonly Option<DirectoryInfo> MetadataDirOption = new("--metadata-dir")
     {
         Description = "Directory for metadata storage",
-        Required = true,
         Recursive = true
     };
 
     private static readonly Option<string> MetadataUrlOption = new("--metadata-url")
     {
         Description = "Base URL for metadata",
-        Required = true
+        Recursive = true
+    };
+
+    private static readonly Option<string> TargetNameOption = new("--target-name")
+    {
+        Description = "Name of target to download",
+        Recursive = true
+    };
+
+    private static readonly Option<string> TargetBaseUrlOption = new("--target-base-url")
+    {
+        Description = "Base URL for targets",
+        Recursive = true
+    };
+
+    private static readonly Option<DirectoryInfo> TargetDirOption = new("--target-dir")
+    {
+        Description = "Directory to save downloaded target",
+        Recursive = true
+    };
+
+    private static readonly Argument<FileInfo> TrustedRootArg = new("trusted-root")
+    {
+        Description = "Path to trusted root.json file"
     };
 
     public static async Task<int> Main(string[] args)
@@ -30,7 +55,11 @@ public class Program
             CreateInitCommand(),
             CreateRefreshCommand(),
             CreateDownloadCommand(),
-            MetadataDirOption
+            MetadataDirOption,
+            MetadataUrlOption,
+            TargetNameOption,
+            TargetBaseUrlOption,
+            TargetDirOption,
         };
 
         return await rootCommand.Parse(args).InvokeAsync();
@@ -38,20 +67,25 @@ public class Program
 
     private static Command CreateInitCommand()
     {
-        var trustedRootArg = new Argument<FileInfo>("trusted-root")
-        {
-            Description = "Path to trusted root.json file"
-        };
-
-        var command = new Command("init", "Initialize client's local trusted metadata")
-        {
-            trustedRootArg
-        };
-
+        var command = new Command("init", "Initialize client's local trusted metadata");
+        command.Add(TrustedRootArg);
         command.SetAction((parseResult) =>
         {
-            var metadataDir = parseResult.GetValue(MetadataDirOption)!;
-            var trustedRoot = parseResult.GetValue(trustedRootArg)!;
+            // Explicit error checking because the TUF conformance spec is a nightmare
+            var metadataDir = parseResult.GetValue(MetadataDirOption);
+            if (metadataDir == null)
+            {
+                Console.Error.WriteLine("Error: --metadata-dir is required for init command");
+                return 1;
+            }
+
+            var trustedRoot = parseResult.GetValue(TrustedRootArg);
+            if (trustedRoot == null)
+            {
+                Console.Error.WriteLine("Error: trusted-root argument is required for init command");
+                return 1;
+            }
+
             var exitCode = HandleInitCommand(metadataDir.FullName, trustedRoot.FullName);
             return exitCode;
         });
@@ -61,15 +95,25 @@ public class Program
 
     private static Command CreateRefreshCommand()
     {
-        var command = new Command("refresh", "Update local metadata from repository")
-        {
-            MetadataUrlOption
-        };
+        var command = new Command("refresh", "Update local metadata from repository");
 
         command.SetAction(async (parseResult, token) =>
         {
-            var metadataDir = parseResult.GetValue(MetadataDirOption)!;
-            var metadataUrl = parseResult.GetValue(MetadataUrlOption)!;
+            // More explicit error checking because whoever designed this CLI spec hates developers
+            var metadataDir = parseResult.GetValue(MetadataDirOption);
+            if (metadataDir == null)
+            {
+                Console.Error.WriteLine("Error: --metadata-dir is required for refresh command");
+                return 1;
+            }
+
+            var metadataUrl = parseResult.GetValue(MetadataUrlOption);
+            if (string.IsNullOrEmpty(metadataUrl))
+            {
+                Console.Error.WriteLine("Error: --metadata-url is required for refresh command");
+                return 1;
+            }
+
             var exitCode = await HandleRefreshCommand(metadataDir.FullName, metadataUrl);
             return exitCode;
         });
@@ -79,40 +123,46 @@ public class Program
 
     private static Command CreateDownloadCommand()
     {
-        var targetNameOption = new Option<string>("--target-name")
-        {
-            Description = "Name of target to download",
-            Required = true
-        };
-
-        var targetBaseUrlOption = new Option<string>("--target-base-url")
-        {
-            Description = "Base URL for targets",
-            Required = true
-        };
-
-        var targetDirOption = new Option<DirectoryInfo>("--target-dir")
-        {
-            Description = "Directory to save downloaded target",
-            Required = true
-        };
-
-        var command = new Command("download", "Download and verify an artifact from repository")
-        {
-            MetadataUrlOption,
-            targetNameOption,
-            targetBaseUrlOption,
-            targetDirOption
-        };
+        var command = new Command("download", "Download and verify an artifact from repository");
 
         command.SetAction(async (parseResult, token) =>
         {
-            var metadataDir = parseResult.GetValue(MetadataDirOption)!;
-            var metadataUrl = parseResult.GetValue(MetadataUrlOption)!;
-            var targetName = parseResult.GetValue(targetNameOption)!;
-            var targetBaseUrl = parseResult.GetValue(targetBaseUrlOption)!;
-            var targetDir = parseResult.GetValue(targetDirOption)!;
-            
+            // Even more explicit error checking because the TUF conformance devs apparently love making life difficult
+            var metadataDir = parseResult.GetValue(MetadataDirOption);
+            if (metadataDir == null)
+            {
+                Console.Error.WriteLine("Error: --metadata-dir is required for download command");
+                return 1;
+            }
+
+            var metadataUrl = parseResult.GetValue(MetadataUrlOption);
+            if (string.IsNullOrEmpty(metadataUrl))
+            {
+                Console.Error.WriteLine("Error: --metadata-url is required for download command");
+                return 1;
+            }
+
+            var targetName = parseResult.GetValue(TargetNameOption);
+            if (string.IsNullOrEmpty(targetName))
+            {
+                Console.Error.WriteLine("Error: --target-name is required for download command");
+                return 1;
+            }
+
+            var targetBaseUrl = parseResult.GetValue(TargetBaseUrlOption);
+            if (string.IsNullOrEmpty(targetBaseUrl))
+            {
+                Console.Error.WriteLine("Error: --target-base-url is required for download command");
+                return 1;
+            }
+
+            var targetDir = parseResult.GetValue(TargetDirOption);
+            if (targetDir == null)
+            {
+                Console.Error.WriteLine("Error: --target-dir is required for download command");
+                return 1;
+            }
+
             var exitCode = await HandleDownloadCommand(metadataDir.FullName, metadataUrl, targetName, targetBaseUrl, targetDir.FullName);
             return exitCode;
         });
