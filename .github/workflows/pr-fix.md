@@ -43,6 +43,24 @@ tools:
 
 timeout_minutes: 20
 
+steps:
+  - name: Checkout repository
+    uses: actions/checkout@v5
+
+  - name: Check if action.yml exists
+    id: check_build_steps_file
+    run: |
+      if [ -f ".github/actions/achieve-parity/build-steps/action.yml" ]; then
+        echo "exists=true" >> $GITHUB_OUTPUT
+      else
+        echo "exists=false" >> $GITHUB_OUTPUT
+      fi
+    shell: bash
+  - name: Build the project
+    if: steps.check_build_steps_file.outputs.exists == 'true'
+    uses: ./.github/actions/achieve-parity/build-steps
+    id: build-steps
+
 ---
 
 # PR Fix
