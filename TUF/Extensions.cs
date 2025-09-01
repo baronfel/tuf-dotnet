@@ -114,7 +114,7 @@ public static class SimplifiedMetadataExtensions
         public byte[] GetSignedBytes()
         {
             // Serialize the signed portion using canonical JSON as required by TUF spec
-            return CanonicalJsonSerializer.Serialize(sourceMetadata.Signed);
+            return CanonicalJson.Serializer.Serialize(sourceMetadata.Signed);
         }
     }
 
@@ -226,7 +226,7 @@ public static class SimplifiedMetadataExtensions
         public string GetKeyId()
         {
             // Serialize the key to canonical JSON
-            var keyBytes = CanonicalJsonSerializer.Serialize(key);
+            var keyBytes = CanonicalJson.Serializer.Serialize(key);
             
             // Compute SHA-256 hash
             var hashBytes = System.Security.Cryptography.SHA256.HashData(keyBytes);

@@ -303,7 +303,7 @@ public class TrustedMetadataTests
         };
         
         // Sign the expired root
-        var expiredSignedBytes = CanonicalJsonSerializer.Serialize(expiredRoot.Signed);
+        var expiredSignedBytes = CanonicalJson.Serializer.Serialize(expiredRoot.Signed);
         var expiredSignature = rootSigner.SignBytes(expiredSignedBytes);
         expiredRoot = expiredRoot with { Signatures = [expiredSignature] };
         

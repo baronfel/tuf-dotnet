@@ -1,4 +1,5 @@
 using Serde;
+using System.Text;
 
 namespace TUF.Models;
 
@@ -43,7 +44,6 @@ public partial record KeyValue
     /// <summary>
     /// The public key material in the appropriate format for the key type.
     /// </summary>
-    [property: SerdeMemberOptions(Rename = "public")]
     public string Public { get; init; } = "";
 }
 

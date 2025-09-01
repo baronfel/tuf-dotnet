@@ -42,6 +42,7 @@ public partial record RoleKeys
 /// other roles: timestamp, snapshot, targets, and optionally mirrors."
 /// </remarks>
 [GenerateSerde]
+[SerdeTypeOptions(SerializeNull = false)]
 public partial record Roles
 {
     /// <summary>
@@ -49,7 +50,7 @@ public partial record Roles
     /// The root role signs root metadata and delegates trust to other roles.
     /// </summary>
     [property: SerdeMemberOptions(Rename = "root")]
-    public RoleKeys Root { get; init; } = new();
+    public required RoleKeys Root { get; init; }
     
     /// <summary>
     /// Key assignment for the timestamp role.

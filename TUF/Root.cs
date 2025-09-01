@@ -96,5 +96,5 @@ public partial record Root
     /// by the current root keys.
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "roles")]
-    public Roles Roles { get; init; } = new();
+    public required Roles Roles { get; init; }
 }

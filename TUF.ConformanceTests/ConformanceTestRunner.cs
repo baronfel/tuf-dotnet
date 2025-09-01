@@ -60,8 +60,7 @@ public class ConformanceTestRunner
         try
         {
             // Try to deserialize and verify the root metadata
-            var rootBytes = Encoding.UTF8.GetBytes(trustedRootJson);
-            var root = Serde.Json.JsonSerializer.Deserialize<Metadata<Root>, MetadataProxy.De<Root>>(rootBytes, MetadataProxy.De<Root>.Instance);
+            var root = CanonicalJson.Serializer.Deserialize<Metadata<Root>, MetadataProxy.De<Root>>(trustedRootJson);
             
             Console.WriteLine($"Root metadata loaded successfully");
             Console.WriteLine($"Key count: {root.Signed.Keys.Count}");

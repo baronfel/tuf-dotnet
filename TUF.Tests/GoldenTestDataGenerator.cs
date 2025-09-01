@@ -22,24 +22,24 @@ public static class GoldenTestDataGenerator
         var rootMetadata = CreateRootMetadata(rootSigner, timestampSigner, snapshotSigner, targetsSigner);
         var rootJson = Serde.Json.JsonSerializer.Serialize<Metadata<Root>, MetadataProxy.Ser<Root>>(rootMetadata);
         var rootSignature = rootSigner.SignBytes(
-            CanonicalJsonSerializer.Serialize(rootMetadata.Signed));
+            CanonicalJson.Serializer.Serialize(rootMetadata.Signed));
         rootMetadata = rootMetadata with { Signatures = [rootSignature] };
 
         // Create timestamp metadata
         var timestampMetadata = CreateTimestampMetadata();
-        var timestampSignedBytes = CanonicalJsonSerializer.Serialize(timestampMetadata.Signed);
+        var timestampSignedBytes = CanonicalJson.Serializer.Serialize(timestampMetadata.Signed);
         var timestampSignature = timestampSigner.SignBytes(timestampSignedBytes);
         timestampMetadata = timestampMetadata with { Signatures = [timestampSignature] };
 
         // Create snapshot metadata
         var snapshotMetadata = CreateSnapshotMetadata();
-        var snapshotSignedBytes = CanonicalJsonSerializer.Serialize(snapshotMetadata.Signed);
+        var snapshotSignedBytes = CanonicalJson.Serializer.Serialize(snapshotMetadata.Signed);
         var snapshotSignature = snapshotSigner.SignBytes(snapshotSignedBytes);
         snapshotMetadata = snapshotMetadata with { Signatures = [snapshotSignature] };
 
         // Create targets metadata
         var targetsMetadata = CreateTargetsMetadata();
-        var targetsSignedBytes = CanonicalJsonSerializer.Serialize(targetsMetadata.Signed);
+        var targetsSignedBytes = CanonicalJson.Serializer.Serialize(targetsMetadata.Signed);
         var targetsSignature = targetsSigner.SignBytes(targetsSignedBytes);
         targetsMetadata = targetsMetadata with { Signatures = [targetsSignature] };
 
