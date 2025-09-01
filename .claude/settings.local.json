@@ -15,7 +15,9 @@
       "Bash(dotnet clean:*)",
       "WebFetch(domain:theupdateframework.github.io)",
       "Bash(find:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(dotnet run:*)",
+      "Bash(dotnet sln:*)"
     ],
     "deny": [],
     "ask": []

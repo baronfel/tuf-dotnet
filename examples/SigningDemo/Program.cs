@@ -6,7 +6,7 @@ namespace SigningDemo;
 
 public class Program
 {
-    public static async Task Main(string[] args)
+    public static void Main(string[] args)
     {
         Console.WriteLine("TUF .NET Signing Demonstration");
         Console.WriteLine("==============================");
@@ -14,15 +14,15 @@ public class Program
         try
         {
             // Demonstrate Ed25519 signing
-            await DemonstrateEd25519Signing();
+            DemonstrateEd25519Signing();
             Console.WriteLine();
 
             // Demonstrate RSA signing
-            await DemonstrateRsaSigning();
+            DemonstrateRsaSigning();
             Console.WriteLine();
 
             // Demonstrate key information and compatibility
-            await DemonstrateKeyCompatibility();
+            DemonstrateKeyCompatibility();
             Console.WriteLine();
 
             Console.WriteLine("✅ All signing demonstrations completed successfully!");
@@ -34,7 +34,7 @@ public class Program
         }
     }
 
-    private static async Task DemonstrateEd25519Signing()
+    private static void DemonstrateEd25519Signing()
     {
         Console.WriteLine("🔐 Ed25519 Signing Example");
         Console.WriteLine("──────────────────────────");
@@ -60,7 +60,7 @@ public class Program
         Console.WriteLine($"✓ Tampered message verification: {(isTamperedValid ? "VALID (UNEXPECTED!)" : "INVALID (EXPECTED)")}");
     }
 
-    private static async Task DemonstrateRsaSigning()
+    private static void DemonstrateRsaSigning()
     {
         Console.WriteLine("🔐 RSA-PSS Signing Example");
         Console.WriteLine("──────────────────────────");
@@ -86,7 +86,7 @@ public class Program
         Console.WriteLine($"✓ Different signers produce different signatures: {!signature.Sig.SequenceEqual(signature2.Sig)}");
     }
 
-    private static async Task DemonstrateKeyCompatibility()
+    private static void DemonstrateKeyCompatibility()
     {
         Console.WriteLine("🔑 TUF Key Compatibility and Information");
         Console.WriteLine("─────────────────────────────────────────");

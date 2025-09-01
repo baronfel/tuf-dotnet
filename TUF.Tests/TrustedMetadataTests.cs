@@ -1,6 +1,7 @@
 using TUF.Models;
 using TUnit.Core;
 using TUnit.Assertions;
+using CanonicalJson;
 
 namespace TUF.Tests;
 
@@ -302,8 +303,7 @@ public class TrustedMetadataTests
         };
         
         // Sign the expired root
-        var expiredSignedBytes = System.Text.Encoding.UTF8.GetBytes(
-            Serde.Json.JsonSerializer.Serialize(expiredRoot.Signed));
+        var expiredSignedBytes = CanonicalJsonSerializer.Serialize(expiredRoot.Signed);
         var expiredSignature = rootSigner.SignBytes(expiredSignedBytes);
         expiredRoot = expiredRoot with { Signatures = [expiredSignature] };
         
