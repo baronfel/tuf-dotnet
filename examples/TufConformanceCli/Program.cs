@@ -9,6 +9,19 @@ namespace TufConformanceCli;
 /// </summary>
 public class Program
 {
+    // Shared options to reduce duplication
+    private static readonly Option<DirectoryInfo> MetadataDirOption = new("--metadata-dir")
+    {
+        Description = "Directory for metadata storage",
+        Required = true
+    };
+
+    private static readonly Option<string> MetadataUrlOption = new("--metadata-url")
+    {
+        Description = "Base URL for metadata",
+        Required = true
+    };
+
     public static async Task<int> Main(string[] args)
     {
         var rootCommand = new RootCommand("TUF .NET Conformance CLI")
@@ -18,100 +31,94 @@ public class Program
             CreateDownloadCommand()
         };
 
-        return await rootCommand.InvokeAsync(args);
+        return await rootCommand.Parse(args).InvokeAsync();
     }
 
     private static Command CreateInitCommand()
     {
-        var metadataDirOption = new Option<DirectoryInfo>(
-            "--metadata-dir",
-            "Directory for metadata storage")
-        { IsRequired = true };
-
-        var trustedRootArg = new Argument<FileInfo>(
-            "trusted-root",
-            "Path to trusted root.json file");
+        var trustedRootArg = new Argument<FileInfo>("trusted-root")
+        {
+            Description = "Path to trusted root.json file"
+        };
 
         var command = new Command("init", "Initialize client's local trusted metadata")
         {
-            metadataDirOption,
+            MetadataDirOption,
             trustedRootArg
         };
 
-        command.SetHandler(async (metadataDir, trustedRoot) =>
+        command.SetAction((parseResult) =>
         {
-            Environment.ExitCode = await HandleInitCommand(metadataDir.FullName, trustedRoot.FullName);
-        }, metadataDirOption, trustedRootArg);
+            var metadataDir = parseResult.GetValue(MetadataDirOption)!;
+            var trustedRoot = parseResult.GetValue(trustedRootArg)!;
+            var exitCode = HandleInitCommand(metadataDir.FullName, trustedRoot.FullName);
+            return exitCode;
+        });
 
         return command;
     }
 
     private static Command CreateRefreshCommand()
     {
-        var metadataDirOption = new Option<DirectoryInfo>(
-            "--metadata-dir",
-            "Directory for metadata storage")
-        { IsRequired = true };
-
-        var metadataUrlOption = new Option<string>(
-            "--metadata-url",
-            "Base URL for metadata")
-        { IsRequired = true };
-
         var command = new Command("refresh", "Update local metadata from repository")
         {
-            metadataDirOption,
-            metadataUrlOption
+            MetadataDirOption,
+            MetadataUrlOption
         };
 
-        command.SetHandler(async (metadataDir, metadataUrl) =>
+        command.SetAction(async (parseResult, token) =>
         {
-            Environment.ExitCode = await HandleRefreshCommand(metadataDir.FullName, metadataUrl);
-        }, metadataDirOption, metadataUrlOption);
+            var metadataDir = parseResult.GetValue(MetadataDirOption)!;
+            var metadataUrl = parseResult.GetValue(MetadataUrlOption)!;
+            var exitCode = await HandleRefreshCommand(metadataDir.FullName, metadataUrl);
+            Environment.ExitCode = exitCode;
+            return exitCode;
+        });
 
         return command;
     }
 
     private static Command CreateDownloadCommand()
     {
-        var metadataDirOption = new Option<DirectoryInfo>(
-            "--metadata-dir",
-            "Directory for metadata storage")
-        { IsRequired = true };
+        var targetNameOption = new Option<string>("--target-name")
+        {
+            Description = "Name of target to download",
+            Required = true
+        };
 
-        var metadataUrlOption = new Option<string>(
-            "--metadata-url",
-            "Base URL for metadata")
-        { IsRequired = true };
+        var targetBaseUrlOption = new Option<string>("--target-base-url")
+        {
+            Description = "Base URL for targets",
+            Required = true
+        };
 
-        var targetNameOption = new Option<string>(
-            "--target-name",
-            "Name of target to download")
-        { IsRequired = true };
-
-        var targetBaseUrlOption = new Option<string>(
-            "--target-base-url",
-            "Base URL for targets")
-        { IsRequired = true };
-
-        var targetDirOption = new Option<DirectoryInfo>(
-            "--target-dir",
-            "Directory to save downloaded target")
-        { IsRequired = true };
+        var targetDirOption = new Option<DirectoryInfo>("--target-dir")
+        {
+            Description = "Directory to save downloaded target",
+            Required = true
+        };
 
         var command = new Command("download", "Download and verify an artifact from repository")
         {
-            metadataDirOption,
-            metadataUrlOption,
+            MetadataDirOption,
+            MetadataUrlOption,
             targetNameOption,
             targetBaseUrlOption,
             targetDirOption
         };
 
-        command.SetHandler(async (metadataDir, metadataUrl, targetName, targetBaseUrl, targetDir) =>
+        command.SetAction(async (parseResult, token) =>
         {
-            Environment.ExitCode = await HandleDownloadCommand(metadataDir.FullName, metadataUrl, targetName, targetBaseUrl, targetDir.FullName);
-        }, metadataDirOption, metadataUrlOption, targetNameOption, targetBaseUrlOption, targetDirOption);
+            var metadataDir = parseResult.GetValue(MetadataDirOption)!;
+            var metadataUrl = parseResult.GetValue(MetadataUrlOption)!;
+            var targetName = parseResult.GetValue(targetNameOption)!;
+            var targetBaseUrl = parseResult.GetValue(targetBaseUrlOption)!;
+            var targetDir = parseResult.GetValue(targetDirOption)!;
+            
+            var exitCode = await HandleDownloadCommand(metadataDir.FullName, metadataUrl, targetName, targetBaseUrl, targetDir.FullName);
+            Environment.ExitCode = exitCode;
+            return exitCode;
+        });
 
         return command;
     }
@@ -119,27 +126,27 @@ public class Program
     /// <summary>
     /// Handle the init command: Initialize client's local trusted metadata
     /// </summary>
-    private static async Task<int> HandleInitCommand(string metadataDir, string trustedRootPath)
+    private static int HandleInitCommand(string metadataDir, string trustedRootPath)
     {
         try
         {
             Console.WriteLine($"Initializing TUF client with metadata dir: {metadataDir}");
             Console.WriteLine($"Using trusted root: {trustedRootPath}");
-            
+
             // Ensure metadata directory exists
             Directory.CreateDirectory(metadataDir);
-            
+
             // Validate trusted root file exists
             if (!File.Exists(trustedRootPath))
             {
                 Console.Error.WriteLine($"Error: Trusted root file not found: {trustedRootPath}");
                 return 1;
             }
-            
+
             // Copy trusted root to metadata directory as root.json (non-versioned filename)
             var rootPath = Path.Combine(metadataDir, "root.json");
             File.Copy(trustedRootPath, rootPath, overwrite: true);
-            
+
             Console.WriteLine("TUF client initialized successfully");
             return 0;
         }
@@ -159,7 +166,7 @@ public class Program
         {
             Console.WriteLine($"Refreshing metadata from: {metadataUrl}");
             Console.WriteLine($"Metadata directory: {metadataDir}");
-            
+
             // Validate metadata directory exists and has root.json
             var rootPath = Path.Combine(metadataDir, "root.json");
             if (!File.Exists(rootPath))
@@ -167,10 +174,10 @@ public class Program
                 Console.Error.WriteLine("Error: No root.json found. Run 'init' command first.");
                 return 1;
             }
-            
+
             // Read the trusted root
             byte[] rootBytes = await File.ReadAllBytesAsync(rootPath);
-            
+
             // Configure the updater with the metadata directory and repository URL
             var config = new UpdaterConfig(rootBytes, new Uri(metadataUrl))
             {
@@ -178,11 +185,11 @@ public class Program
                 LocalTargetsDir = Path.Combine(metadataDir, "targets"), // Default targets directory
                 Client = new HttpClient()
             };
-            
+
             // Create and initialize the updater
             var updater = new Updater(config);
             await updater.RefreshAsync();
-            
+
             Console.WriteLine("Metadata refresh completed successfully");
             return 0;
         }
@@ -196,7 +203,7 @@ public class Program
     /// <summary>
     /// Handle the download command: Download and verify an artifact from repository
     /// </summary>
-    private static async Task<int> HandleDownloadCommand(string metadataDir, string metadataUrl, 
+    private static async Task<int> HandleDownloadCommand(string metadataDir, string metadataUrl,
                                                          string targetName, string targetBaseUrl, string targetDir)
     {
         try
@@ -204,7 +211,7 @@ public class Program
             Console.WriteLine($"Downloading target: {targetName}");
             Console.WriteLine($"From: {targetBaseUrl}");
             Console.WriteLine($"To: {targetDir}");
-            
+
             // Validate metadata directory exists and has root.json
             var rootPath = Path.Combine(metadataDir, "root.json");
             if (!File.Exists(rootPath))
@@ -212,13 +219,13 @@ public class Program
                 Console.Error.WriteLine("Error: No root.json found. Run 'init' command first.");
                 return 1;
             }
-            
+
             // Ensure target directory exists
             Directory.CreateDirectory(targetDir);
-            
+
             // Read the trusted root
             byte[] rootBytes = await File.ReadAllBytesAsync(rootPath);
-            
+
             // Configure the updater - use targetBaseUrl as the metadata URL base for now
             // In a full implementation this might be more sophisticated
             var config = new UpdaterConfig(rootBytes, new Uri(metadataUrl))
@@ -227,17 +234,17 @@ public class Program
                 LocalTargetsDir = targetDir,
                 Client = new HttpClient()
             };
-            
+
             // Create and initialize the updater
             var updater = new Updater(config);
-            
+
             // First ensure metadata is up-to-date
             await updater.RefreshAsync();
-            
+
             // Get target information and download
             var (targetPath, targetInfo) = await updater.GetTargetInfo(targetName);
             Console.WriteLine($"Target found: {targetPath}");
-            
+
             // Check for cached version first
             var cached = await updater.FindCachedTarget(targetInfo, targetPath, null);
             if (cached.HasValue)
