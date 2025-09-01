@@ -9,16 +9,16 @@ using TUF.Serialization.Converters;
 
 namespace TUF.Models.Roles.Root;
 
-[GenerateSerde]
-public partial record RoleKeys(
+
+public record RoleKeys(
     [property: JsonPropertyName("keyids")]
     List<KeyId> KeyIds,
     [property: JsonPropertyName("threshold")]
     uint Threshold
 );
 
-[GenerateSerde]
-public partial record RootRoles(
+
+public record RootRoles(
     [property: JsonPropertyName("root")]
     RoleKeys Root,
     [property: JsonPropertyName("timestamp")]
@@ -43,8 +43,8 @@ public partial record RootRoles(
     }
 }
 
-[GenerateSerde]
-public partial record Root(
+
+public record Root(
     [property: JsonPropertyName("spec_version")]
     SemanticVersion SpecVersion,
     [property: JsonPropertyName("consistent_snapshot")]
@@ -56,8 +56,7 @@ public partial record Root(
     Dictionary<KeyId, Keys.KeyBase> Keys,
     [property: JsonPropertyName("roles")]
     RootRoles Roles
-) :
-    IRole<Root>
+) : IRole<Root>
 {
     public Root(DateTimeOffset? expiry) : this(
         SpecVersion: Constants.ImplementedSpecVersion,

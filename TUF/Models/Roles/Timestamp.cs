@@ -16,8 +16,8 @@ namespace TUF.Models.Roles.Timestamp;
 public class SnapshotFileMetadata(FileMetadata snapshotFileMetadata) :
     Dictionary<RelativePath, FileMetadata>([new(new("snapshot.json"), snapshotFileMetadata)]);
 
-[GenerateSerde]
-public partial record Timestamp(
+
+public record Timestamp(
     [property: JsonPropertyName("spec_version")]
     SemanticVersion SpecVersion,
     [property: JsonPropertyName("version")]

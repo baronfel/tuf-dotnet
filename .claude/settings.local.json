@@ -12,7 +12,10 @@
       "Bash(dotnet build:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(dotnet clean:*)"
+      "Bash(dotnet clean:*)",
+      "WebFetch(domain:theupdateframework.github.io)",
+      "Bash(find:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

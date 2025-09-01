@@ -9,11 +9,11 @@ using TUF.Serialization.Converters;
 
 namespace TUF.Models.Roles.Snapshot;
 
-[GenerateSerde]
-public partial record struct HashAlgorithm(string algo);
 
-[GenerateSerde]
-public partial record Snapshot(
+public record struct HashAlgorithm(string algo);
+
+
+public record Snapshot(
     [property: JsonPropertyName("spec_version")]
     SemanticVersion SpecVersion,
     [property: JsonPropertyName("version")]

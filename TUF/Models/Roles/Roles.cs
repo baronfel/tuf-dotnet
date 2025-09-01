@@ -4,7 +4,7 @@ using TUF.Models.Primitives;
 
 namespace TUF.Models.Roles;
 
-public interface IRole<T>: ISerdeProvider<T> where T : IRole<T>, ISerdeProvider<T>
+public interface IRole<T> where T : IRole<T>
 {
     SemanticVersion SpecVersion { get; }
     uint Version { get; }

@@ -11,9 +11,9 @@ public interface IKeyValue<TKeyType, TValueType> where TKeyType : IKeyType<TKeyT
 }
 
 
-[GenerateSerde]
-public partial record RsaKeyValue(PEMString Public) : IKeyValue<Rsa, PEMString>;
-[GenerateSerde]
-public partial record Ed25519KeyValue(HexString Public) : IKeyValue<Ed25519, HexString>;
-[GenerateSerde]
-public partial record EcdsaKeyValue(PEMString Public) : IKeyValue<Ecdsa, PEMString>;
+
+public record RsaKeyValue(PEMString Public) : IKeyValue<Rsa, PEMString>;
+
+public record Ed25519KeyValue(HexString Public) : IKeyValue<Ed25519, HexString>;
+
+public record EcdsaKeyValue(PEMString Public) : IKeyValue<Ecdsa, PEMString>;

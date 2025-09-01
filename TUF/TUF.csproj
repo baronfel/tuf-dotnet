@@ -1,5 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>preview</LangVersion>
+    <Nullable>enable</Nullable>
+    <IsAotCompatible>true</IsAotCompatible>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Models/SimplifiedModels.cs" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\CanonicalJson\CanonicalJson.csproj" />
   </ItemGroup>
@@ -8,14 +22,5 @@
     <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="9.0.8" />
     <PackageReference Include="NSec.Cryptography" Version="25.4.0" />
   </ItemGroup>
-
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <LangVersion>preview</LangVersion>
-    <Nullable>enable</Nullable>
-    <IsAotCompatible>true</IsAotCompatible>
-    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-  </PropertyGroup>
 
 </Project>

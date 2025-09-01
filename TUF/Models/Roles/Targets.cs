@@ -13,8 +13,8 @@ using TUF.Serialization.Converters;
 namespace TUF.Models.Roles.Targets;
 
 
-[GenerateSerde]
-public partial record struct DelegatedRoleName(string roleName);
+
+public record struct DelegatedRoleName(string roleName);
 
 /// <summary>
 /// Marks types that contain their own key for dictionary-creation purposes.
@@ -27,8 +27,8 @@ public interface IKeyHolder<T, TKey> where T : IKeyHolder<T, TKey>
     static abstract TKey GetKey(T instance);
 }
 
-[GenerateSerde]
-public partial record DelegationData(
+
+public record DelegationData(
     [property: JsonPropertyName("name")]
     DelegatedRoleName Name,
     [property: JsonPropertyName("keyids")]
@@ -59,8 +59,8 @@ public partial record DelegationData(
     }
 }
 
-[GenerateSerde]
-public partial record TargetMetadata(
+
+public record TargetMetadata(
     [property: JsonPropertyName("length")]
     uint Length,
     [property: JsonPropertyName("hashes")]
@@ -78,11 +78,11 @@ public partial record TargetMetadata(
     public static RelativePath GetKey(TargetMetadata instance) => instance.Path;
 }
 
-[GenerateSerde]
-public partial record struct RoleResult(string Name, bool Terminating);
 
-[GenerateSerde]
-public partial record Delegations(
+public record struct RoleResult(string Name, bool Terminating);
+
+
+public record Delegations(
     [property: JsonPropertyName("keys")]
     Dictionary<KeyId, Keys.KeyBase> Keys,
     [property: JsonPropertyName("roles")]
@@ -102,8 +102,8 @@ public partial record Delegations(
 
 // style nit: Can't call the type and the member Target, so in order to keep the member name aligned with TUF specifications, the member is called Targets
 //            and we 'sacrifice' the type name.
-[GenerateSerde]
-public partial record TargetsRole(
+
+public record TargetsRole(
     [property: JsonPropertyName("spec_version")]
     SemanticVersion SpecVersion,
     [property: JsonPropertyName("version")]

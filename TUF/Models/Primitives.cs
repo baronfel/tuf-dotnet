@@ -11,8 +11,8 @@ using TUF.Serialization;
 
 namespace TUF.Models.Primitives;
 
-[GenerateSerde]
-public partial record SemanticVersion(string SemVer) : IParsable<SemanticVersion>, IJsonStringWriteable<SemanticVersion>
+
+public record SemanticVersion(string SemVer) : IParsable<SemanticVersion>, IJsonStringWriteable<SemanticVersion>
 {
     public static SemanticVersion Parse(string s, IFormatProvider? provider) => new(s);
 
@@ -87,14 +87,14 @@ public class RelativeUriSerdeProxy : ISerde<Uri>, ISerdeProvider<Uri>
     }
 }
 
-[GenerateSerde]
-public partial record struct AbsoluteUri([property: SerdeMemberOptions(Proxy = typeof(AbsoluteUriSerdeProxy))] Uri Uri)
+
+public record struct AbsoluteUri([property: SerdeMemberOptions(Proxy = typeof(AbsoluteUriSerdeProxy))] Uri Uri)
 {
     public static AbsoluteUri From([StringSyntax("uri")] string absoluteUri) => new(new Uri(absoluteUri, UriKind.Absolute));
 }
 
-[GenerateSerde]
-public partial record struct RelativeUri([property: SerdeMemberOptions(Proxy = typeof(RelativeUriSerdeProxy))] Uri Uri)
+
+public record struct RelativeUri([property: SerdeMemberOptions(Proxy = typeof(RelativeUriSerdeProxy))] Uri Uri)
 {
     public static RelativeUri From([StringSyntax("uri")] string relativeUri) => new(new Uri(relativeUri, UriKind.Relative));
 }
@@ -126,8 +126,8 @@ public record struct Signature(byte[] Value): IParsable<Signature>, IJsonStringW
 /// hexadecimal string.
 /// </summary>
 /// <param name="sha256HexDigest"></param>
-[GenerateSerde]
-public partial record struct HexDigest(string sha256HexDigest) : IParsable<HexDigest>, IJsonStringWriteable<HexDigest>
+
+public record struct HexDigest(string sha256HexDigest) : IParsable<HexDigest>, IJsonStringWriteable<HexDigest>
 {
     public static HexDigest Parse(string s, IFormatProvider? provider) => new(s);
     public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out HexDigest result)
@@ -153,8 +153,8 @@ public partial record struct HexDigest(string sha256HexDigest) : IParsable<HexDi
 /// Implementation note: A wildcard in this pattern SHOULD NOT match a directory in a candidate path.
 /// That is, a pattern like "foo/*" should match "foo/bar" but not "foo/bar/baz".
 /// </summary>
-[GenerateSerde]
-public partial record struct PathPattern(string Pattern): IParsable<PathPattern>, IJsonStringWriteable<PathPattern>
+
+public record struct PathPattern(string Pattern): IParsable<PathPattern>, IJsonStringWriteable<PathPattern>
 {
     private readonly Matcher _matcher => new Matcher(StringComparison.InvariantCulture).AddInclude(Pattern);
 
@@ -182,8 +182,8 @@ public partial record struct PathPattern(string Pattern): IParsable<PathPattern>
 /// <summary>
 /// PEM format and a string. All RSA keys MUST be at least 2048 bits.
 /// </summary>
-[GenerateSerde]
-public partial record struct PEMString(string PemEncodedValue): IParsable<PEMString>, IJsonStringWriteable<PEMString>
+
+public record struct PEMString(string PemEncodedValue): IParsable<PEMString>, IJsonStringWriteable<PEMString>
 {
     public static PEMString Parse(string s, IFormatProvider? provider) => new(s);
 
@@ -204,8 +204,8 @@ public partial record struct PEMString(string PemEncodedValue): IParsable<PEMStr
 /// <summary>
 /// 64-bit hex-encoded string
 /// </summary>
-[GenerateSerde]
-public partial record struct HexString(string HexEncodedValue): IParsable<HexString>, IJsonStringWriteable<HexString>
+
+public record struct HexString(string HexEncodedValue): IParsable<HexString>, IJsonStringWriteable<HexString>
 {
     public static HexString Parse(string s, IFormatProvider? provider) => new(s);
 
@@ -224,8 +224,8 @@ public partial record struct HexString(string HexEncodedValue): IParsable<HexStr
 
 }
 
-[GenerateSerde]
-public partial record struct KeyId(HexDigest digest) : IParsable<KeyId>, IJsonStringWriteable<KeyId>
+
+public record struct KeyId(HexDigest digest) : IParsable<KeyId>, IJsonStringWriteable<KeyId>
 {
     public static KeyId Parse(string s, IFormatProvider? provider) => new(new HexDigest(s));
 

@@ -7,8 +7,7 @@ using TUF.Models.Primitives;
 
 namespace TUF.Models.Keys;
 
-[GenerateSerde]
-public abstract partial record KeyBase
+public abstract record KeyBase
 {
     private KeyBase() {}
 
@@ -21,8 +20,7 @@ public abstract partial record KeyBase
 
     public abstract bool VerifySignature(byte[] signatureBytes, byte[] payloadBytes);
 
-    [GenerateSerde]
-    public partial record Rsa(RsaKeyValue Public) : KeyBase
+    public record Rsa(RsaKeyValue Public) : KeyBase
     {   
         public override string Type => Types.Rsa.Name;
         public override string Scheme => Schemes.RSASSA_PSS_SHA256.Name;
@@ -39,8 +37,7 @@ public abstract partial record KeyBase
         }
     }
     
-    [GenerateSerde]
-    public partial record Ed25519(Ed25519KeyValue Public) : KeyBase
+    public record Ed25519(Ed25519KeyValue Public) : KeyBase
     {
         public override string Type => Types.Ed25519.Name;
         public override string Scheme => Schemes.Ed25519.Name;
@@ -63,8 +60,7 @@ public abstract partial record KeyBase
         }
     }
 
-    [GenerateSerde]
-    public partial record Ecdsa(EcdsaKeyValue Public) : KeyBase
+    public record Ecdsa(EcdsaKeyValue Public) : KeyBase
     {
         public override string Type => Types.Ecdsa.Name;
         public override string Scheme => Schemes.ECDSA_SHA2_NISTP256.Name;

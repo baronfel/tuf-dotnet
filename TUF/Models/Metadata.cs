@@ -40,7 +40,7 @@ public abstract class Metadata<TSigned>(TSigned signed, Dictionary<KeyId, Signat
     [JsonExtensionData]
     public Dictionary<string, object>? UnrecognizedFields { get; set; }
 
-    public byte[] SignedBytes => CanonicalJsonSerializer.Serialize(Signed);
+    // public byte[] SignedBytes => CanonicalJsonSerializer.Serialize(Signed);
 
     public bool IsExpired(DateTimeOffset reference)
     {
@@ -165,26 +165,23 @@ public static class MetadataExtensions
     }
 }
 
-[GenerateSerde]
-public partial class RootMetadata(Root signed, Dictionary<KeyId, Signature> signatures) : Metadata<Root>(signed, signatures), IMetadata<RootMetadata, Root>
+public class RootMetadata(Root signed, Dictionary<KeyId, Signature> signatures) : Metadata<Root>(signed, signatures)
 {
 
 }
 
-[GenerateSerde]
-public partial class SnapshotMetadata(Snapshot signed, Dictionary<KeyId, Signature> signatures) : Metadata<Snapshot>(signed, signatures), IMetadata<SnapshotMetadata, Snapshot>
+public class SnapshotMetadata(Snapshot signed, Dictionary<KeyId, Signature> signatures) : Metadata<Snapshot>(signed, signatures)
 {
 }
 
-[GenerateSerde]
-public partial class TargetsMetadata(TargetsRole signed, Dictionary<KeyId, Signature> signatures) : Metadata<TargetsRole>(signed, signatures), IMetadata<TargetsMetadata, TargetsRole>
+public class TargetsMetadata(TargetsRole signed, Dictionary<KeyId, Signature> signatures) : Metadata<TargetsRole>(signed, signatures)
 {
 }
-[GenerateSerde]
-public partial class TimestampMetadata(Timestamp signed, Dictionary<KeyId, Signature> signatures) : Metadata<Timestamp>(signed, signatures), IMetadata<TimestampMetadata, Timestamp>
+
+public class TimestampMetadata(Timestamp signed, Dictionary<KeyId, Signature> signatures) : Metadata<Timestamp>(signed, signatures)
 {
 }
-[GenerateSerde]
-public partial class MirrorMetadata(Mirror signed, Dictionary<KeyId, Signature> signatures) : Metadata<Mirror>(signed, signatures), IMetadata<MirrorMetadata, Mirror>
+
+public class MirrorMetadata(Mirror signed, Dictionary<KeyId, Signature> signatures) : Metadata<Mirror>(signed, signatures)
 {
 }
