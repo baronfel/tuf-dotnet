@@ -5,4 +5,5 @@
   <Project Path="TUF.Tests/TUF.Tests.csproj" />
   <Project Path="examples/BasicClient/BasicClient.csproj" />
   <Project Path="examples/CliTool/CliTool.csproj" />
+  <Project Path="examples/SigningDemo/SigningDemo.csproj" />
 </Solution>

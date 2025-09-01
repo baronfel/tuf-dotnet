@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,5 +13,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TUF\TUF.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="SimplifiedModelsTests.cs" />
+    <Compile Include="SigningTests.cs" />
+    <Compile Include="TrustedMetadataTests.cs" />
+    <Compile Include="GoldenTestDataGenerator.cs" />
   </ItemGroup>
 </Project>

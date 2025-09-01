@@ -165,7 +165,7 @@ public class Program
             };
 
             var updater = new Updater(config);
-            await updater.Refresh();
+            await updater.RefreshAsync();
 
             Console.WriteLine("✅ Metadata refresh completed successfully!");
         }
@@ -196,16 +196,16 @@ public class Program
             var updater = new Updater(config);
             
             Console.WriteLine("Refreshing metadata...");
-            await updater.Refresh();
+            await updater.RefreshAsync();
 
             Console.WriteLine("Getting target information...");
-            var targetInfo = await updater.GetTargetInfo(targetFile);
+            var (targetPath, targetInfo) = await updater.GetTargetInfo(targetFile);
             
-            Console.WriteLine($"Target found: {targetInfo.Path}");
+            Console.WriteLine($"Target found: {targetPath}");
             Console.WriteLine($"Length: {targetInfo.Length} bytes");
 
             // Check for cached version first
-            var cached = await updater.FindCachedTarget(targetInfo, null);
+            var cached = await updater.FindCachedTarget(targetInfo, targetPath, null);
             if (cached.HasValue)
             {
                 Console.WriteLine($"✅ Found cached version at: {cached.Value.FilePath}");
@@ -213,7 +213,7 @@ public class Program
             else
             {
                 Console.WriteLine("Downloading...");
-                var result = await updater.DownloadTarget(targetInfo, null, null);
+                var result = await updater.DownloadTarget(targetInfo, targetPath, null, null);
                 Console.WriteLine($"✅ Downloaded to: {result.FilePath}");
             }
         }
@@ -242,7 +242,7 @@ public class Program
             var updater = new Updater(config);
             
             Console.WriteLine("Refreshing metadata...");
-            await updater.Refresh();
+            await updater.RefreshAsync();
 
             var trustedMetadata = updater.GetTrustedMetadataSet();
             
@@ -254,13 +254,13 @@ public class Program
             if (targetFile != null)
             {
                 Console.WriteLine($"\n=== Target File Information: {targetFile} ===");
-                var targetInfo = await updater.GetTargetInfo(targetFile);
-                Console.WriteLine($"Path: {targetInfo.Path}");
+                var (targetPath, targetInfo) = await updater.GetTargetInfo(targetFile);
+                Console.WriteLine($"Path: {targetPath}");
                 Console.WriteLine($"Length: {targetInfo.Length} bytes");
                 Console.WriteLine("Hashes:");
                 foreach (var hash in targetInfo.Hashes)
                 {
-                    Console.WriteLine($"  {hash.Algorithm}: {hash.HexEncodedValue}");
+                    Console.WriteLine($"  {hash.Key}: {hash.Value}");
                 }
 
                 if (targetInfo.Custom != null && targetInfo.Custom.Count > 0)
