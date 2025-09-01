@@ -19,5 +19,6 @@
     <Compile Include="SimplifiedModelsTests.cs" />
     <Compile Include="SigningTests.cs" />
     <Compile Include="TrustedMetadataTests.cs" />
+    <Compile Include="GoldenTestDataGenerator.cs" />
   </ItemGroup>
 </Project>

@@ -6,6 +6,8 @@ namespace TUF.Tests;
 
 public class TrustedMetadataTests
 {
+    private static readonly GoldenTestData TestData = GoldenTestDataGenerator.Generate();
+    
     private const string TestRootJson = """
     {
         "signed": {
@@ -152,12 +154,16 @@ public class TrustedMetadataTests
     public async Task CreateFromRootData_ShouldCreateTrustedMetadata()
     {
         // Arrange
-        var rootData = System.Text.Encoding.UTF8.GetBytes(TestRootJson);
+        var rootData = System.Text.Encoding.UTF8.GetBytes(TestData.RootJson);
 
-        // Act - This will fail with signature verification, but we can test deserialization
-        await Assert.That(() => TrustedMetadata.CreateFromRootData(rootData))
-            .Throws<Exception>()
-            .WithMessageContaining("signature");
+        // Act - Should succeed with valid signatures
+        var trustedMetadata = TrustedMetadata.CreateFromRootData(rootData);
+
+        // Assert
+        await Assert.That(trustedMetadata).IsNotNull();
+        await Assert.That(trustedMetadata.Root).IsNotNull();
+        await Assert.That(trustedMetadata.Root.Signed.Type).IsEqualTo("root");
+        await Assert.That(trustedMetadata.Root.Signed.Version).IsEqualTo(1);
     }
 
     [Test]
@@ -258,11 +264,53 @@ public class TrustedMetadataTests
     [Test]
     public async Task ExpirationChecking_ShouldWorkCorrectly()
     {
-        // Test with expired metadata
-        var expiredRootJson = TestRootJson.Replace("2025-12-31T23:59:59Z", "2020-01-01T00:00:00Z");
+        // Create new signers and root metadata with expired timestamp  
+        var rootSigner = Ed25519Signer.Generate();
+        var timestampSigner = Ed25519Signer.Generate();
+        var snapshotSigner = Ed25519Signer.Generate();
+        var targetsSigner = Ed25519Signer.Generate();
+        
+        var rootKeyId = rootSigner.Key.GetKeyId();
+        var timestampKeyId = timestampSigner.Key.GetKeyId();
+        var snapshotKeyId = snapshotSigner.Key.GetKeyId();
+        var targetsKeyId = targetsSigner.Key.GetKeyId();
+
+        var expiredRoot = new Metadata<Root>
+        {
+            Signed = new Root
+            {
+                Type = "root",
+                SpecVersion = "1.0.0",
+                Version = 1,
+                Expires = "2020-01-01T00:00:00Z", // Expired
+                Keys = new Dictionary<string, Key>
+                {
+                    [rootKeyId] = rootSigner.Key,
+                    [timestampKeyId] = timestampSigner.Key,
+                    [snapshotKeyId] = snapshotSigner.Key,
+                    [targetsKeyId] = targetsSigner.Key
+                },
+                Roles = new Roles
+                {
+                    Root = new RoleKeys { KeyIds = [rootKeyId], Threshold = 1 },
+                    Timestamp = new RoleKeys { KeyIds = [timestampKeyId], Threshold = 1 },
+                    Snapshot = new RoleKeys { KeyIds = [snapshotKeyId], Threshold = 1 },
+                    Targets = new RoleKeys { KeyIds = [targetsKeyId], Threshold = 1 }
+                }
+            },
+            Signatures = []
+        };
+        
+        // Sign the expired root
+        var expiredSignedBytes = System.Text.Encoding.UTF8.GetBytes(
+            Serde.Json.JsonSerializer.Serialize(expiredRoot.Signed));
+        var expiredSignature = rootSigner.SignBytes(expiredSignedBytes);
+        expiredRoot = expiredRoot with { Signatures = [expiredSignature] };
+        
+        var expiredRootJson = Serde.Json.JsonSerializer.Serialize<Metadata<Root>, MetadataProxy.Ser<Root>>(expiredRoot);
         var rootData = System.Text.Encoding.UTF8.GetBytes(expiredRootJson);
         
-        // Should fail due to expiration (even before signature verification)
+        // Should fail due to expiration
         await Assert.That(() => TrustedMetadata.CreateFromRootData(rootData))
             .Throws<Exception>()
             .WithMessageContaining("expired");
