@@ -607,11 +607,7 @@ internal class ReorderingSerializer : ITypeSerializer
     public void WriteString(ISerdeInfo typeInfo, int index, string s)
     {
         var name = typeInfo.GetFieldStringName(index);
-        _properties[name] = () => 
-        {
-            _parent._writer.WritePropertyName(name);
-            _parent._writer.WriteStringValue(s);
-        };
+        _properties[name] = () => _parent._writer.WriteString(name, s);
     }
 
     public void WriteU16(ISerdeInfo typeInfo, int index, ushort u16)
