@@ -90,19 +90,10 @@ public static class SimplifiedMetadataExtensions
                 throw new Exception($"Insufficient valid signatures: {verifiedSignatures} of {roleKeys.Threshold} required");
             }
         }
-    }
-
-    extension<T>(Metadata<T> metadata)
-        where T: ISerializeProvider<T>, IDeserializeProvider<T>
-    {
 
         /// <summary>
         /// Gets the canonical JSON bytes of the signed portion for signature verification.
         /// </summary>
-        /// <typeparam name="T">Type of the calling metadata</typeparam>
-        /// <typeparam name="TOther">Type of the metadata being verified</typeparam>
-        /// <param name="sourceMetadata">The source metadata (unused but required for consistency)</param>
-        /// <param name="otherMetadata">The metadata whose signed portion should be serialized</param>
         /// <returns>UTF-8 encoded bytes of the canonical JSON representation</returns>
         /// <remarks>
         /// This method serializes the signed portion of metadata to canonical JSON format
@@ -118,11 +109,11 @@ public static class SimplifiedMetadataExtensions
         /// - Consistent number representation
         /// - Consistent string escaping
         /// </remarks>
-        private byte[] GetSignedBytes()
+        public byte[] GetSignedBytes()
         {
             // For now, we'll serialize the signed portion using Serde
             // In a full implementation, this should use canonical JSON
-            var signedJson = Serde.Json.JsonSerializer.Serialize(metadata.Signed);
+            var signedJson = Serde.Json.JsonSerializer.Serialize(sourceMetadata.Signed);
             return System.Text.Encoding.UTF8.GetBytes(signedJson);
         }
     }
