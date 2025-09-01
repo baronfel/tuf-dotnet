@@ -13,7 +13,8 @@ public class Program
     private static readonly Option<DirectoryInfo> MetadataDirOption = new("--metadata-dir")
     {
         Description = "Directory for metadata storage",
-        Required = true
+        Required = true,
+        Recursive = true
     };
 
     private static readonly Option<string> MetadataUrlOption = new("--metadata-url")
@@ -28,7 +29,8 @@ public class Program
         {
             CreateInitCommand(),
             CreateRefreshCommand(),
-            CreateDownloadCommand()
+            CreateDownloadCommand(),
+            MetadataDirOption
         };
 
         return await rootCommand.Parse(args).InvokeAsync();
@@ -43,7 +45,6 @@ public class Program
 
         var command = new Command("init", "Initialize client's local trusted metadata")
         {
-            MetadataDirOption,
             trustedRootArg
         };
 
@@ -62,7 +63,6 @@ public class Program
     {
         var command = new Command("refresh", "Update local metadata from repository")
         {
-            MetadataDirOption,
             MetadataUrlOption
         };
 
@@ -71,7 +71,6 @@ public class Program
             var metadataDir = parseResult.GetValue(MetadataDirOption)!;
             var metadataUrl = parseResult.GetValue(MetadataUrlOption)!;
             var exitCode = await HandleRefreshCommand(metadataDir.FullName, metadataUrl);
-            Environment.ExitCode = exitCode;
             return exitCode;
         });
 
@@ -100,7 +99,6 @@ public class Program
 
         var command = new Command("download", "Download and verify an artifact from repository")
         {
-            MetadataDirOption,
             MetadataUrlOption,
             targetNameOption,
             targetBaseUrlOption,
@@ -116,7 +114,6 @@ public class Program
             var targetDir = parseResult.GetValue(targetDirOption)!;
             
             var exitCode = await HandleDownloadCommand(metadataDir.FullName, metadataUrl, targetName, targetBaseUrl, targetDir.FullName);
-            Environment.ExitCode = exitCode;
             return exitCode;
         });
 
