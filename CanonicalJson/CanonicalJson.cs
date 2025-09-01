@@ -2,10 +2,84 @@ using System.Buffers;
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
+using System.Text.Encodings.Web;
 
 using Serde;
 
 namespace CanonicalJson;
+
+/// <summary>
+/// A custom JavaScriptEncoder that implements canonical JSON escaping rules.
+/// This encoder escapes only the two byte values required by canonical JSON:
+/// - Backslash (\) -> \\
+/// - Double quote (") -> \"
+/// All other characters, including control characters and Unicode, remain as literal bytes.
+/// </summary>
+public sealed class CanonicalJsonEncoder : JavaScriptEncoder
+{
+    /// <summary>
+    /// Singleton instance of the canonical JSON encoder.
+    /// </summary>
+    public static readonly CanonicalJsonEncoder Instance = new();
+
+    private CanonicalJsonEncoder() { }
+
+    public override bool WillEncode(int unicodeScalar)
+    {
+        // Canonical JSON only escapes two byte values: backslash (0x5C) and double quote (0x22)
+        // Control characters and other bytes are left as literal uninterpreted bytes
+        return unicodeScalar == 0x22 || unicodeScalar == 0x5C;
+    }
+
+    public override unsafe int FindFirstCharacterToEncode(char* text, int textLength)
+    {
+        for (int i = 0; i < textLength; i++)
+        {
+            if (WillEncode(text[i]))
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public override unsafe bool TryEncodeUnicodeScalar(int unicodeScalar, char* buffer, int bufferLength, out int numberOfCharactersWritten)
+    {
+        if (!WillEncode(unicodeScalar))
+        {
+            numberOfCharactersWritten = 0;
+            return false;
+        }
+
+        if (bufferLength < 2)
+        {
+            numberOfCharactersWritten = 0;
+            return false;
+        }
+
+        if (unicodeScalar == 0x22) // "
+        {
+            buffer[0] = '\\';
+            buffer[1] = '"';
+            numberOfCharactersWritten = 2;
+            return true;
+        }
+
+        if (unicodeScalar == 0x5C) // \
+        {
+            buffer[0] = '\\';
+            buffer[1] = '\\';
+            numberOfCharactersWritten = 2;
+            return true;
+        }
+
+        // This should never happen since WillEncode only returns true for quote and backslash
+        numberOfCharactersWritten = 0;
+        return false;
+    }
+
+    public override int MaxOutputCharactersPerInputCharacter => 2; // For \" or \\
+}
 
 /// <summary>
 /// The CanonicalJsonSerializer serializes and deserializes objects to/from a canonical JSON format
@@ -85,13 +159,13 @@ public sealed class CanonicalJsonSerdeWriter : ISerializer, ITypeSerializer, IDi
         {
             Indented = false,
             SkipValidation = true,
-            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            Encoder = CanonicalJsonEncoder.Instance
         });
     }
 
     public void WriteBool(bool b) => _writer.WriteBooleanValue(b);
     public void WriteChar(char c) => WriteString(c.ToString());
-    public void WriteString(string s) => WriteEscapedString(s);
+    public void WriteString(string s) => _writer.WriteStringValue(s);
 
     public void WriteI8(sbyte i8) => _writer.WriteNumberValue(i8);
     public void WriteI16(short i16) => _writer.WriteNumberValue(i16);
@@ -136,29 +210,6 @@ public sealed class CanonicalJsonSerdeWriter : ISerializer, ITypeSerializer, IDi
     }
 
     public void WriteRaw(string value) => _writer.WriteRawValue(_utf8.GetBytes(value));
-
-    private void WriteEscapedString(string value)
-    {
-        // Canonical JSON only requires escaping backslash and double quote
-        var searchValues = SearchValues.Create(['\\', '\"']);
-        var span = value.AsSpan();
-        StringBuilder? builder = new(value);
-        int lastIdx = 0;
-        
-        while (span.IndexOfAny(searchValues) is int idx && idx != -1)
-        {
-            if (idx > 0)
-            {
-                builder.Insert(idx + lastIdx, '\\');
-                span = span[(idx + 1)..];
-                lastIdx += idx + 1 + 1;
-            }
-        }
-        builder.Insert(0, '"');
-        builder.Append('"');
-
-        _writer.WriteRawValue(builder.ToString().AsSpan());
-    }
 
     public void WriteObjectStart() => _writer.WriteStartObject();
     public void WriteObjectEnd() => _writer.WriteEndObject();
@@ -556,7 +607,11 @@ internal class ReorderingSerializer : ITypeSerializer
     public void WriteString(ISerdeInfo typeInfo, int index, string s)
     {
         var name = typeInfo.GetFieldStringName(index);
-        _properties[name] = () => _parent._writer.WriteString(name, s);
+        _properties[name] = () => 
+        {
+            _parent._writer.WritePropertyName(name);
+            _parent._writer.WriteStringValue(s);
+        };
     }
 
     public void WriteU16(ISerdeInfo typeInfo, int index, ushort u16)

@@ -18,28 +18,43 @@ public class SignatureVerificationGoldenTests
     {
         // This is the actual failing case from the tuf_conformance tests
         // Key ID: 2ec2f35daed840da76fdd6e2ca51dfb1919992aae5331e4f1edfd70618f9b2b7
+        // We need to recreate the exact scenario using proper TUF metadata structures
         
-        var publicKeyPem = """
-        -----BEGIN PUBLIC KEY-----
-        MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEJwsHFs2fOgFNIFnX7g+q5Q+ZIdBt
-        0sZSWIgYQPjnA7GPirxVsRt/CG8OR9ueMZ43RDlbw3BuN7dd3Dpd+0pKTQ==
-        -----END PUBLIC KEY-----
-        """;
+        var publicKeyPem = "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQYIKoZIzj0DAQcDQgAEJwsHFs2fOgFNIFnX7g+q5Q+ZIdBt\n0sZSWIgYQPjnA7GPirxVsRt/CG8OR9ueMZ43RDlbw3BuN7dd3Dpd+0pKTQ==\n-----END PUBLIC KEY-----";
         
         var signature = "304502201d77f1efa297539b56c755832691dae9be83ea95c185c10d4c6f3dea1e635d1e022100fa3ca29eb195cf90d95563edc25cfe40a48186b03e2a7ec0c14d2f6ff1f8aa1a";
         
-        var signedData = """
-        {"_type":"root","consistent_snapshot":true,"expires":"2025-10-01T05:26:16Z","keys":{"2ec2f35daed840da76fdd6e2ca51dfb1919992aae5331e4f1edfd70618f9b2b7":{"keytype":"ecdsa","keyval":{"public":"-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEJwsHFs2fOgFNIFnX7g+q5Q+ZIdBt\n0sZSWIgYQPjnA7GPirxVsRt/CG8OR9ueMZ43RDlbw3BuN7dd3Dpd+0pKTQ==\n-----END PUBLIC KEY-----\n"},"scheme":"ecdsa-sha2-nistp256"}},"roles":{"root":{"keyids":["2ec2f35daed840da76fdd6e2ca51dfb1919992aae5331e4f1edfd70618f9b2b7"],"threshold":1}},"spec_version":"1.0.31","version":1}
-        """;
-        
-        var key = new Key
+        // Instead of using raw string data, properly create the Root metadata structure
+        var rootSigned = new Root
         {
-            KeyType = "ecdsa",
-            Scheme = "ecdsa-sha2-nistp256",
-            KeyVal = new KeyValue { Public = publicKeyPem }
+            Type = "root",
+            ConsistentSnapshot = true,
+            Expires = "2025-10-01T05:26:16Z",
+            Keys = new Dictionary<string, Key>
+            {
+                ["2ec2f35daed840da76fdd6e2ca51dfb1919992aae5331e4f1edfd70618f9b2b7"] = new Key
+                {
+                    KeyType = "ecdsa",
+                    Scheme = "ecdsa-sha2-nistp256",
+                    KeyVal = new KeyValue { Public = publicKeyPem }
+                }
+            },
+            Roles = new Roles
+            {
+                Root = new RoleKeys
+                {
+                    KeyIds = ["2ec2f35daed840da76fdd6e2ca51dfb1919992aae5331e4f1edfd70618f9b2b7"],
+                    Threshold = 1
+                }
+            },
+            SpecVersion = "1.0.31",
+            Version = 1
         };
+
+        var key = rootSigned.Keys["2ec2f35daed840da76fdd6e2ca51dfb1919992aae5331e4f1edfd70618f9b2b7"];
         
-        var signedBytes = Encoding.UTF8.GetBytes(signedData);
+        // Use canonical JSON serialization to get the signed bytes, just like the real implementation
+        var signedBytes = CanonicalJsonSerializer.Serialize(rootSigned);
         
         Console.WriteLine($"Testing ECDSA P-256 signature verification");
         Console.WriteLine($"Key Type: {key.KeyType}");
@@ -51,9 +66,7 @@ public class SignatureVerificationGoldenTests
         try
         {
             var result = key.VerifySignature(signature, signedBytes);
-            Console.WriteLine($"Verification Result: {result}");
-            
-            // This will initially fail, showing us the issue
+            // This should now work with proper canonical JSON serialization
             await Assert.That(result).IsTrue();
         }
         catch (Exception ex)
@@ -217,7 +230,7 @@ public class SignatureVerificationGoldenTests
         Console.WriteLine($"Expected Key ID: {expectedKeyId}");
         Console.WriteLine($"Key ID matches: {keyId == expectedKeyId}");
         
-        var keyJson = Serde.Json.JsonSerializer.Serialize(key);
+        var keyJson = CanonicalJsonSerializer.Serialize(key);
         Console.WriteLine($"Key JSON: {keyJson}");
         
         // This test helps us understand if the key ID calculation is working correctly
