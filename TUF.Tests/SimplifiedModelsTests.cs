@@ -325,6 +325,6 @@ public class SimplifiedModelsTests
         
         // Verify extension methods exist and are accessible (they compile)
         await Assert.That(typeof(SimplifiedMetadataExtensions)
-            .GetMethod("VerifyRootRole")).IsNotNull();
+            .GetMethod("VerifyRole")).IsNotNull();
     }
 }

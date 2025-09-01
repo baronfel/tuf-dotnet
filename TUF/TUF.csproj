@@ -11,7 +11,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Models/SimplifiedModels.cs" />
+    <Compile Include="Models/Simple/Primitives.cs" />
+    <Compile Include="Models/Simple/Roles.cs" />
+    <Compile Include="Models/Simple/Root.cs" />
+    <Compile Include="Models/Simple/Timestamp.cs" />
+    <Compile Include="Models/Simple/Snapshot.cs" />
+    <Compile Include="Models/Simple/Targets.cs" />
+    <Compile Include="Models/Simple/Mirrors.cs" />
+    <Compile Include="Models/Simple/Metadata.cs" />
+    <Compile Include="Models/Simple/Extensions.cs" />
   </ItemGroup>
 
   <ItemGroup>
