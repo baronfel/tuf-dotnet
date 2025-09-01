@@ -282,4 +282,49 @@ public class SimplifiedModelsTests
         await Assert.That(root.Signatures[0].KeyId).IsEqualTo("test_key_id");
         await Assert.That(root.Signatures[0].Sig).IsEqualTo("test_signature_value");
     }
+
+    [Test]
+    public async Task ExtensionMethods_ShouldBeAvailable()
+    {
+        // Arrange
+        var rootMetadata = new Metadata<Root>
+        {
+            Signed = new Root
+            {
+                Type = "root",
+                SpecVersion = "1.0.0",
+                Keys = new Dictionary<string, Key>
+                {
+                    ["test_key"] = new Key
+                    {
+                        KeyType = "ed25519",
+                        Scheme = "ed25519",
+                        KeyVal = new KeyValue { Public = "abcd1234" }
+                    }
+                },
+                Roles = new Roles
+                {
+                    Root = new RoleKeys { KeyIds = new List<string> { "test_key" }, Threshold = 1 }
+                }
+            },
+            Signatures = new List<SignatureObject>()
+        };
+
+        var timestampMetadata = new Metadata<Timestamp>
+        {
+            Signed = new Timestamp { Type = "timestamp" },
+            Signatures = new List<SignatureObject>
+            {
+                new SignatureObject { KeyId = "test_key", Sig = "abc123" }
+            }
+        };
+
+        // Act & Assert - Just verify the extension methods are accessible and compile
+        await Assert.That(rootMetadata.Signed.Keys).HasCount(1);
+        await Assert.That(timestampMetadata.Signatures).HasCount(1);
+        
+        // Verify extension methods exist and are accessible (they compile)
+        await Assert.That(typeof(SimplifiedMetadataExtensions)
+            .GetMethod("VerifyRootRole")).IsNotNull();
+    }
 }
