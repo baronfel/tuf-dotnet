@@ -17,5 +17,6 @@
 
   <ItemGroup>
     <Compile Include="SimplifiedModelsTests.cs" />
+    <Compile Include="SigningTests.cs" />
   </ItemGroup>
 </Project>

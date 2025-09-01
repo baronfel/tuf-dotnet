@@ -209,6 +209,32 @@ public static class SimplifiedMetadataExtensions
         }
     }
 
+    extension(Key key)
+    {
+        /// <summary>
+        /// Computes the TUF key identifier for this key.
+        /// The key ID is the SHA-256 hash of the canonical JSON representation of the key.
+        /// </summary>
+        /// <returns>Hex-encoded SHA-256 hash of the key's canonical JSON</returns>
+        /// <remarks>
+        /// From TUF specification: "The key identifier is the hexadecimal representation 
+        /// of the SHA-256 hash of the canonical JSON form of the key."
+        /// 
+        /// This ensures that keys with identical cryptographic material but potentially 
+        /// different JSON formatting will have the same key ID.
+        /// </remarks>
+        public string GetKeyId()
+        {
+            // Serialize the key to canonical JSON
+            var keyJson = Serde.Json.JsonSerializer.Serialize(key);
+            var keyBytes = System.Text.Encoding.UTF8.GetBytes(keyJson);
+            
+            // Compute SHA-256 hash
+            var hashBytes = System.Security.Cryptography.SHA256.HashData(keyBytes);
+            return Convert.ToHexString(hashBytes).ToLowerInvariant();
+        }
+    }
+
     /// <summary>
     /// Verifies a cryptographic signature using the appropriate algorithm based on key type.
     /// Supports Ed25519, RSA PSS, and ECDSA signature verification.
@@ -241,12 +267,13 @@ public static class SimplifiedMetadataExtensions
         {
             var signatureBytes = Convert.FromHexString(signature);
 
-            return key.KeyType switch
+            // Verify signature based on key type and scheme combination (pinned types)
+            return (key.KeyType, key.Scheme) switch
             {
-                "ed25519" => VerifyEd25519Signature(key.KeyVal.Public, signatureBytes, signedBytes),
-                "rsa" => VerifyRsaSignature(key.KeyVal.Public, signatureBytes, signedBytes),
-                "ecdsa" => VerifyEcdsaSignature(key.KeyVal.Public, signatureBytes, signedBytes),
-                _ => throw new NotSupportedException($"Key type {key.KeyType} is not supported")
+                ("ed25519", "ed25519") => VerifyEd25519Signature(key.KeyVal.Public, signatureBytes, signedBytes),
+                ("rsa", "rsassa-pss-sha256") => VerifyRsaSignature(key.KeyVal.Public, signatureBytes, signedBytes),
+                ("ecdsa", "ecdsa-sha2-nistp256") => VerifyEcdsaSignature(key.KeyVal.Public, signatureBytes, signedBytes),
+                _ => throw new NotSupportedException($"Key type/scheme combination {key.KeyType}/{key.Scheme} is not supported")
             };
         }
         catch

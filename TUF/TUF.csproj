@@ -20,6 +20,7 @@
     <Compile Include="Models/Simple/Mirrors.cs" />
     <Compile Include="Models/Simple/Metadata.cs" />
     <Compile Include="Models/Simple/Extensions.cs" />
+    <Compile Include="Models/Simple/Signing.cs" />
   </ItemGroup>
 
   <ItemGroup>
