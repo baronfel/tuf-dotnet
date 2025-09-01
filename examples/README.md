@@ -22,6 +22,24 @@ A comprehensive command-line interface built with `System.CommandLine` that prov
 
 **Best for**: Understanding how to build production TUF applications or using as a development tool.
 
+### [SigningDemo](./SigningDemo/)
+Demonstrates TUF signing capabilities and key management:
+- Ed25519 and RSA-PSS key generation and signing
+- Signature verification workflows
+- Security best practices for key handling
+- Integration patterns for signing operations
+
+**Best for**: Understanding TUF cryptographic operations and implementing signing workflows.
+
+### [TufConformanceCli](./TufConformanceCli/)
+Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specification](https://github.com/theupdateframework/tuf-conformance/blob/main/CLIENT-CLI.md):
+- Standard `init`, `refresh`, and `download` commands
+- Compatible with the official TUF conformance test suite
+- Enables validation of .NET TUF implementation compliance
+- Automated testing integration via GitHub Actions
+
+**Best for**: TUF conformance testing, validation against the official TUF specification, and ensuring compatibility with other TUF implementations.
+
 ## Getting Started
 
 1. **Prerequisites**
@@ -33,6 +51,8 @@ A comprehensive command-line interface built with `System.CommandLine` that prov
    # From the repository root
    dotnet build examples/BasicClient/
    dotnet build examples/CliTool/
+   dotnet build examples/SigningDemo/
+   dotnet build examples/TufConformanceCli/
    ```
 
 3. **Run Examples**
