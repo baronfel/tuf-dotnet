@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using Serde;
 
 namespace TUF.Models.Simple;
@@ -24,8 +26,8 @@ namespace TUF.Models.Simple;
 /// - Clean separation between content and authentication
 /// - Consistent signature verification logic across all metadata types
 /// </remarks>
-[GenerateSerde]
-public partial record Metadata<T> where T : ISerializeProvider<T>, IDeserializeProvider<T>
+[SerdeTypeOptions(Proxy = typeof(MetadataTProxy))]
+public partial record Metadata<T>
 {
     /// <summary>
     /// The signed metadata content that is cryptographically protected.
@@ -41,7 +43,7 @@ public partial record Metadata<T> where T : ISerializeProvider<T>, IDeserializeP
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "signed")]
     public T Signed { get; init; } = default!;
-    
+
     /// <summary>
     /// Array of cryptographic signatures that authenticate the signed metadata.
     /// Each signature is created by a key authorized for the metadata's role.
@@ -66,64 +68,110 @@ public partial record Metadata<T> where T : ISerializeProvider<T>, IDeserializeP
     public List<SignatureObject> Signatures { get; init; } = new();
 }
 
-// Type aliases for specific metadata types with descriptive names and documentation
+public static class MetadataTProxy
+{
+    public abstract class SerMetadataBase<TSelf, T, TMetadata, TProvider>
+        : ISerialize<TMetadata>, ISerializeProvider<TMetadata>
+        where T : class, ISerializeProvider<T>
+        where TSelf : ISerialize<TMetadata>, new()
+        where TMetadata : Metadata<T>
+        where TProvider : ISerializeProvider<T>
+    {
 
-/// <summary>
-/// Complete root metadata including signatures.
-/// Contains the foundation of trust for the entire TUF repository.
-/// </summary>
-/// <remarks>
-/// Root metadata establishes the trust relationships and key assignments for all other roles.
-/// This is the most critical metadata type as compromise of root keys allows an attacker
-/// to control the entire repository. Root metadata updates require careful out-of-band verification.
-/// </remarks>
-[GenerateSerde]
-public partial record RootMetadata : Metadata<Root>;
+        public static TSelf Instance { get; } = new();
+        static ISerialize<TMetadata> ISerializeProvider<TMetadata>.Instance => Instance;
+        public ISerdeInfo SerdeInfo { get; }
 
-/// <summary>
-/// Complete timestamp metadata including signatures.
-/// Provides the entry point for clients to discover current repository state.
-/// </summary>
-/// <remarks>
-/// Timestamp metadata is typically the first file clients download when checking for updates.
-/// It has short expiration times and points to the current snapshot metadata, ensuring
-/// clients can detect if they're being served stale repository information.
-/// </remarks>
-[GenerateSerde]
-public partial record TimestampMetadata : Metadata<Timestamp>;
+        private readonly ITypeSerialize<T> _signedSer;
+        private readonly ITypeSerialize<List<SignatureObject>> _sigListSer;
 
-/// <summary>
-/// Complete snapshot metadata including signatures.
-/// Provides a consistent view of all available metadata versions.
-/// </summary>
-/// <remarks>
-/// Snapshot metadata prevents mix-and-match attacks by ensuring clients see a consistent
-/// set of metadata versions. It lists all targets metadata files and their versions,
-/// creating an atomic view of the repository at a specific point in time.
-/// </remarks>
-[GenerateSerde]
-public partial record SnapshotMetadata : Metadata<Snapshot>;
+        protected SerMetadataBase(ISerdeInfo serdeInfo)
+        {
+            _signedSer = TypeSerialize.GetOrBox<T, TProvider>();
+            _sigListSer = TypeSerialize.GetOrBox<List<SignatureObject>, ListProxy.Ser<SignatureObject, SignatureObject>>();
+            SerdeInfo = serdeInfo;
+        }
 
-/// <summary>
-/// Complete targets metadata including signatures.
-/// Contains the catalog of available target files with cryptographic verification information.
-/// </summary>
-/// <remarks>
-/// Targets metadata is the primary catalog of files available for download. It includes
-/// cryptographic hashes and file sizes that clients use to verify downloaded content.
-/// Can delegate signing authority to other roles for scalable repository management.
-/// </remarks>
-[GenerateSerde]
-public partial record TargetsMetadata : Metadata<Targets>;
+        void ISerialize<TMetadata>.Serialize(TMetadata value, ISerializer serializer)
+        {
+            var metadataSerializer = serializer.WriteType(SerdeInfo);
+            metadataSerializer.WriteValue(SerdeInfo, 0, value.Signed, TProvider.Instance);
+            metadataSerializer.WriteValue(SerdeInfo, 1, value.Signatures, ListProxy.Ser<SignatureObject, SignatureObject>.Instance);
+            metadataSerializer.End(ListProxy.Ser<SignatureObject, SignatureObject>.Instance.SerdeInfo);
+        }
+    }
 
-/// <summary>
-/// Complete mirrors metadata including signatures (TAP 5).
-/// Provides alternative download locations for improved availability and performance.
-/// </summary>
-/// <remarks>
-/// Mirrors metadata is optional and provides redundancy and performance benefits.
-/// Even when using mirrors, all TUF cryptographic verification still applies,
-/// so compromised mirrors cannot serve malicious content to clients.
-/// </remarks>
-[GenerateSerde]
-public partial record MirrorsMetadata : Metadata<Mirrors>;
+    public abstract class DeMetadataBase<TSelf, T, TMetadata, TProvider, TBothProvider> : IDeserialize<TMetadata>, IDeserializeProvider<TMetadata>
+        where TSelf : IDeserialize<TMetadata>, new()
+        where TMetadata : Metadata<T>
+        where T : class, IDeserializeProvider<T>, ISerializeProvider<T>
+        where TProvider : IDeserializeProvider<T>
+        where TBothProvider : IDeserializeProvider<T>, ISerializeProvider<T>
+    {
+        public static IDeserialize<TMetadata> Instance => new TSelf();
+        public ISerdeInfo SerdeInfo => MetadataSerdeInfo<T, TBothProvider>.Instance;
+
+        private readonly ITypeDeserialize<T> _signedDe;
+        private readonly ITypeDeserialize<List<SignatureObject>> _sigListDe;
+
+        protected DeMetadataBase()
+        {
+            _signedDe = TypeDeserialize.GetOrBox<T, TProvider>();
+            _sigListDe = TypeDeserialize.GetOrBox<List<SignatureObject>, ListProxy.De<SignatureObject, SignatureObject>>();
+        }
+
+        public TMetadata Deserialize(IDeserializer deserializer)
+        {
+            var metadataReader = deserializer.ReadType(SerdeInfo);
+            T signed = default!;
+            List<SignatureObject> sigList = default!;
+            while (metadataReader.TryReadIndex(SerdeInfo, out var errorName) is int fieldIdx && fieldIdx is not ITypeDeserializer.EndOfType)
+            {
+                switch (fieldIdx)
+                {
+                    case 0:
+                        signed = metadataReader.ReadValue(SerdeInfo, 0, TProvider.Instance);
+                        break;
+                    case 1:
+                        sigList = metadataReader.ReadValue(SerdeInfo, 1, ListProxy.De<SignatureObject, SignatureObject>.Instance);
+                        break;
+                }
+            }
+
+            return Create(signed, sigList);
+        }
+        
+        protected abstract TMetadata Create(T signed, List<SignatureObject> sigs);
+    }
+
+    internal static class MetadataSerdeInfo<T, TProvider>
+        where T : ISerializeProvider<T>, IDeserializeProvider<T>
+        where TProvider : ISerializeProvider<T>
+    {
+        public static readonly ISerdeInfo Instance = SerdeInfo.MakeCustom("Metadata", [], [
+            ("signed", TProvider.Instance.SerdeInfo, typeof(Metadata<T>).GetProperty("Signed")),
+        ("signatures", ListProxy.Ser<SignatureObject, SignatureObject>.Instance.SerdeInfo, typeof(Metadata<T>).GetProperty("Signatures")),
+    ]);
+    }
+
+}
+public static class MetadataProxy
+{
+    public sealed class Ser<T>() : MetadataTProxy.SerMetadataBase<Ser<T>, T, Metadata<T>, T>(MetadataTProxy.MetadataSerdeInfo<T, T>.Instance)
+        where T : class, ISerializeProvider<T>, IDeserializeProvider<T>
+    {
+    }
+
+    public sealed class De<T> : MetadataTProxy.DeMetadataBase<De<T>, T, Metadata<T>, T, T>
+        where T : class, ISerializeProvider<T>, IDeserializeProvider<T>
+    {
+        protected override Metadata<T> Create(T signed, List<SignatureObject> sigs)
+        {
+            return new Metadata<T>()
+            {
+                Signed = signed,
+                Signatures = sigs
+            };
+        }
+    }
+}

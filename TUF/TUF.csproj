@@ -21,6 +21,7 @@
     <Compile Include="Models/Simple/Metadata.cs" />
     <Compile Include="Models/Simple/Extensions.cs" />
     <Compile Include="Models/Simple/Signing.cs" />
+    <Compile Include="Models/Simple/TrustedMetadata.cs" />
   </ItemGroup>
 
   <ItemGroup>

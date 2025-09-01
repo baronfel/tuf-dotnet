@@ -1,7 +1,3 @@
-using System;
-using System.Text.Json;
-using TUnit;
-using Serde.Json;
 using TUF.Models.Simple;
 
 namespace TUF.Tests;
@@ -68,7 +64,7 @@ public class SimplifiedModelsTests
         };
 
         // Act
-        var json = Serde.Json.JsonSerializer.Serialize(root);
+        var json = Serde.Json.JsonSerializer.Serialize<Metadata<Root>, MetadataProxy.Ser<Root>>(root);
 
         // Assert
         await Assert.That(json).Contains("\"_type\":\"root\"");
@@ -123,7 +119,7 @@ public class SimplifiedModelsTests
         };
 
         // Act
-        var json = Serde.Json.JsonSerializer.Serialize(timestamp);
+        var json = Serde.Json.JsonSerializer.Serialize<Metadata<Timestamp>, MetadataProxy.Ser<Timestamp>>(timestamp);
 
         // Assert
         await Assert.That(json).Contains("\"_type\":\"timestamp\"");
@@ -201,7 +197,7 @@ public class SimplifiedModelsTests
         };
 
         // Act
-        var json = Serde.Json.JsonSerializer.Serialize(targets);
+        var json = Serde.Json.JsonSerializer.Serialize<Metadata<Targets>, MetadataProxy.Ser<Targets>>(targets);
 
         // Assert
         await Assert.That(json).Contains("\"_type\":\"targets\"");
@@ -262,7 +258,7 @@ public class SimplifiedModelsTests
         }";
 
         // Act
-        var root = Serde.Json.JsonSerializer.Deserialize<Metadata<Root>>(json);
+        var root = Serde.Json.JsonSerializer.Deserialize<Metadata<Root>, MetadataProxy.De<Root>>(json);
 
         // Assert
         await Assert.That(root).IsNotNull();
