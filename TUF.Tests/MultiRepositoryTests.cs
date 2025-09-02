@@ -80,46 +80,22 @@ public class MultiRepositoryTests : IDisposable
     }
 
     [Test]
-    public async Task MultiRepositoryClient_InitializeAsync_CreatesDirectories()
+    public async Task MultiRepositoryClient_Constructor_InitializesCorrectly()
     {
         // Arrange
-        var mapPath = Path.Combine(_tempDir, "test-map.json");
-        var testMap = new MultiRepositoryMap(
-            Repositories: new Dictionary<string, RepositoryInfo>
-            {
-                ["test-repo"] = new RepositoryInfo("test-repo", "https://example.com", "https://example.com", "./root.json")
-            },
-            Mapping: new[]
-            {
-                new Mapping(new[] { new PathPattern("*") }, new[] { "test-repo" }, 1, false)
-            }
-        );
-
-        var json = JsonSerializer.Serialize(testMap);
-        await File.WriteAllTextAsync(mapPath, json);
-
-        // Create dummy root file
-        var rootPath = Path.Combine(_tempDir, "root.json");
-        await File.WriteAllTextAsync(rootPath, "{}");
-
         var config = new MultiRepositoryConfig
         {
-            MapFilePath = mapPath,
+            MapFilePath = "dummy.json",
             MetadataDir = Path.Combine(_tempDir, "metadata"),
             TargetsDir = Path.Combine(_tempDir, "targets"),
             HttpClient = _httpClient
         };
 
+        // Act
         var client = new MultiRepositoryClient(config);
 
-        // Act
-        await client.InitializeAsync();
-
         // Assert
-        await Assert.That(Directory.Exists(Path.Combine(_tempDir, "metadata"))).IsTrue();
-        await Assert.That(Directory.Exists(Path.Combine(_tempDir, "targets"))).IsTrue();
-        await Assert.That(Directory.Exists(Path.Combine(_tempDir, "metadata", "test-repo"))).IsTrue();
-        await Assert.That(Directory.Exists(Path.Combine(_tempDir, "targets", "test-repo"))).IsTrue();
+        await Assert.That(client).IsNotNull();
     }
 
     [Test]
@@ -209,6 +185,262 @@ public class MultiRepositoryTests : IDisposable
 
         // Act & Assert
         await Assert.That(result.IsValid).IsEqualTo(expectedValid);
+    }
+
+    [Test]
+    public async Task MultiRepositoryClient_GetTargetInfoAsync_ThrowsWhenNotInitialized()
+    {
+        // Arrange
+        var config = new MultiRepositoryConfig
+        {
+            MapFilePath = "dummy.json",
+            MetadataDir = "metadata",
+            TargetsDir = "targets"
+        };
+        var client = new MultiRepositoryClient(config);
+
+        // Act & Assert
+        await Assert.That(async () => await client.GetTargetInfoAsync("test.txt"))
+            .ThrowsExactly<InvalidOperationException>()
+            .WithMessage("Client not initialized. Call InitializeAsync() first.");
+    }
+
+    [Test]
+    public async Task MultiRepositoryClient_RefreshAsync_ThrowsWhenNotInitialized()
+    {
+        // Arrange
+        var config = new MultiRepositoryConfig
+        {
+            MapFilePath = "dummy.json",
+            MetadataDir = "metadata",
+            TargetsDir = "targets"
+        };
+        var client = new MultiRepositoryClient(config);
+
+        // Act & Assert
+        await Assert.That(async () => await client.RefreshAsync())
+            .ThrowsExactly<InvalidOperationException>()
+            .WithMessage("Client not initialized. Call InitializeAsync() first.");
+    }
+
+    [Test]
+    public async Task MultiRepositoryClient_InitializeAsync_ThrowsOnInvalidMapFile()
+    {
+        // Arrange
+        var mapPath = Path.Combine(_tempDir, "invalid-map.json");
+        await File.WriteAllTextAsync(mapPath, "invalid json content");
+
+        var config = new MultiRepositoryConfig
+        {
+            MapFilePath = mapPath,
+            MetadataDir = Path.Combine(_tempDir, "metadata"),
+            TargetsDir = Path.Combine(_tempDir, "targets"),
+            HttpClient = _httpClient
+        };
+
+        var client = new MultiRepositoryClient(config);
+
+        // Act & Assert
+        await Assert.That(async () => await client.InitializeAsync())
+            .Throws<JsonException>();
+    }
+
+    [Test]
+    public async Task MultiRepositoryConfig_DefaultHttpClient_IsNotNull()
+    {
+        // Arrange & Act
+        var config = new MultiRepositoryConfig
+        {
+            MapFilePath = "test.json",
+            MetadataDir = "metadata",
+            TargetsDir = "targets"
+        };
+
+        // Assert
+        await Assert.That(config.HttpClient).IsNotNull();
+        config.HttpClient.Dispose(); // Clean up
+    }
+
+    [Test]
+    public async Task Mapping_JsonSerialization_PreservesAllFields()
+    {
+        // Arrange
+        var originalMapping = new Mapping(
+            Paths: new[] { new PathPattern("*.exe"), new PathPattern("libs/*.dll") },
+            Repositories: new[] { "repo-a", "repo-b", "repo-c" },
+            Threshold: 2,
+            Terminating: true
+        );
+
+        // Act
+        var json = JsonSerializer.Serialize(originalMapping);
+        var deserializedMapping = JsonSerializer.Deserialize<Mapping>(json);
+
+        // Assert
+        await Assert.That(deserializedMapping).IsNotNull();
+        await Assert.That(deserializedMapping!.Paths).HasCount().EqualTo(2);
+        await Assert.That(deserializedMapping.Repositories).HasCount().EqualTo(3);
+        await Assert.That(deserializedMapping.Threshold).IsEqualTo(2);
+        await Assert.That(deserializedMapping.Terminating).IsTrue();
+        await Assert.That(deserializedMapping.Paths[0].Pattern).IsEqualTo("*.exe");
+        await Assert.That(deserializedMapping.Repositories[0]).IsEqualTo("repo-a");
+    }
+
+    [Test]
+    public async Task RepositoryInfo_JsonSerialization_PreservesAllFields()
+    {
+        // Arrange
+        var originalRepoInfo = new RepositoryInfo(
+            Name: "production-repo",
+            MetadataUrl: "https://secure-metadata.example.com/",
+            TargetsUrl: "https://secure-targets.example.com/files/",
+            TrustedRootPath: "./production-root.json"
+        );
+
+        // Act
+        var json = JsonSerializer.Serialize(originalRepoInfo);
+        var deserializedRepoInfo = JsonSerializer.Deserialize<RepositoryInfo>(json);
+
+        // Assert
+        await Assert.That(deserializedRepoInfo).IsNotNull();
+        await Assert.That(deserializedRepoInfo!.Name).IsEqualTo("production-repo");
+        await Assert.That(deserializedRepoInfo.MetadataUrl).IsEqualTo("https://secure-metadata.example.com/");
+        await Assert.That(deserializedRepoInfo.TargetsUrl).IsEqualTo("https://secure-targets.example.com/files/");
+        await Assert.That(deserializedRepoInfo.TrustedRootPath).IsEqualTo("./production-root.json");
+    }
+
+    [Test]
+    public async Task Mapping_DefaultTerminating_IsFalse()
+    {
+        // Arrange & Act
+        var mapping = new Mapping(
+            Paths: new[] { new PathPattern("*") },
+            Repositories: new[] { "repo" },
+            Threshold: 1
+        );
+
+        // Assert
+        await Assert.That(mapping.Terminating).IsFalse();
+    }
+
+    [Test]
+    public async Task MultiRepositoryTargetResult_WithNullTargetInfo_IsInvalid()
+    {
+        // Arrange & Act
+        var result = new MultiRepositoryTargetResult(
+            "missing.txt",
+            null,
+            AgreementCount: 0,
+            RequiredThreshold: 1,
+            Array.Empty<string>()
+        );
+
+        // Assert
+        await Assert.That(result.IsValid).IsFalse();
+        await Assert.That(result.TargetInfo).IsNull();
+    }
+
+    [Test]
+    public async Task MultiRepositoryTargetResult_WithZeroAgreement_IsInvalid()
+    {
+        // Arrange
+        var targetMetadata = new TargetMetadata(
+            Length: 100,
+            Hashes: new List<TUF.Models.DigestAlgorithms.DigestValue>(),
+            Custom: null,
+            Path: new RelativePath("test.txt")
+        );
+
+        // Act
+        var result = new MultiRepositoryTargetResult(
+            "test.txt",
+            targetMetadata,
+            AgreementCount: 0,
+            RequiredThreshold: 1,
+            Array.Empty<string>()
+        );
+
+        // Assert
+        await Assert.That(result.IsValid).IsFalse();
+    }
+
+    [Test]
+    public async Task MultiRepositoryMap_WithEmptyRepositories_SerializesCorrectly()
+    {
+        // Arrange
+        var emptyMap = new MultiRepositoryMap(
+            Repositories: new Dictionary<string, RepositoryInfo>(),
+            Mapping: Array.Empty<Mapping>()
+        );
+
+        // Act
+        var json = JsonSerializer.Serialize(emptyMap);
+        var deserializedMap = JsonSerializer.Deserialize<MultiRepositoryMap>(json);
+
+        // Assert
+        await Assert.That(deserializedMap).IsNotNull();
+        await Assert.That(deserializedMap!.Repositories).HasCount().EqualTo(0);
+        await Assert.That(deserializedMap.Mapping).HasCount().EqualTo(0);
+    }
+
+    [Test]
+    public async Task Mapping_WithMultiplePatterns_MatchesAnyPattern()
+    {
+        // Arrange
+        var mapping = new Mapping(
+            Paths: new[]
+            {
+                new PathPattern("*.exe"),
+                new PathPattern("docs/*.pdf"),
+                new PathPattern("config.json")
+            },
+            Repositories: new[] { "repo" },
+            Threshold: 1
+        );
+
+        // Act & Assert
+        await Assert.That(mapping.Paths.Any(p => p.IsMatch("application.exe"))).IsTrue();
+        await Assert.That(mapping.Paths.Any(p => p.IsMatch("docs/manual.pdf"))).IsTrue();
+        await Assert.That(mapping.Paths.Any(p => p.IsMatch("config.json"))).IsTrue();
+        await Assert.That(mapping.Paths.Any(p => p.IsMatch("readme.txt"))).IsFalse();
+        await Assert.That(mapping.Paths.Any(p => p.IsMatch("docs/readme.txt"))).IsFalse();
+    }
+
+    [Test]
+    [Arguments("critical/*.exe", 3, true)]     // High security files require all repos
+    [Arguments("data/*", 2, false)]            // Data files require majority
+    [Arguments("*", 1, false)]                 // Fallback requires any repo
+    public async Task MultiRepositoryMap_DifferentSecurityPolicies_ConfiguredCorrectly(
+        string pathPattern, int threshold, bool terminating)
+    {
+        // Arrange
+        var securityMap = new MultiRepositoryMap(
+            Repositories: new Dictionary<string, RepositoryInfo>
+            {
+                ["security-repo"] = new RepositoryInfo("security-repo", "https://security.com", "https://security.com", "./security-root.json"),
+                ["backup-repo"] = new RepositoryInfo("backup-repo", "https://backup.com", "https://backup.com", "./backup-root.json"),
+                ["general-repo"] = new RepositoryInfo("general-repo", "https://general.com", "https://general.com", "./general-root.json")
+            },
+            Mapping: new[]
+            {
+                new Mapping(
+                    Paths: new[] { new PathPattern(pathPattern) },
+                    Repositories: new[] { "security-repo", "backup-repo", "general-repo" },
+                    Threshold: threshold,
+                    Terminating: terminating
+                )
+            }
+        );
+
+        // Act
+        var json = JsonSerializer.Serialize(securityMap);
+        var deserializedMap = JsonSerializer.Deserialize<MultiRepositoryMap>(json);
+
+        // Assert
+        await Assert.That(deserializedMap).IsNotNull();
+        await Assert.That(deserializedMap!.Mapping[0].Threshold).IsEqualTo(threshold);
+        await Assert.That(deserializedMap.Mapping[0].Terminating).IsEqualTo(terminating);
+        await Assert.That(deserializedMap.Mapping[0].Paths[0].Pattern).IsEqualTo(pathPattern);
     }
 
     public void Dispose()

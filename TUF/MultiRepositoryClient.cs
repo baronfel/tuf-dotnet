@@ -26,8 +26,8 @@ public class MultiRepositoryClient
     /// Initializes the multi-repository client by loading the map.json configuration
     /// and setting up individual TUF clients for each repository.
     /// </summary>
-    [RequiresUnreferencedCode()]
-    [RequiresDynamicCode()]
+    [RequiresUnreferencedCode("JSON deserialization may require types that cannot be statically analyzed")]
+    [RequiresDynamicCode("JSON deserialization may require runtime code generation")]
     public async Task InitializeAsync()
     {
         // Load the map.json file

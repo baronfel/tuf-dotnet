@@ -115,7 +115,7 @@ public record struct HexDigest(string sha256HexDigest) : IParsable<HexDigest>, I
 [JsonConverter(typeof(ParseableStringConverter<PathPattern>))]
 public record struct PathPattern(string Pattern) : IParsable<PathPattern>, IJsonStringWriteable<PathPattern>
 {
-    private readonly Matcher _matcher => new Matcher(StringComparison.InvariantCulture).AddInclude(Pattern);
+    private readonly Matcher _matcher => new Matcher(StringComparison.Ordinal).AddInclude(Pattern);
 
     public static PathPattern Parse(string s, IFormatProvider? provider) => new(s);
 
