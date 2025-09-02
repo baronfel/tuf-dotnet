@@ -13,7 +13,7 @@ namespace TUF.ConformanceTests;
 /// </summary>
 public class SignatureVerificationGoldenTests
 {
-    public static string SampleRootJson = """{"_type":"root","consistent_snapshot":true,"expires":"2025-10-01T05:26:16Z","keys":{"2ec2f35daed840da76fdd6e2ca51dfb1919992aae5331e4f1edfd70618f9b2b7":{"keytype":"ecdsa","keyval":{"public":"-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEJwsHFs2fOgFNIFnX7g+q5Q+ZIdBt\n0sZSWIgYQPjnA7GPirxVsRt/CG8OR9ueMZ43RDlbw3BuN7dd3Dpd+0pKTQ==\n-----ENDPUBLICKEY-----\n"},"scheme":"ecdsa-sha2-nistp256"},"302012e0fc7674cbe082657d1a655f281b4fd5ea77c3605f14b1617a82496fc5":{"keytype":"ecdsa","keyval":{"public":"-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEdBC0LVnw8OtbbtQLpIfa0463/bFe\nmlpkS8Qd8uLnZaPFH85keSJtF...cDQgAEj7HrbIgIvwAYZK+tDMOv9SWg70x1\nGZvXuFYnaiZoDz2y7LvntrARKu/tjBh+fssk+BDdhFJmIsM+sbObMVgq6g==\n-----ENDPUBLICKEY-----\n"},"scheme":"ecdsa-sha2-nistp256"},"9e180a675201d1725c5eda39d886abdcaf8a718777d0dd3620e4b9eff4a2a66f":{"keytype":"ecdsa","keyval":{"public":"-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE/qCad5Aq3yz9fOfr8seYvkbDv7EM\nFOY9Oyph7xtScaWHTOfkJRvkNVbsLBm0XLfuQTRNbVVvGBS1zsUpHQU/Pg==\n-----ENDPUBLICKEY-----\n"},"scheme":"ecdsa-sha2-nistp256"}},"roles":{"root":{"keyids":["2ec2f35daed840da76fdd6e2ca51dfb1919992aae5331e4f1edfd70618f9b2b7"],"threshold":1},"snapshot":{"keyids":["302012e0fc7674cbe082657d1a655f281b4fd5ea77c3605f14b1617a82496fc5"],"threshold":1},"targets":{"keyids":["521d9281004708db89dcf198c20d5faf5ad287bb3b0e627e571708bf2eaff149"],"threshold":1},"timestamp":{"keyids":["9e180a675201d1725c5eda39d886abdcaf8a718777d0dd3620e4b9eff4a2a66f"],"threshold":1}},"spec_version":"1.0.31","version":1}""";
+    public static string SampleRootJson = """{"_type":"root","consistent_snapshot":true,"expires":"2025-10-01T05:26:16Z","keys":{"2ec2f35daed840da76fdd6e2ca51dfb1919992aae5331e4f1edfd70618f9b2b7":{"keytype":"ecdsa","keyval":{"public":"-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEJwsHFs2fOgFNIFnX7g+q5Q+ZIdBt\n0sZSWIgYQPjnA7GPirxVsRt/CG8OR9ueMZ43RDlbw3BuN7dd3Dpd+0pKTQ==\n-----END PUBLIC KEY-----\n"},"scheme":"ecdsa-sha2-nistp256"},"302012e0fc7674cbe082657d1a655f281b4fd5ea77c3605f14b1617a82496fc5":{"keytype":"ecdsa","keyval":{"public":"-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEdBC0LVnw8OtbbtQLpIfa0463/bFe\nmlpkS8Qd8uLnZaPFH85keSJtF...cDQgAEj7HrbIgIvwAYZK+tDMOv9SWg70x1\nGZvXuFYnaiZoDz2y7LvntrARKu/tjBh+fssk+BDdhFJmIsM+sbObMVgq6g==\n-----END PUBLIC KEY-----\n"},"scheme":"ecdsa-sha2-nistp256"},"9e180a675201d1725c5eda39d886abdcaf8a718777d0dd3620e4b9eff4a2a66f":{"keytype":"ecdsa","keyval":{"public":"-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE/qCad5Aq3yz9fOfr8seYvkbDv7EM\nFOY9Oyph7xtScaWHTOfkJRvkNVbsLBm0XLfuQTRNbVVvGBS1zsUpHQU/Pg==\n-----END PUBLIC KEY-----\n"},"scheme":"ecdsa-sha2-nistp256"}},"roles":{"root":{"keyids":["2ec2f35daed840da76fdd6e2ca51dfb1919992aae5331e4f1edfd70618f9b2b7"],"threshold":1},"snapshot":{"keyids":["302012e0fc7674cbe082657d1a655f281b4fd5ea77c3605f14b1617a82496fc5"],"threshold":1},"targets":{"keyids":["521d9281004708db89dcf198c20d5faf5ad287bb3b0e627e571708bf2eaff149"],"threshold":1},"timestamp":{"keyids":["9e180a675201d1725c5eda39d886abdcaf8a718777d0dd3620e4b9eff4a2a66f"],"threshold":1}},"spec_version":"1.0.31","version":1}""";
     public static string SampleRootMetadataJson = $$"""{"signatures":[{"keyid":"2ec2f35daed840da76fdd6e2ca51dfb1919992aae5331e4f1edfd70618f9b2b7","sig":"304502201d77f1efa297539b56c755832691dae9be83ea95c185c10d4c6f3dea1e635d1e022100fa3ca29eb195cf90d95563edc25cfe40a48186b03e2a7ec0c14d2f6ff1f8aa1a"}],"signed":{{SampleRootJson}}}""";
 
     public static Metadata<Root> SampleRoot = new Metadata<Root>()
@@ -29,19 +29,19 @@ public class SignatureVerificationGoldenTests
                 {
                     KeyType = "ecdsa",
                     Scheme = "ecdsa-sha2-nistp256",
-                    KeyVal = new KeyValue { Public = @"-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEJwsHFs2fOgFNIFnX7g+q5Q+ZIdBt\n0sZSWIgYQPjnA7GPirxVsRt/CG8OR9ueMZ43RDlbw3BuN7dd3Dpd+0pKTQ==\n-----ENDPUBLICKEY-----\n" }
+                    KeyVal = new KeyValue { Public = "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEJwsHFs2fOgFNIFnX7g+q5Q+ZIdBt\n0sZSWIgYQPjnA7GPirxVsRt/CG8OR9ueMZ43RDlbw3BuN7dd3Dpd+0pKTQ==\n-----END PUBLIC KEY-----\n" }
                 },
                 ["302012e0fc7674cbe082657d1a655f281b4fd5ea77c3605f14b1617a82496fc5"] = new()
                 {
                     KeyType = "ecdsa",
                     Scheme = "ecdsa-sha2-nistp256",
-                    KeyVal = new KeyValue { Public = @"-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEdBC0LVnw8OtbbtQLpIfa0463/bFe\nmlpkS8Qd8uLnZaPFH85keSJtF...cDQgAEj7HrbIgIvwAYZK+tDMOv9SWg70x1\nGZvXuFYnaiZoDz2y7LvntrARKu/tjBh+fssk+BDdhFJmIsM+sbObMVgq6g==\n-----ENDPUBLICKEY-----\n" }
+                    KeyVal = new KeyValue { Public = "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEdBC0LVnw8OtbbtQLpIfa0463/bFe\nmlpkS8Qd8uLnZaPFH85keSJtF...cDQgAEj7HrbIgIvwAYZK+tDMOv9SWg70x1\nGZvXuFYnaiZoDz2y7LvntrARKu/tjBh+fssk+BDdhFJmIsM+sbObMVgq6g==\n-----END PUBLIC KEY-----\n" }
                 },
                 ["9e180a675201d1725c5eda39d886abdcaf8a718777d0dd3620e4b9eff4a2a66f"] = new()
                 {
                     KeyType = "ecdsa",
                     Scheme = "ecdsa-sha2-nistp256",
-                    KeyVal = new KeyValue { Public = @"-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE/qCad5Aq3yz9fOfr8seYvkbDv7EM\nFOY9Oyph7xtScaWHTOfkJRvkNVbsLBm0XLfuQTRNbVVvGBS1zsUpHQU/Pg==\n-----ENDPUBLICKEY-----\n" }
+                    KeyVal = new KeyValue { Public = "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE/qCad5Aq3yz9fOfr8seYvkbDv7EM\nFOY9Oyph7xtScaWHTOfkJRvkNVbsLBm0XLfuQTRNbVVvGBS1zsUpHQU/Pg==\n-----END PUBLIC KEY-----\n" }
                 }
             },
             Roles = new Roles
@@ -202,7 +202,7 @@ public class SignatureVerificationGoldenTests
             Scheme = "ecdsa-sha2-nistp256",
             KeyVal = new KeyValue
             {
-                Public = "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEJwsHFs2fOgFNIFnX7g+q5Q+ZIdBt\n0sZSWIgYQPjnA7GPirxVsRt/CG8OR9ueMZ43RDlbw3BuN7dd3Dpd+0pKTQ==\n-----END PUBLIC KEY-----\n"
+                Public = @"-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEJwsHFs2fOgFNIFnX7g+q5Q+ZIdBt\n0sZSWIgYQPjnA7GPirxVsRt/CG8OR9ueMZ43RDlbw3BuN7dd3Dpd+0pKTQ==\n-----END PUBLIC KEY-----\n"
             }
         };
 

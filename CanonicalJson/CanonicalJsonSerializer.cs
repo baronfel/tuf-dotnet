@@ -526,7 +526,7 @@ public sealed class CanonicalJsonEncoder : JavaScriptEncoder
 
     public override bool WillEncode(int unicodeScalar)
     {
-        // Canonical JSON only escapes two byte values: backslash (0x5C) and double quote (0x22)
+        // Canonical JSON (OLPC) only escapes two byte values: backslash (0x5C) and double quote (0x22)
         // Control characters and other bytes are left as literal uninterpreted bytes
         return unicodeScalar == 0x22 || unicodeScalar == 0x5C;
     }

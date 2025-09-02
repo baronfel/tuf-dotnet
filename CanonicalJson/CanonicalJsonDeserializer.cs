@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
@@ -334,7 +335,7 @@ public sealed class CanonicalJsonSerdeReader : IDeserializer, ITypeDeserializer,
             return rawString;
         }
 
-        // Slow path: unescape only \\ and \"
+        // Properly unescape JSON escape sequences
         var sb = new StringBuilder(rawString.Length);
         var i = 0;
 
@@ -343,16 +344,54 @@ public sealed class CanonicalJsonSerdeReader : IDeserializer, ITypeDeserializer,
             if (rawString[i] == '\\' && i + 1 < rawString.Length)
             {
                 var nextChar = rawString[i + 1];
-                if (nextChar == '\\' || nextChar == '"')
+                switch (nextChar)
                 {
-                    // Canonical JSON escape sequence - unescape it
-                    sb.Append(nextChar);
-                    i += 2;
-                    continue;
+                    case '"':
+                        sb.Append('"');
+                        i += 2;
+                        continue;
+                    case '\\':
+                        sb.Append('\\');
+                        i += 2;
+                        continue;
+                    case '/':
+                        sb.Append('/');
+                        i += 2;
+                        continue;
+                    case 'b':
+                        sb.Append('\b');
+                        i += 2;
+                        continue;
+                    case 'f':
+                        sb.Append('\f');
+                        i += 2;
+                        continue;
+                    case 'n':
+                        sb.Append('\n');
+                        i += 2;
+                        continue;
+                    case 'r':
+                        sb.Append('\r');
+                        i += 2;
+                        continue;
+                    case 't':
+                        sb.Append('\t');
+                        i += 2;
+                        continue;
+                    case 'u' when i + 5 < rawString.Length:
+                        // Unicode escape sequence \uXXXX
+                        var hexString = rawString.Substring(i + 2, 4);
+                        if (ushort.TryParse(hexString, NumberStyles.HexNumber, null, out ushort unicodeValue))
+                        {
+                            sb.Append((char)unicodeValue);
+                            i += 6;
+                            continue;
+                        }
+                        break;
                 }
             }
 
-            // Copy character as-is (including non-canonical escape sequences)
+            // Copy character as-is
             sb.Append(rawString[i]);
             i++;
         }
