@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+using Serde;
 
 using TUF.Models.Primitives;
 using TUF.Serialization;
@@ -12,14 +12,15 @@ namespace TUF.MultiRepository;
 /// <param name="Repositories">List of repository names to search for matching targets</param>
 /// <param name="Threshold">Minimum number of repositories that must agree on a target's metadata</param>
 /// <param name="Terminating">If true, stops searching subsequent mappings after this one matches</param>
-public record Mapping(
-    [property: JsonPropertyName("paths")]
+[GenerateSerialize, GenerateDeserialize]
+public readonly partial record struct Mapping(
+    [property: SerdeRename("paths")]
     PathPattern[] Paths,
-    [property: JsonPropertyName("repositories")]
+    [property: SerdeRename("repositories")]
     string[] Repositories,
-    [property: JsonPropertyName("threshold")]
+    [property: SerdeRename("threshold")]
     int Threshold,
-    [property: JsonPropertyName("terminating")]
+    [property: SerdeRename("terminating")]
     bool Terminating = false
 );
 
@@ -30,14 +31,15 @@ public record Mapping(
 /// <param name="MetadataUrl">Base URL for TUF metadata</param>
 /// <param name="TargetsUrl">Base URL for target files (may be same as metadata URL)</param>
 /// <param name="TrustedRootPath">Path to the trusted root.json for this repository</param>
-public record RepositoryInfo(
-    [property: JsonPropertyName("name")]
+[GenerateSerialize, GenerateDeserialize]
+public readonly partial record struct RepositoryInfo(
+    [property: SerdeRename("name")]
     string Name,
-    [property: JsonPropertyName("metadata_url")]
+    [property: SerdeRename("metadata_url")]
     string MetadataUrl,
-    [property: JsonPropertyName("targets_url")]
+    [property: SerdeRename("targets_url")]
     string TargetsUrl,
-    [property: JsonPropertyName("trusted_root")]
+    [property: SerdeRename("trusted_root")]
     string TrustedRootPath
 );
 
@@ -47,10 +49,11 @@ public record RepositoryInfo(
 /// </summary>
 /// <param name="Repositories">Dictionary of repository configurations</param>
 /// <param name="Mapping">Ordered list of mapping rules for target resolution</param>
-public record MultiRepositoryMap(
-    [property: JsonPropertyName("repositories")]
+[GenerateSerialize, GenerateDeserialize]
+public readonly partial record struct MultiRepositoryMap(
+    [property: SerdeRename("repositories")]
     Dictionary<string, RepositoryInfo> Repositories,
-    [property: JsonPropertyName("mapping")]
+    [property: SerdeRename("mapping")]
     Mapping[] Mapping
 );
 

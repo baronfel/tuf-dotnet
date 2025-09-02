@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
+
+using Serde.Json;
 
 using TUF.Models.Roles.Targets;
 using TUF.MultiRepository;
