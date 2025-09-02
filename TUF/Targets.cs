@@ -157,14 +157,14 @@ public partial record DelegatedRole
     {
         if (Paths is null || Paths.Count == 0)
         {
-            return true;
+            return false;
         }
         return Paths.Any(p => PathIsMatch(p, targetFile));
     }
 
     public static bool PathIsMatch(string path, string targetFile)
     {
-        var matcher = new Matcher(StringComparison.InvariantCulture).AddInclude(path);
+        var matcher = new Matcher(StringComparison.Ordinal).AddInclude(path);
         return matcher.Match(targetFile).HasMatches;
     }
 }
@@ -215,7 +215,19 @@ public partial record Delegations
         {
             return [];
         }
-        return Roles.Where(r => r.IsDelegatedPath(targetFile)).Select(r => (r.Name, r.Terminating)).ToList();
+        var roles = new List<(string Name, bool Terminating)>(Roles.Count);
+        foreach (var role in Roles)
+        {
+            if (role.IsDelegatedPath(targetFile))
+            {
+                roles.Add((role.Name, role.Terminating));
+            }
+            if (role.Terminating)
+            {
+                break;
+            }
+        }
+        return roles;
     }
 }
 
@@ -273,8 +285,8 @@ public partial record Targets
     /// since target file lists change less frequently than snapshot/timestamp metadata.
     /// The expiration time balances security against operational burden.
     /// </remarks>
-    [property: SerdeMemberOptions(Rename = "expires")]
-    public string Expires { get; init; } = "";
+    [property: SerdeMemberOptions(Rename = "expires", Proxy = typeof(CanonicalJson.Proxies.CanonicalDateTimeOffsetProxy))]
+    public DateTimeOffset Expires { get; init; }
     
     /// <summary>
     /// Dictionary of target files managed by this metadata.

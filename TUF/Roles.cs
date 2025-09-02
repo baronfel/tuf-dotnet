@@ -42,6 +42,7 @@ public partial record RoleKeys
 /// other roles: timestamp, snapshot, targets, and optionally mirrors."
 /// </remarks>
 [GenerateSerde]
+[SerdeTypeOptions(SerializeNull = false)]
 public partial record Roles
 {
     /// <summary>
@@ -49,28 +50,28 @@ public partial record Roles
     /// The root role signs root metadata and delegates trust to other roles.
     /// </summary>
     [property: SerdeMemberOptions(Rename = "root")]
-    public RoleKeys Root { get; init; } = new();
+    public required RoleKeys Root { get; init; }
     
     /// <summary>
     /// Key assignment for the timestamp role.
     /// The timestamp role signs timestamp metadata, which references the latest snapshot.
     /// </summary>
     [property: SerdeMemberOptions(Rename = "timestamp")]
-    public RoleKeys Timestamp { get; init; } = new();
+    public RoleKeys? Timestamp { get; init; }
     
     /// <summary>
     /// Key assignment for the snapshot role.
     /// The snapshot role signs snapshot metadata, which lists all current metadata versions.
     /// </summary>
     [property: SerdeMemberOptions(Rename = "snapshot")]
-    public RoleKeys Snapshot { get; init; } = new();
+    public RoleKeys? Snapshot { get; init; }
     
     /// <summary>
     /// Key assignment for the targets role.
     /// The targets role signs targets metadata, which lists available target files.
     /// </summary>
     [property: SerdeMemberOptions(Rename = "targets")]
-    public RoleKeys Targets { get; init; } = new();
+    public RoleKeys? Targets { get; init; }
     
     /// <summary>
     /// Optional key assignment for the mirrors role (TAP 5).

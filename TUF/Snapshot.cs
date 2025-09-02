@@ -55,8 +55,8 @@ public partial record Snapshot
     /// balancing security against operational overhead. It expires more frequently
     /// than root/targets but less frequently than timestamp metadata.
     /// </remarks>
-    [property: SerdeMemberOptions(Rename = "expires")]
-    public string Expires { get; init; } = "";
+    [property: SerdeMemberOptions(Rename = "expires", Proxy = typeof(CanonicalJson.Proxies.CanonicalDateTimeOffsetProxy))]
+    public DateTimeOffset Expires { get; init; }
     
     /// <summary>
     /// Metadata information for all targets metadata files in the repository.

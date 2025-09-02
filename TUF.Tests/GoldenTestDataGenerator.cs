@@ -1,4 +1,5 @@
 using TUF.Models;
+using CanonicalJson;
 using System.Text.Json;
 
 namespace TUF.Tests;
@@ -20,28 +21,25 @@ public static class GoldenTestDataGenerator
         // Create root metadata
         var rootMetadata = CreateRootMetadata(rootSigner, timestampSigner, snapshotSigner, targetsSigner);
         var rootJson = Serde.Json.JsonSerializer.Serialize<Metadata<Root>, MetadataProxy.Ser<Root>>(rootMetadata);
-        var rootSignature = rootSigner.SignBytes(System.Text.Encoding.UTF8.GetBytes(
-            Serde.Json.JsonSerializer.Serialize(rootMetadata.Signed)));
+        var rootSignature = rootSigner.SignBytes(
+            CanonicalJson.Serializer.Serialize(rootMetadata.Signed));
         rootMetadata = rootMetadata with { Signatures = [rootSignature] };
 
         // Create timestamp metadata
         var timestampMetadata = CreateTimestampMetadata();
-        var timestampSignedBytes = System.Text.Encoding.UTF8.GetBytes(
-            Serde.Json.JsonSerializer.Serialize(timestampMetadata.Signed));
+        var timestampSignedBytes = CanonicalJson.Serializer.Serialize(timestampMetadata.Signed);
         var timestampSignature = timestampSigner.SignBytes(timestampSignedBytes);
         timestampMetadata = timestampMetadata with { Signatures = [timestampSignature] };
 
         // Create snapshot metadata
         var snapshotMetadata = CreateSnapshotMetadata();
-        var snapshotSignedBytes = System.Text.Encoding.UTF8.GetBytes(
-            Serde.Json.JsonSerializer.Serialize(snapshotMetadata.Signed));
+        var snapshotSignedBytes = CanonicalJson.Serializer.Serialize(snapshotMetadata.Signed);
         var snapshotSignature = snapshotSigner.SignBytes(snapshotSignedBytes);
         snapshotMetadata = snapshotMetadata with { Signatures = [snapshotSignature] };
 
         // Create targets metadata
         var targetsMetadata = CreateTargetsMetadata();
-        var targetsSignedBytes = System.Text.Encoding.UTF8.GetBytes(
-            Serde.Json.JsonSerializer.Serialize(targetsMetadata.Signed));
+        var targetsSignedBytes = CanonicalJson.Serializer.Serialize(targetsMetadata.Signed);
         var targetsSignature = targetsSigner.SignBytes(targetsSignedBytes);
         targetsMetadata = targetsMetadata with { Signatures = [targetsSignature] };
 
@@ -78,7 +76,7 @@ public static class GoldenTestDataGenerator
                 Type = "root",
                 SpecVersion = "1.0.0",
                 Version = 1,
-                Expires = DateTimeOffset.UtcNow.AddYears(1).ToString("yyyy-MM-ddTHH:mm:ssZ"),
+                Expires = DateTimeOffset.UtcNow.AddYears(1),
                 Keys = new Dictionary<string, Key>
                 {
                     [rootKeyId] = rootSigner.Key,
@@ -107,7 +105,7 @@ public static class GoldenTestDataGenerator
                 Type = "timestamp",
                 SpecVersion = "1.0.0",
                 Version = 1,
-                Expires = DateTimeOffset.UtcNow.AddDays(1).ToString("yyyy-MM-ddTHH:mm:ssZ"),
+                Expires = DateTimeOffset.UtcNow.AddDays(1),
                 Meta = new Dictionary<string, FileMetadata>
                 {
                     ["snapshot.json"] = new FileMetadata
@@ -134,7 +132,7 @@ public static class GoldenTestDataGenerator
                 Type = "snapshot",
                 SpecVersion = "1.0.0",
                 Version = 1,
-                Expires = DateTimeOffset.UtcNow.AddDays(7).ToString("yyyy-MM-ddTHH:mm:ssZ"),
+                Expires = DateTimeOffset.UtcNow.AddDays(7),
                 Meta = new Dictionary<string, FileMetadata>
                 {
                     ["targets.json"] = new FileMetadata
@@ -161,7 +159,7 @@ public static class GoldenTestDataGenerator
                 Type = "targets",
                 SpecVersion = "1.0.0",
                 Version = 1,
-                Expires = DateTimeOffset.UtcNow.AddDays(30).ToString("yyyy-MM-ddTHH:mm:ssZ"),
+                Expires = DateTimeOffset.UtcNow.AddDays(30),
                 TargetMap = new Dictionary<string, TargetFile>
                 {
                     ["hello.txt"] = new TargetFile

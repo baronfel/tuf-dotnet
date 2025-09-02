@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using Serde;
 
 namespace TUF.Models;
@@ -71,8 +73,8 @@ public partial record Root
     /// Root metadata typically has longer expiration times (e.g., 1 year) since
     /// it's updated less frequently and requires out-of-band distribution.
     /// </remarks>
-    [property: SerdeMemberOptions(Rename = "expires")]
-    public string Expires { get; init; } = "";
+    [property: SerdeMemberOptions(Rename = "expires", Proxy = typeof(CanonicalJson.Proxies.CanonicalDateTimeOffsetProxy))]
+    public DateTimeOffset Expires { get; init; }
     
     /// <summary>
     /// Dictionary of all keys used by any role in this TUF repository.
@@ -96,5 +98,5 @@ public partial record Root
     /// by the current root keys.
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "roles")]
-    public Roles Roles { get; init; } = new();
+    public required Roles Roles { get; init; }
 }

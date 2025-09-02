@@ -54,8 +54,8 @@ public partial record Timestamp
     /// clients receive fresh metadata frequently. This helps detect freeze attacks
     /// where an attacker serves old metadata indefinitely.
     /// </remarks>
-    [property: SerdeMemberOptions(Rename = "expires")]
-    public string Expires { get; init; } = "";
+    [property: SerdeMemberOptions(Rename = "expires", Proxy = typeof(CanonicalJson.Proxies.CanonicalDateTimeOffsetProxy))]
+    public DateTimeOffset Expires { get; init; }
     
     /// <summary>
     /// Metadata information for files referenced by this timestamp.

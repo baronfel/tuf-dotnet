@@ -275,7 +275,7 @@ public sealed class EcdsaSigner : ISigner, IDisposable
         var keySize = ecdsa.KeySize;
         if (keySize != 256)
             throw new ArgumentException("ECDSA key must use NIST P-256 curve (256-bit key size)", nameof(ecdsa));
-        
+
         // Export public key as PEM and create TUF Key with pinned types
         var publicKeyPem = ecdsa.ExportSubjectPublicKeyInfoPem();
         
@@ -322,11 +322,8 @@ public sealed class EcdsaSigner : ISigner, IDisposable
     /// </remarks>
     public SignatureObject SignBytes(ReadOnlySpan<byte> data)
     {
-        // Hash the data with SHA-256 as required by ecdsa-sha2-nistp256 scheme
-        var hash = SHA256.HashData(data);
-        
         // Sign the hash using ECDSA
-        var signatureBytes = _ecdsa.SignHash(hash);
+        var signatureBytes = _ecdsa.SignData(data, HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation);
         var signatureHex = Convert.ToHexString(signatureBytes).ToLowerInvariant();
         
         return new SignatureObject

@@ -1,3 +1,5 @@
+using CanonicalJson;
+
 using Serde;
 
 using System.Security.Cryptography;
@@ -111,10 +113,8 @@ public static class SimplifiedMetadataExtensions
         /// </remarks>
         public byte[] GetSignedBytes()
         {
-            // For now, we'll serialize the signed portion using Serde
-            // In a full implementation, this should use canonical JSON
-            var signedJson = Serde.Json.JsonSerializer.Serialize(sourceMetadata.Signed);
-            return System.Text.Encoding.UTF8.GetBytes(signedJson);
+            // Serialize the signed portion using canonical JSON as required by TUF spec
+            return CanonicalJson.Serializer.Serialize(sourceMetadata.Signed);
         }
     }
 
@@ -226,8 +226,7 @@ public static class SimplifiedMetadataExtensions
         public string GetKeyId()
         {
             // Serialize the key to canonical JSON
-            var keyJson = Serde.Json.JsonSerializer.Serialize(key);
-            var keyBytes = System.Text.Encoding.UTF8.GetBytes(keyJson);
+            var keyBytes = CanonicalJson.Serializer.Serialize(key);
             
             // Compute SHA-256 hash
             var hashBytes = System.Security.Cryptography.SHA256.HashData(keyBytes);
@@ -366,7 +365,8 @@ public static class SimplifiedMetadataExtensions
         {
             using var ecdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);
             ecdsa.ImportFromPem(publicKey);
-            return ecdsa.VerifyHash(data, signature);
+            var hash = SHA256.HashData(data);
+            return ecdsa.VerifyHash(hash, signature);
         }
         catch
         {
