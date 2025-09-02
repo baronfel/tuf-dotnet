@@ -57,7 +57,7 @@ public class ProductionTufClient
 public void ConfigureServices(IServiceCollection services)
 {
     // Configure HTTP client with appropriate timeouts and retry policies
-    services.AddHttpClient<IUpdater>("TUFClient", client =>
+    services.AddHttpClient<IUpdater>("ProductionTufClient", client =>
     {
         client.Timeout = TimeSpan.FromMinutes(5);
         client.DefaultRequestHeaders.UserAgent.ParseAdd("MyApp/1.0 TUF-Client");
