@@ -76,7 +76,7 @@ public static class GoldenTestDataGenerator
                 Type = "root",
                 SpecVersion = "1.0.0",
                 Version = 1,
-                Expires = DateTimeOffset.UtcNow.AddYears(1).ToString("yyyy-MM-ddTHH:mm:ssZ"),
+                Expires = DateTimeOffset.UtcNow.AddYears(1),
                 Keys = new Dictionary<string, Key>
                 {
                     [rootKeyId] = rootSigner.Key,
@@ -105,7 +105,7 @@ public static class GoldenTestDataGenerator
                 Type = "timestamp",
                 SpecVersion = "1.0.0",
                 Version = 1,
-                Expires = DateTimeOffset.UtcNow.AddDays(1).ToString("yyyy-MM-ddTHH:mm:ssZ"),
+                Expires = DateTimeOffset.UtcNow.AddDays(1),
                 Meta = new Dictionary<string, FileMetadata>
                 {
                     ["snapshot.json"] = new FileMetadata
@@ -132,7 +132,7 @@ public static class GoldenTestDataGenerator
                 Type = "snapshot",
                 SpecVersion = "1.0.0",
                 Version = 1,
-                Expires = DateTimeOffset.UtcNow.AddDays(7).ToString("yyyy-MM-ddTHH:mm:ssZ"),
+                Expires = DateTimeOffset.UtcNow.AddDays(7),
                 Meta = new Dictionary<string, FileMetadata>
                 {
                     ["targets.json"] = new FileMetadata
@@ -159,7 +159,7 @@ public static class GoldenTestDataGenerator
                 Type = "targets",
                 SpecVersion = "1.0.0",
                 Version = 1,
-                Expires = DateTimeOffset.UtcNow.AddDays(30).ToString("yyyy-MM-ddTHH:mm:ssZ"),
+                Expires = DateTimeOffset.UtcNow.AddDays(30),
                 TargetMap = new Dictionary<string, TargetFile>
                 {
                     ["hello.txt"] = new TargetFile

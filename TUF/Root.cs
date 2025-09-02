@@ -72,7 +72,7 @@ public partial record Root
     /// it's updated less frequently and requires out-of-band distribution.
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "expires")]
-    public string Expires { get; init; } = "";
+    public DateTimeOffset Expires { get; init; }
     
     /// <summary>
     /// Dictionary of all keys used by any role in this TUF repository.

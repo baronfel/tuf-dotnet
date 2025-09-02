@@ -3,6 +3,7 @@ using TUF.Models;
 using TUnit.Core;
 using TUnit.Assertions;
 using CanonicalJson;
+using System.Globalization;
 
 namespace TUF.ConformanceTests;
 
@@ -22,7 +23,7 @@ public class SignatureVerificationGoldenTests
         {
             Type = "root",
             ConsistentSnapshot = true,
-            Expires = "2025-10-01T05:26:16Z",
+            Expires = DateTimeOffset.ParseExact("2025-10-01T05:26:16Z", CanonicalJsonSerializer.DateTimeOffsetFormat, CultureInfo.InvariantCulture),
             Keys = new Dictionary<string, Key>
             {
                 ["9c77c0b277eab2fb88d41546d25c82a57286e86969bee8187dedc195e900fb8f"] = new Key

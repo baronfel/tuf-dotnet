@@ -159,12 +159,8 @@ public class TrustedMetadata
     /// <param name="expiresString">ISO 8601 expiration timestamp</param>
     /// <param name="refTime">Reference time to compare against</param>
     /// <returns>True if expired, false otherwise</returns>
-    protected static bool IsExpired(string expiresString, DateTimeOffset refTime)
+    protected static bool IsExpired(DateTimeOffset expires, DateTimeOffset refTime)
     {
-        if (!DateTimeOffset.TryParse(expiresString, out var expires))
-        {
-            throw new Exception($"Invalid expiration time format: {expiresString}");
-        }
         return refTime >= expires;
     }
 

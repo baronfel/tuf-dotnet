@@ -55,7 +55,7 @@ public partial record Timestamp
     /// where an attacker serves old metadata indefinitely.
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "expires")]
-    public string Expires { get; init; } = "";
+    public DateTimeOffset Expires { get; init; }
     
     /// <summary>
     /// Metadata information for files referenced by this timestamp.

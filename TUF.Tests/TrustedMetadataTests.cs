@@ -1,3 +1,4 @@
+using System.Globalization;
 using TUF.Models;
 using TUnit.Core;
 using TUnit.Assertions;
@@ -283,7 +284,7 @@ public class TrustedMetadataTests
                 Type = "root",
                 SpecVersion = "1.0.0",
                 Version = 1,
-                Expires = "2020-01-01T00:00:00Z", // Expired
+                Expires = DateTimeOffset.ParseExact("2020-01-01T00:00:00Z", CanonicalJsonSerializer.DateTimeOffsetFormat, CultureInfo.InvariantCulture), // Expired
                 Keys = new Dictionary<string, Key>
                 {
                     [rootKeyId] = rootSigner.Key,

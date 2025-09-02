@@ -10,6 +10,7 @@ namespace CanonicalJson;
 /// </summary>
 public sealed class CanonicalJsonSerializer : ISerializer, ITypeSerializer, IDisposable
 {
+    public static string DateTimeOffsetFormat = "yyyy-MM-ddTHH:mm:ssZ";
     public readonly System.Text.Json.Utf8JsonWriter _writer;
     private readonly Stream _stream;
     private readonly System.Text.UTF8Encoding _utf8 = new(encoderShouldEmitUTF8Identifier: false);
@@ -45,8 +46,8 @@ public sealed class CanonicalJsonSerializer : ISerializer, ITypeSerializer, IDis
 
     public void WriteDecimal(decimal dec) => WriteRaw(dec.ToString("G29", CultureInfo.InvariantCulture));
 
-    public void WriteDateTime(DateTime dateTime) => WriteString(dateTime.ToString("O", CultureInfo.InvariantCulture));
-    public void WriteDateTimeOffset(DateTimeOffset dateTimeOffset) => WriteString(dateTimeOffset.ToString("O", CultureInfo.InvariantCulture));
+    public void WriteDateTime(DateTime dateTime) => WriteString(dateTime.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture));
+    public void WriteDateTimeOffset(DateTimeOffset dateTimeOffset) => WriteString(dateTimeOffset.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture));
 
     public void WriteBytes(ReadOnlyMemory<byte> bytes) => _writer.WriteBase64StringValue(bytes.Span);
 
@@ -410,13 +411,13 @@ internal class ReorderingSerializer : ITypeSerializer
     public void WriteDateTime(ISerdeInfo typeInfo, int index, DateTime dt)
     {
         var name = typeInfo.GetFieldStringName(index);
-        _properties[name] = () => _parent._writer.WriteString(name, dt.ToString("o"));
+        _properties[name] = () => _parent._writer.WriteString(name, dt.ToString(CanonicalJsonSerializer.DateTimeOffsetFormat));
     }
 
     public void WriteDateTimeOffset(ISerdeInfo typeInfo, int index, DateTimeOffset dt)
     {
         var name = typeInfo.GetFieldStringName(index);
-        _properties[name] = () => _parent._writer.WriteString(name, dt.ToString("o"));
+        _properties[name] = () => _parent._writer.WriteString(name, dt.ToString(CanonicalJsonSerializer.DateTimeOffsetFormat));
     }
 
     public void WriteDecimal(ISerdeInfo typeInfo, int index, decimal d)

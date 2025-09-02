@@ -56,7 +56,7 @@ public partial record Snapshot
     /// than root/targets but less frequently than timestamp metadata.
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "expires")]
-    public string Expires { get; init; } = "";
+    public DateTimeOffset Expires { get; init; }
     
     /// <summary>
     /// Metadata information for all targets metadata files in the repository.

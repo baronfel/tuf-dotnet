@@ -242,7 +242,7 @@ dotnet run
 - `TUF/TrustedMetadata.cs` - Metadata verification logic
 
 ### Test Data
-- `scenarios/` - Test scenarios and sample data
+- `scenarios/` - Test scenarios and sample data. Each folder is a distinct scenario.
 - `.tuf-conformance-xfails` - Expected test failures
 - Golden test files in `TUF.ConformanceTests/`
 
