@@ -1,16 +1,19 @@
 using System.Globalization;
-using TUF.Models;
-using TUnit.Core;
-using TUnit.Assertions;
-using CanonicalJson;
 using System.Text;
+
+using CanonicalJson;
+
+using TUF.Models;
+
+using TUnit.Assertions;
+using TUnit.Core;
 
 namespace TUF.Tests;
 
 public class TrustedMetadataTests
 {
     private static readonly GoldenTestData TestData = GoldenTestDataGenerator.Generate();
-    
+
     private const string TestRootJson = """
     {
         "signed": {
@@ -153,7 +156,7 @@ public class TrustedMetadataTests
     }
     """;
 
-    [Test] 
+    [Test]
     public async Task CreateFromRootData_ShouldCreateTrustedMetadata()
     {
         // Arrange
@@ -202,7 +205,7 @@ public class TrustedMetadataTests
         await Assert.That(timestampMetadata!.Signed.Type).IsEqualTo("timestamp");
         await Assert.That(timestampMetadata.Signed.Version).IsEqualTo(1);
         await Assert.That(timestampMetadata.Signed.Meta).ContainsKey("snapshot.json");
-        
+
         var snapshotMeta = timestampMetadata.Signed.Meta["snapshot.json"];
         await Assert.That(snapshotMeta.Version).IsEqualTo(1);
         await Assert.That(snapshotMeta.Length).IsEqualTo(500);
@@ -223,7 +226,7 @@ public class TrustedMetadataTests
         await Assert.That(snapshotMetadata!.Signed.Type).IsEqualTo("snapshot");
         await Assert.That(snapshotMetadata.Signed.Version).IsEqualTo(1);
         await Assert.That(snapshotMetadata.Signed.Meta).ContainsKey("targets.json");
-        
+
         var targetsMeta = snapshotMetadata.Signed.Meta["targets.json"];
         await Assert.That(targetsMeta.Version).IsEqualTo(1);
         await Assert.That(targetsMeta.Length).IsEqualTo(800);
@@ -243,7 +246,7 @@ public class TrustedMetadataTests
         await Assert.That(targetsMetadata!.Signed.Type).IsEqualTo("targets");
         await Assert.That(targetsMetadata.Signed.Version).IsEqualTo(1);
         await Assert.That(targetsMetadata.Signed.TargetMap).ContainsKey("test-file.txt");
-        
+
         var targetFile = targetsMetadata.Signed.TargetMap["test-file.txt"];
         await Assert.That(targetFile.Length).IsEqualTo(100);
         await Assert.That(targetFile.Hashes).ContainsKey("sha256");
@@ -254,12 +257,12 @@ public class TrustedMetadataTests
     {
         // Note: Since we can't create actual TrustedMetadata without valid signatures,
         // we'll test the pattern by checking that the base class throws appropriate errors
-        
+
         // We can test this conceptually by ensuring the JSON structures are valid
         var rootData = System.Text.Encoding.UTF8.GetBytes(TestRootJson);
         var rootMetadata = Serde.Json.JsonSerializer.Deserialize<Metadata<Root>, MetadataProxy.De<Root>>(rootData, MetadataProxy.De<Root>.Instance);
         await Assert.That(rootMetadata).IsNotNull();
-        
+
         // Test that the methods exist and would throw in the right circumstances
         // (actual signature verification testing would require real crypto setup)
     }
@@ -272,7 +275,7 @@ public class TrustedMetadataTests
         var timestampSigner = EcdsaSigner.Generate();
         var snapshotSigner = EcdsaSigner.Generate();
         var targetsSigner = EcdsaSigner.Generate();
-        
+
         var rootKeyId = rootSigner.Key.GetKeyId();
         var timestampKeyId = timestampSigner.Key.GetKeyId();
         var snapshotKeyId = snapshotSigner.Key.GetKeyId();
@@ -309,7 +312,7 @@ public class TrustedMetadataTests
         var expectedCanonicalJsonString = Encoding.UTF8.GetString(expiredSignedBytes);
         var expiredSignature = rootSigner.SignBytes(expiredSignedBytes);
         expiredRoot = expiredRoot with { Signatures = [expiredSignature] };
-        
+
         var expiredRootJson = Serde.Json.JsonSerializer.Serialize<Metadata<Root>, MetadataProxy.Ser<Root>>(expiredRoot);
         var rootData = System.Text.Encoding.UTF8.GetBytes(expiredRootJson);
         var deserializedExpiredRoot = Serde.Json.JsonSerializer.Deserialize<Metadata<Root>, MetadataProxy.De<Root>>(rootData, MetadataProxy.De<Root>.Instance);
@@ -331,7 +334,7 @@ public class TrustedMetadataTests
         // Test the static file verification logic
         var testData = "Hello, TUF!"u8.ToArray();
         var sha256Hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(testData)).ToLowerInvariant();
-        
+
         var fileMeta = new FileMetadata
         {
             Version = 1,

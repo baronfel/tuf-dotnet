@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+
 using Serde;
 
 namespace CanonicalJson;
@@ -460,7 +461,7 @@ public sealed class CanonicalJsonSerdeReader : IDeserializer, ITypeDeserializer,
         _currentElement = default;
         return false;
     }
-    
+
     internal string? GetCurrentDictionaryKey()
     {
         return _currentObjectState?.HasValue == true ? _currentObjectState.Current.Name : null;
@@ -475,7 +476,7 @@ internal sealed class ObjectTypeDeserializer : ITypeDeserializer
     private readonly CanonicalJsonSerdeReader _parent;
     private readonly ISerdeInfo _typeInfo;
     private bool _initialized;
-    
+
     public ObjectTypeDeserializer(CanonicalJsonSerdeReader parent, ISerdeInfo typeInfo)
     {
         _parent = parent;
@@ -483,7 +484,7 @@ internal sealed class ObjectTypeDeserializer : ITypeDeserializer
     }
 
     public int? SizeOpt => null;
-    
+
     public int TryReadIndex(ISerdeInfo info, out string? errorName)
     {
         if (!_initialized)
@@ -491,27 +492,27 @@ internal sealed class ObjectTypeDeserializer : ITypeDeserializer
             _initialized = true;
             _parent.StartObject(_parent._currentElement);
         }
-        
+
         var result = _parent.TryReadIndex(info, out errorName);
-        
+
         if (result == ITypeDeserializer.EndOfType)
         {
             _parent.EndObject();
         }
-        
+
         return result;
     }
-    
+
     public T ReadValue<T>(ISerdeInfo info, int index, IDeserialize<T> deserialize) where T : class?
     {
         return deserialize.Deserialize(_parent);
     }
-    
+
     public void SkipValue(ISerdeInfo info, int index)
     {
         // No-op for JsonDocument approach
     }
-    
+
     // All the primitive read methods - delegate to parent
     public bool ReadBool(ISerdeInfo info, int index) => _parent.ReadBool(info, index);
     public char ReadChar(ISerdeInfo info, int index) => _parent.ReadChar(info, index);
@@ -542,7 +543,7 @@ internal sealed class DictionaryTypeDeserializer : ITypeDeserializer
     private readonly ISerdeInfo _typeInfo;
     private bool _initialized;
     private bool _isKey = true; // Track if we're reading key or value
-    
+
     public DictionaryTypeDeserializer(CanonicalJsonSerdeReader parent, ISerdeInfo typeInfo)
     {
         _parent = parent;
@@ -550,27 +551,27 @@ internal sealed class DictionaryTypeDeserializer : ITypeDeserializer
     }
 
     public int? SizeOpt => null;
-    
+
     public int TryReadIndex(ISerdeInfo info, out string? errorName)
     {
         errorName = null;
-        
+
         if (!_initialized)
         {
             _initialized = true;
             _parent.StartObject(_parent._currentElement);
-            
+
             // Try to get the first property
             if (!_parent.TryGetNextDictionaryKeyValue(out var firstProperty))
             {
                 _parent.EndObject();
                 return ITypeDeserializer.EndOfType;
             }
-            
+
             _isKey = true;
             return 0; // Always return 0 for dictionary entries
         }
-        
+
         if (_isKey)
         {
             // We've positioned at a key, now prepare for value read
@@ -585,12 +586,12 @@ internal sealed class DictionaryTypeDeserializer : ITypeDeserializer
                 _parent.EndObject();
                 return ITypeDeserializer.EndOfType;
             }
-            
+
             _isKey = true;
             return 0; // New entry, but still return 0
         }
     }
-    
+
     public T ReadValue<T>(ISerdeInfo info, int index, IDeserialize<T> deserialize) where T : class?
     {
         // Reading a complex value should never happen when expecting a key
@@ -601,12 +602,12 @@ internal sealed class DictionaryTypeDeserializer : ITypeDeserializer
         // Reading the value - this is a complex object value
         return deserialize.Deserialize(_parent);
     }
-    
+
     public void SkipValue(ISerdeInfo info, int index)
     {
         // Skipping should not change state as TryReadIndex controls the flow
     }
-    
+
     // For dictionary keys, we need to return the property name, not read from JSON value
     public string ReadString(ISerdeInfo info, int index)
     {
@@ -626,7 +627,7 @@ internal sealed class DictionaryTypeDeserializer : ITypeDeserializer
             return _parent.ReadString(info, index);
         }
     }
-    
+
     // All the primitive read methods - follow the same pattern as ReadString
     public bool ReadBool(ISerdeInfo info, int index)
     {
@@ -636,7 +637,7 @@ internal sealed class DictionaryTypeDeserializer : ITypeDeserializer
         }
         return _parent.ReadBool(info, index);
     }
-    
+
     public char ReadChar(ISerdeInfo info, int index)
     {
         if (_isKey)
@@ -650,7 +651,7 @@ internal sealed class DictionaryTypeDeserializer : ITypeDeserializer
         }
         return _parent.ReadChar(info, index);
     }
-    
+
     public byte ReadU8(ISerdeInfo info, int index)
     {
         if (_isKey)
@@ -659,7 +660,7 @@ internal sealed class DictionaryTypeDeserializer : ITypeDeserializer
         }
         return _parent.ReadU8(info, index);
     }
-    
+
     public ushort ReadU16(ISerdeInfo info, int index)
     {
         if (_isKey)
@@ -668,7 +669,7 @@ internal sealed class DictionaryTypeDeserializer : ITypeDeserializer
         }
         return _parent.ReadU16(info, index);
     }
-    
+
     public uint ReadU32(ISerdeInfo info, int index)
     {
         if (_isKey)
@@ -677,7 +678,7 @@ internal sealed class DictionaryTypeDeserializer : ITypeDeserializer
         }
         return _parent.ReadU32(info, index);
     }
-    
+
     public ulong ReadU64(ISerdeInfo info, int index)
     {
         if (_isKey)
@@ -686,7 +687,7 @@ internal sealed class DictionaryTypeDeserializer : ITypeDeserializer
         }
         return _parent.ReadU64(info, index);
     }
-    
+
     public sbyte ReadI8(ISerdeInfo info, int index)
     {
         if (_isKey)
@@ -695,7 +696,7 @@ internal sealed class DictionaryTypeDeserializer : ITypeDeserializer
         }
         return _parent.ReadI8(info, index);
     }
-    
+
     public short ReadI16(ISerdeInfo info, int index)
     {
         if (_isKey)
@@ -704,7 +705,7 @@ internal sealed class DictionaryTypeDeserializer : ITypeDeserializer
         }
         return _parent.ReadI16(info, index);
     }
-    
+
     public int ReadI32(ISerdeInfo info, int index)
     {
         if (_isKey)
@@ -713,7 +714,7 @@ internal sealed class DictionaryTypeDeserializer : ITypeDeserializer
         }
         return _parent.ReadI32(info, index);
     }
-    
+
     public long ReadI64(ISerdeInfo info, int index)
     {
         if (_isKey)
@@ -722,7 +723,7 @@ internal sealed class DictionaryTypeDeserializer : ITypeDeserializer
         }
         return _parent.ReadI64(info, index);
     }
-    
+
     public float ReadF32(ISerdeInfo info, int index)
     {
         if (_isKey)
@@ -731,7 +732,7 @@ internal sealed class DictionaryTypeDeserializer : ITypeDeserializer
         }
         return _parent.ReadF32(info, index);
     }
-    
+
     public double ReadF64(ISerdeInfo info, int index)
     {
         if (_isKey)
@@ -740,7 +741,7 @@ internal sealed class DictionaryTypeDeserializer : ITypeDeserializer
         }
         return _parent.ReadF64(info, index);
     }
-    
+
     public decimal ReadDecimal(ISerdeInfo info, int index)
     {
         if (_isKey)
@@ -749,7 +750,7 @@ internal sealed class DictionaryTypeDeserializer : ITypeDeserializer
         }
         return _parent.ReadDecimal(info, index);
     }
-    
+
     public DateTime ReadDateTime(ISerdeInfo info, int index)
     {
         if (_isKey)
@@ -758,7 +759,7 @@ internal sealed class DictionaryTypeDeserializer : ITypeDeserializer
         }
         return _parent.ReadDateTime(info, index);
     }
-    
+
     public void ReadBytes(ISerdeInfo info, int index, IBufferWriter<byte> writer)
     {
         if (_isKey)
@@ -777,42 +778,42 @@ internal sealed class ArrayTypeDeserializer : ITypeDeserializer
     private readonly CanonicalJsonSerdeReader _parent;
     private bool _initialized;
     private int _currentIndex;
-    
+
     public ArrayTypeDeserializer(CanonicalJsonSerdeReader parent)
     {
         _parent = parent;
     }
 
     public int? SizeOpt => null;
-    
+
     public int TryReadIndex(ISerdeInfo info, out string? errorName)
     {
         errorName = null;
-        
+
         if (!_initialized)
         {
             _initialized = true;
             _parent.StartArray(_parent._currentElement);
         }
-        
+
         if (!_parent.TryGetNextArrayElement(out var element))
         {
             return ITypeDeserializer.EndOfType;
         }
-        
+
         return _currentIndex++;
     }
-    
+
     public T ReadValue<T>(ISerdeInfo info, int index, IDeserialize<T> deserialize) where T : class?
     {
         return deserialize.Deserialize(_parent);
     }
-    
+
     public void SkipValue(ISerdeInfo info, int index)
     {
         // No-op for JsonDocument approach
     }
-    
+
     // All the primitive read methods - delegate to parent
     public bool ReadBool(ISerdeInfo info, int index) => _parent.ReadBool(info, index);
     public char ReadChar(ISerdeInfo info, int index) => _parent.ReadChar(info, index);

@@ -54,7 +54,7 @@ public class Updater
         }
         return c.TopLevelTargets.Signed.TargetMap;
     }
-    
+
     public TrustedMetadata GetTrustedMetadataSet() => _trusted;
 
     public async Task<(string RemotePath, TargetFile File)> GetTargetInfo(string targetPath)
@@ -73,7 +73,7 @@ public class Updater
         var localDestinationPath = destinationFilePath ?? Path.Combine(_config.LocalTargetsDir, targetPath);
         var targetBaseUrl = baseUrl ?? _config.RemoteTargetsUrl;
         var targetRemotePath = targetPath;
-        
+
         if (_trusted.Root.Signed.ConsistentSnapshot == true && _config.PrefixTargetsWithHash)
         {
             var hash = targetFile.Hashes.FirstOrDefault().Value;
@@ -116,7 +116,7 @@ public class Updater
         {
             return null;
         }
-        
+
         var fileBytes = await File.ReadAllBytesAsync(localPath);
         try
         {
@@ -148,7 +148,7 @@ public class Updater
                 "sha512" => Convert.ToHexString(System.Security.Cryptography.SHA512.HashData(data)).ToLowerInvariant(),
                 _ => null
             };
-            
+
             if (computedHash != null && computedHash == hash.Value.ToLowerInvariant())
             {
                 validHash = true;
@@ -190,7 +190,7 @@ public class Updater
             // if we didn't find the file in this role
             visited.Add(role); // add the visited role
             // add any child delegations to the list to traverse
-            if (targets is not null && targets.Signed.Delegations is {} delegations)
+            if (targets is not null && targets.Signed.Delegations is { } delegations)
             {
                 var roles = delegations.GetRolesForTarget(targetFilePath);
                 foreach (var r in roles)
@@ -261,7 +261,8 @@ public class Updater
             _trusted = _trusted.UpdateSnapshot(data, isTrusted: false);
             await PersistMetadata("snapshot", data);
         }
-        else {
+        else
+        {
             throw new Exception("trusted timestamp not loaded");
         }
     }

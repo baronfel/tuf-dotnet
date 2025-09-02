@@ -30,7 +30,7 @@ public partial record TargetFile
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "length")]
     public int Length { get; init; }
-    
+
     /// <summary>
     /// Dictionary of cryptographic hashes for integrity verification.
     /// Key is the hash algorithm name (e.g., "sha256"), value is the hex-encoded hash.
@@ -46,7 +46,7 @@ public partial record TargetFile
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "hashes")]
     public Dictionary<string, string> Hashes { get; init; } = new();
-    
+
     /// <summary>
     /// Optional custom metadata for application-specific use.
     /// TUF specification allows arbitrary key-value pairs here.
@@ -208,7 +208,7 @@ public partial record Delegations
     [property: SerdeMemberOptions(Rename = "roles")]
 
     public List<DelegatedRole> Roles { get; init; } = new();
-    
+
     public List<(string Name, bool Terminating)> GetRolesForTarget(string targetFile)
     {
         if (Roles is null)
@@ -257,14 +257,14 @@ public partial record Targets
     /// </summary>
     [property: SerdeMemberOptions(Rename = "_type")]
     public string Type { get; init; } = "targets";
-    
+
     /// <summary>
     /// The version of the TUF specification this metadata conforms to.
     /// Should follow semantic versioning (e.g., "1.0.0").
     /// </summary>
     [property: SerdeMemberOptions(Rename = "spec_version")]
     public string SpecVersion { get; init; } = "";
-    
+
     /// <summary>
     /// Version number of this targets metadata instance.
     /// Must be incremented for each new version.
@@ -275,7 +275,7 @@ public partial record Targets
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "version")]
     public int Version { get; init; } = 1;
-    
+
     /// <summary>
     /// Expiration timestamp in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ).
     /// Clients must reject metadata after this time.
@@ -287,7 +287,7 @@ public partial record Targets
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "expires", Proxy = typeof(CanonicalJson.Proxies.CanonicalDateTimeOffsetProxy))]
     public DateTimeOffset Expires { get; init; }
-    
+
     /// <summary>
     /// Dictionary of target files managed by this metadata.
     /// Key is the target file path, value contains cryptographic metadata.
@@ -302,7 +302,7 @@ public partial record Targets
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "targets")]
     public Dictionary<string, TargetFile> TargetMap { get; init; } = new();
-    
+
     /// <summary>
     /// Optional delegation configuration for distributing signing authority.
     /// If present, allows this targets role to delegate specific paths to other roles.

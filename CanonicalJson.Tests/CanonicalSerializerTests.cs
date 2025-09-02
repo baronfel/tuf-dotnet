@@ -42,7 +42,7 @@ public partial record TestComplexValueContainer(Dictionary<string, TestKeyValueC
 
 [GenerateSerde]
 public partial record TestEmptyCollectionsContainer(
-    List<string> EmptyList, 
+    List<string> EmptyList,
     Dictionary<string, string> EmptyDict,
     string[] EmptyArray);
 
@@ -194,7 +194,7 @@ public partial class CanonicalSerializerTests
 
         using var ms = new MemoryStream();
         var writer = new CanonicalJsonSerializer(ms);
-        
+
         var inner = writer.WriteType(null!);
         inner.WriteString(DummyPropertyInfo("a"), 0, "日"); // Japanese character for "day/sun"
         inner.End(null!);
@@ -204,7 +204,7 @@ public partial class CanonicalSerializerTests
         await Assert.That(result).IsEqualTo(expectedJson);
     }
 
-    [Test] 
+    [Test]
     public async Task VerifyGoldenTestData_SimpleKeyValue()
     {
         // Based on cjson golden data: 64b198dfda3dbd1c4a8c83f2ce8e9d4474b51e785b61bdb13c219a3e7fd7609c.json
@@ -228,7 +228,7 @@ public partial class CanonicalSerializerTests
     ISerdeInfo DummyArrayInfo() => new TestSerdeInfo(null!, kind: InfoKind.List);
 
     [Test]
-    public async Task VerifyGoldenTestData_JapaneseCharactersWithNumbers() 
+    public async Task VerifyGoldenTestData_JapaneseCharactersWithNumbers()
     {
         // Based on cjson golden data: 7d9231d659b4fee07dabfbb4545fb55d66ec05cb44b5610aae31f468a22a1dd3.json
         // Contains: {"本":2,"日":1} - UTF-8 lexicographic ordering test
@@ -329,15 +329,15 @@ public partial class CanonicalSerializerTests
     }
 
     // Collection and Dictionary Serialization Tests
-    
+
     [Test]
     public async Task VerifyCollectionListSerialization()
     {
         var testObj = new TestListContainer(new List<string> { "first", "second", "third" });
-        
+
         var serialized = Serializer.Serialize(testObj);
         var serializedString = Encoding.UTF8.GetString(serialized);
-        
+
         var expectedJson = "{\"items\":[\"first\",\"second\",\"third\"]}";
         await Assert.That(serializedString).IsEqualTo(expectedJson);
     }
@@ -346,10 +346,10 @@ public partial class CanonicalSerializerTests
     public async Task VerifyCollectionArraySerialization()
     {
         var testObj = new TestArrayContainer(new string[] { "alpha", "beta", "gamma" });
-        
+
         var serialized = Serializer.Serialize(testObj);
         var serializedString = Encoding.UTF8.GetString(serialized);
-        
+
         var expectedJson = "{\"items\":[\"alpha\",\"beta\",\"gamma\"]}";
         await Assert.That(serializedString).IsEqualTo(expectedJson);
     }
@@ -364,10 +364,10 @@ public partial class CanonicalSerializerTests
             ["aaa"] = "first"  // Should come first in canonical ordering
         };
         var testObj = new TestDictionaryContainer(dict);
-        
+
         var serialized = Serializer.Serialize(testObj);
         var serializedString = Encoding.UTF8.GetString(serialized);
-        
+
         // Keys should be sorted in UTF-8 lexicographic order
         var expectedJson = "{\"stringDict\":{\"key1\":\"value1\",\"key2\":\"value2\",\"aaa\":\"first\"}}";
         await Assert.That(serializedString).IsEqualTo(expectedJson);
@@ -387,10 +387,10 @@ public partial class CanonicalSerializerTests
             ["active"] = false
         };
         var testObj = new TestMixedDictionaryContainer(intDict, boolDict);
-        
+
         var serialized = Serializer.Serialize(testObj);
         var serializedString = Encoding.UTF8.GetString(serialized);
-        
+
         // Both object properties and dictionary keys should be sorted
         var expectedJson = "{\"boolDict\":{\"enabled\":true,\"active\":false},\"intDict\":{\"count\":42,\"age\":25}}";
         await Assert.That(serializedString).IsEqualTo(expectedJson);
@@ -405,10 +405,10 @@ public partial class CanonicalSerializerTests
             ["colors"] = new List<string> { "red", "blue", "green" }
         };
         var testObj = new TestNestedContainer(nestedDict);
-        
+
         var serialized = Serializer.Serialize(testObj);
         var serializedString = Encoding.UTF8.GetString(serialized);
-        
+
         // Dictionary keys should be sorted
         var expectedJson = "{\"nestedDict\":{\"fruits\":[\"apple\",\"banana\"],\"colors\":[\"red\",\"blue\",\"green\"]}}";
         await Assert.That(serializedString).IsEqualTo(expectedJson);
@@ -423,10 +423,10 @@ public partial class CanonicalSerializerTests
             ["item2"] = new TestKeyValueContainer(200, "second")
         };
         var testObj = new TestComplexValueContainer(complexDict);
-        
+
         var serialized = Serializer.Serialize(testObj);
         var serializedString = Encoding.UTF8.GetString(serialized);
-        
+
         var expectedJson = "{\"complexDict\":{\"item1\":{\"one\":100,\"two\":\"first\"},\"item2\":{\"one\":200,\"two\":\"second\"}}}";
         await Assert.That(serializedString).IsEqualTo(expectedJson);
     }
@@ -439,10 +439,10 @@ public partial class CanonicalSerializerTests
             new Dictionary<string, string>(),
             new string[0]
         );
-        
+
         var serialized = Serializer.Serialize(testObj);
         var serializedString = Encoding.UTF8.GetString(serialized);
-        
+
         var expectedJson = "{\"emptyArray\":[],\"emptyDict\":{},\"emptyList\":[]}";
         await Assert.That(serializedString).IsEqualTo(expectedJson);
     }
@@ -455,10 +455,10 @@ public partial class CanonicalSerializerTests
             NullableDict: null,
             NullableString: null
         );
-        
+
         var serialized = Serializer.Serialize(testObj);
         var serializedString = Encoding.UTF8.GetString(serialized);
-        
+
         var expectedJson = "{}";
         await Assert.That(serializedString).IsEqualTo(expectedJson);
     }
@@ -482,10 +482,10 @@ public partial class CanonicalSerializerTests
             }
         };
         var testObj = new TestDeepNestingContainer(deepNested);
-        
+
         var serialized = Serializer.Serialize(testObj);
         var serializedString = Encoding.UTF8.GetString(serialized);
-        
+
         // All levels should maintain canonical ordering
         var expectedJson = "{\"deepNested\":{\"level1\":{\"level2a\":[{\"one\":1,\"two\":\"one\"},{\"one\":2,\"two\":\"two\"}],\"level2b\":[{\"one\":3,\"two\":\"three\"}]}}}";
         await Assert.That(serializedString).IsEqualTo(expectedJson);
@@ -497,9 +497,9 @@ public partial class CanonicalSerializerTests
     public async Task VerifyCollectionListDeserialization()
     {
         var json = "{\"items\":[\"first\",\"second\",\"third\"]}";
-        
+
         var result = Serializer.Deserialize<TestListContainer, TestListContainer>(json);
-        
+
         await Assert.That(result).IsNotNull();
         await Assert.That(result.Items).HasCount().EqualTo(3);
         await Assert.That(result.Items[0]).IsEqualTo("first");
@@ -511,9 +511,9 @@ public partial class CanonicalSerializerTests
     public async Task VerifyCollectionArrayDeserialization()
     {
         var json = "{\"items\":[\"alpha\",\"beta\",\"gamma\"]}";
-        
+
         var result = Serializer.Deserialize<TestArrayContainer, TestArrayContainer>(json);
-        
+
         await Assert.That(result).IsNotNull();
         await Assert.That(result.Items).HasCount().EqualTo(3);
         await Assert.That(result.Items[0]).IsEqualTo("alpha");
@@ -525,9 +525,9 @@ public partial class CanonicalSerializerTests
     public async Task VerifySimpleDictionaryDeserialization()
     {
         var json = "{\"stringDict\":{\"key1\":\"value1\"}}";
-        
+
         var result = Serializer.Deserialize<TestDictionaryContainer, TestDictionaryContainer>(json);
-        
+
         await Assert.That(result).IsNotNull();
         await Assert.That(result.StringDict).HasCount().EqualTo(1);
         await Assert.That(result.StringDict["key1"]).IsEqualTo("value1");
@@ -537,9 +537,9 @@ public partial class CanonicalSerializerTests
     public async Task VerifyMixedDictionariesDeserialization()
     {
         var json = "{\"boolDict\":{\"enabled\":true,\"active\":false},\"intDict\":{\"count\":42,\"age\":25}}";
-        
+
         var result = Serializer.Deserialize<TestMixedDictionaryContainer, TestMixedDictionaryContainer>(json);
-        
+
         await Assert.That(result).IsNotNull();
         await Assert.That(result.IntDict).HasCount().EqualTo(2);
         await Assert.That(result.IntDict["count"]).IsEqualTo(42);
@@ -553,9 +553,9 @@ public partial class CanonicalSerializerTests
     public async Task VerifyNestedDictionaryDeserialization()
     {
         var json = "{\"nestedDict\":{\"fruits\":[\"apple\",\"banana\"],\"colors\":[\"red\",\"blue\",\"green\"]}}";
-        
+
         var result = Serializer.Deserialize<TestNestedContainer, TestNestedContainer>(json);
-        
+
         await Assert.That(result).IsNotNull();
         await Assert.That(result.NestedDict).HasCount().EqualTo(2);
         await Assert.That(result.NestedDict["colors"]).HasCount().EqualTo(3);
@@ -568,9 +568,9 @@ public partial class CanonicalSerializerTests
     public async Task VerifyComplexValueDictionaryDeserialization()
     {
         var json = "{\"complexDict\":{\"item1\":{\"one\":100,\"two\":\"first\"},\"item2\":{\"one\":200,\"two\":\"second\"}}}";
-        
+
         var result = Serializer.Deserialize<TestComplexValueContainer, TestComplexValueContainer>(json);
-        
+
         await Assert.That(result).IsNotNull();
         await Assert.That(result.ComplexDict).HasCount().EqualTo(2);
         await Assert.That(result.ComplexDict["item1"].one).IsEqualTo(100);
@@ -583,9 +583,9 @@ public partial class CanonicalSerializerTests
     public async Task VerifyEmptyCollectionsDeserialization()
     {
         var json = "{\"emptyArray\":[],\"emptyDict\":{},\"emptyList\":[]}";
-        
+
         var result = Serializer.Deserialize<TestEmptyCollectionsContainer, TestEmptyCollectionsContainer>(json);
-        
+
         await Assert.That(result).IsNotNull();
         await Assert.That(result.EmptyList).HasCount().EqualTo(0);
         await Assert.That(result.EmptyDict).HasCount().EqualTo(0);
@@ -596,9 +596,9 @@ public partial class CanonicalSerializerTests
     public async Task VerifyDeepNestingDeserialization()
     {
         var json = "{\"deepNested\":{\"level1\":{\"level2a\":[{\"one\":1,\"two\":\"one\"},{\"one\":2,\"two\":\"two\"}],\"level2b\":[{\"one\":3,\"two\":\"three\"}]}}}";
-        
+
         var result = Serializer.Deserialize<TestDeepNestingContainer, TestDeepNestingContainer>(json);
-        
+
         await Assert.That(result).IsNotNull();
         await Assert.That(result.DeepNested).HasCount().EqualTo(1);
         await Assert.That(result.DeepNested["level1"]).HasCount().EqualTo(2);
@@ -610,7 +610,7 @@ public partial class CanonicalSerializerTests
     }
 
     // Roundtrip Tests (Serialize then Deserialize)
-    
+
     [Test]
     public async Task VerifyRoundtripDictionaryWithSpecialCharacters()
     {
@@ -622,11 +622,11 @@ public partial class CanonicalSerializerTests
             ["unicode日本"] = "unicode日本value"
         };
         var original = new TestDictionaryContainer(dict);
-        
+
         var serialized = Serializer.Serialize(original);
         var deserialized = Serializer.Deserialize<TestDictionaryContainer, TestDictionaryContainer>(
             Encoding.UTF8.GetString(serialized));
-        
+
         await Assert.That(deserialized).IsNotNull();
         await Assert.That(deserialized.StringDict).HasCount().EqualTo(4);
         await Assert.That(deserialized.StringDict["key with spaces"]).IsEqualTo("value with spaces");
@@ -655,11 +655,11 @@ public partial class CanonicalSerializerTests
             ["group0"] = new Dictionary<string, List<TestKeyValueContainer>>()
         };
         var original = new TestDeepNestingContainer(complex);
-        
+
         var serialized = Serializer.Serialize(original);
         var serializedString = Encoding.UTF8.GetString(serialized);
         var deserialized = Serializer.Deserialize<TestDeepNestingContainer, TestDeepNestingContainer>(serializedString);
-        
+
         await Assert.That(deserialized).IsNotNull();
         await Assert.That(deserialized.DeepNested).HasCount().EqualTo(2);
         await Assert.That(deserialized.DeepNested["group1"]).HasCount().EqualTo(2);
@@ -693,7 +693,7 @@ internal class TestSerdeInfo(string nameYouWant, InfoKind? kind = null) : ISerde
     public ReadOnlySpan<byte> GetFieldName(int index) => Encoding.UTF8.GetBytes(nameYouWant);
 
     public string GetFieldStringName(int index) => nameYouWant;
-    
+
     public int TryGetIndex(ReadOnlySpan<byte> fieldName)
     {
         throw new NotImplementedException();

@@ -1,5 +1,7 @@
 using System.Security.Cryptography;
+
 using NSec.Cryptography;
+
 using Serde;
 
 namespace TUF.Models;
@@ -20,7 +22,7 @@ public interface ISigner
     /// Contains the key type, scheme, and public key material.
     /// </summary>
     Key Key { get; }
-    
+
     /// <summary>
     /// Signs the provided data and returns a TUF signature object.
     /// </summary>
@@ -49,7 +51,7 @@ public interface ISigner
 public sealed class Ed25519Signer : ISigner
 {
     private readonly NSec.Cryptography.Key _privateKey;
-    
+
     /// <summary>
     /// The TUF Key information for this Ed25519 signer.
     /// Guaranteed to have KeyType="ed25519" and Scheme="ed25519".
@@ -65,13 +67,13 @@ public sealed class Ed25519Signer : ISigner
     {
         if (privateKey.Algorithm != SignatureAlgorithm.Ed25519)
             throw new ArgumentException("Private key must be Ed25519", nameof(privateKey));
-            
+
         _privateKey = privateKey;
-        
+
         // Get the public key bytes and create the TUF Key with pinned types
         var publicKeyBytes = privateKey.PublicKey.Export(KeyBlobFormat.RawPublicKey);
         var hexString = Convert.ToHexString(publicKeyBytes).ToLowerInvariant();
-        
+
         // Create Key with strictly pinned type and scheme for Ed25519
         Key = new Key
         {
@@ -112,7 +114,7 @@ public sealed class Ed25519Signer : ISigner
     {
         var signatureBytes = SignatureAlgorithm.Ed25519.Sign(_privateKey, data);
         var signatureHex = Convert.ToHexString(signatureBytes).ToLowerInvariant();
-        
+
         return new SignatureObject
         {
             KeyId = Key.GetKeyId(),
@@ -140,7 +142,7 @@ public sealed class Ed25519Signer : ISigner
 public sealed class RsaSigner : ISigner, IDisposable
 {
     private readonly RSA _rsa;
-    
+
     /// <summary>
     /// The TUF Key information for this RSA signer.
     /// Guaranteed to have KeyType="rsa" and Scheme="rsassa-pss-sha256".
@@ -155,14 +157,14 @@ public sealed class RsaSigner : ISigner, IDisposable
     public RsaSigner(RSA rsa)
     {
         _rsa = rsa ?? throw new ArgumentNullException(nameof(rsa));
-        
+
         // Validate minimum key size for security
         if (rsa.KeySize < 2048)
             throw new ArgumentException("RSA key size must be at least 2048 bits", nameof(rsa));
-        
+
         // Export public key as PEM and create TUF Key with pinned types
         var publicKeyPem = rsa.ExportRSAPublicKeyPem();
-        
+
         // Create Key with strictly pinned type and scheme for RSA-PSS
         Key = new Key
         {
@@ -182,7 +184,7 @@ public sealed class RsaSigner : ISigner, IDisposable
     {
         if (keySize < 2048)
             throw new ArgumentException("RSA key size must be at least 2048 bits", nameof(keySize));
-            
+
         var rsa = RSA.Create(keySize);
         return new RsaSigner(rsa);
     }
@@ -209,11 +211,11 @@ public sealed class RsaSigner : ISigner, IDisposable
     {
         // Hash the data with SHA-256 as required by rsassa-pss-sha256 scheme
         var hash = SHA256.HashData(data);
-        
+
         // Sign the hash using RSA-PSS padding with SHA-256
         var signatureBytes = _rsa.SignHash(hash, HashAlgorithmName.SHA256, RSASignaturePadding.Pss);
         var signatureHex = Convert.ToHexString(signatureBytes).ToLowerInvariant();
-        
+
         return new SignatureObject
         {
             KeyId = Key.GetKeyId(),
@@ -253,7 +255,7 @@ public sealed class RsaSigner : ISigner, IDisposable
 public sealed class EcdsaSigner : ISigner, IDisposable
 {
     private readonly ECDsa _ecdsa;
-    
+
     /// <summary>
     /// The TUF Key information for this ECDSA signer.
     /// Guaranteed to have KeyType="ecdsa" and Scheme="ecdsa-sha2-nistp256".
@@ -270,7 +272,7 @@ public sealed class EcdsaSigner : ISigner, IDisposable
     public EcdsaSigner(ECDsa ecdsa)
     {
         _ecdsa = ecdsa ?? throw new ArgumentNullException(nameof(ecdsa));
-        
+
         // Validate that we're using the P-256 curve for TUF compliance
         var keySize = ecdsa.KeySize;
         if (keySize != 256)
@@ -278,7 +280,7 @@ public sealed class EcdsaSigner : ISigner, IDisposable
 
         // Export public key as PEM and create TUF Key with pinned types
         var publicKeyPem = ecdsa.ExportSubjectPublicKeyInfoPem();
-        
+
         // Create Key with strictly pinned type and scheme for ECDSA P-256
         Key = new Key
         {
@@ -325,7 +327,7 @@ public sealed class EcdsaSigner : ISigner, IDisposable
         // Sign the hash using ECDSA
         var signatureBytes = _ecdsa.SignData(data, HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation);
         var signatureHex = Convert.ToHexString(signatureBytes).ToLowerInvariant();
-        
+
         return new SignatureObject
         {
             KeyId = Key.GetKeyId(),

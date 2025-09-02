@@ -29,7 +29,7 @@ public partial record Root
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "_type")]
     public string Type { get; init; } = "root";
-    
+
     /// <summary>
     /// The version of the TUF specification this metadata conforms to.
     /// Should follow semantic versioning (e.g., "1.0.0").
@@ -40,7 +40,7 @@ public partial record Root
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "spec_version")]
     public string SpecVersion { get; init; } = "";
-    
+
     /// <summary>
     /// Indicates whether the repository uses consistent snapshots.
     /// When true, all files are prefixed with their version number.
@@ -52,7 +52,7 @@ public partial record Root
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "consistent_snapshot")]
     public bool? ConsistentSnapshot { get; init; }
-    
+
     /// <summary>
     /// Version number of this root metadata instance.
     /// Must be incremented for each new version of root metadata.
@@ -63,7 +63,7 @@ public partial record Root
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "version")]
     public int Version { get; init; } = 1;
-    
+
     /// <summary>
     /// Expiration timestamp in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ).
     /// Clients must reject metadata after this time.
@@ -75,7 +75,7 @@ public partial record Root
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "expires", Proxy = typeof(CanonicalJson.Proxies.CanonicalDateTimeOffsetProxy))]
     public DateTimeOffset Expires { get; init; }
-    
+
     /// <summary>
     /// Dictionary of all keys used by any role in this TUF repository.
     /// Key is the key ID, value is the complete key specification.
@@ -87,7 +87,7 @@ public partial record Root
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "keys")]
     public Dictionary<string, Key> Keys { get; init; } = new();
-    
+
     /// <summary>
     /// Role assignments that delegate specific keys to each TUF role.
     /// Defines which keys can sign for which roles and the signature thresholds.

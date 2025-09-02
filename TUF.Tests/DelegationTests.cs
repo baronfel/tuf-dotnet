@@ -1,6 +1,9 @@
 using System.Text;
+
 using CanonicalJson;
+
 using TUF.Models;
+
 using TUnit.Assertions;
 using TUnit.Core;
 
@@ -22,7 +25,7 @@ public class DelegationTests
     {
         // Arrange
         var signer = Ed25519Signer.Generate();
-        
+
         var delegations = new Delegations
         {
             Keys = new Dictionary<string, Key>
@@ -76,7 +79,7 @@ public class DelegationTests
         // Arrange
         var signer1 = Ed25519Signer.Generate();
         var signer2 = Ed25519Signer.Generate();
-        
+
         var delegations = new Delegations
         {
             Keys = new Dictionary<string, Key>
@@ -122,7 +125,7 @@ public class DelegationTests
         // Arrange
         var signer1 = Ed25519Signer.Generate();
         var signer2 = Ed25519Signer.Generate();
-        
+
         var delegations = new Delegations
         {
             Keys = new Dictionary<string, Key>
@@ -167,7 +170,7 @@ public class DelegationTests
     {
         // Arrange
         var signer = Ed25519Signer.Generate();
-        
+
         var delegations = new Delegations
         {
             Keys = new Dictionary<string, Key>
@@ -205,7 +208,7 @@ public class DelegationTests
     {
         // Arrange
         var signer = Ed25519Signer.Generate();
-        
+
         var delegations = new Delegations
         {
             Keys = new Dictionary<string, Key>
@@ -240,7 +243,7 @@ public class DelegationTests
     {
         // Arrange
         var signer = Ed25519Signer.Generate();
-        
+
         var delegations = new Delegations
         {
             Keys = new Dictionary<string, Key>
@@ -276,7 +279,7 @@ public class DelegationTests
         // Arrange
         var signer1 = Ed25519Signer.Generate();
         var signer2 = Ed25519Signer.Generate();
-        
+
         var delegations = new Delegations
         {
             Keys = new Dictionary<string, Key>

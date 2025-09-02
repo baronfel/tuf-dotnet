@@ -1,9 +1,12 @@
 using System.Globalization;
-using TUF.Models;
-using TUnit.Core;
-using TUnit.Assertions;
-using CanonicalJson;
 using System.Text;
+
+using CanonicalJson;
+
+using TUF.Models;
+
+using TUnit.Assertions;
+using TUnit.Core;
 
 namespace TUF.Tests;
 
@@ -35,7 +38,7 @@ public class SerializationRoundTripTests
                 ["test_key_2"] = new Key
                 {
                     KeyType = "rsa",
-                    Scheme = "rsassa-pss-sha256", 
+                    Scheme = "rsassa-pss-sha256",
                     KeyVal = new KeyValue { Public = "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA\n-----END PUBLIC KEY-----" }
                 }
             },
@@ -67,14 +70,14 @@ public class SerializationRoundTripTests
         await Assert.That(deserialized.Signatures).IsEquivalentTo(originalMetadata.Signatures);
     }
 
-    [Test] 
+    [Test]
     public async Task TimestampMetadata_RoundTripSerialization_ShouldPreserveEquality()
     {
         // Arrange - Create a Timestamp metadata object with all fields populated
         var originalTimestamp = new Timestamp
         {
             Type = "timestamp",
-            SpecVersion = "1.0.0", 
+            SpecVersion = "1.0.0",
             Version = 123,
             Expires = DateTimeOffset.ParseExact("2025-06-15T12:30:45Z", Proxies.CanonicalDateTimeOffsetProxy.DateTimeOffsetFormat, CultureInfo.InvariantCulture),
             Meta = new Dictionary<string, FileMetadata>
@@ -170,7 +173,7 @@ public class SerializationRoundTripTests
         // Arrange - Create a Targets metadata object with target files and delegations
         var originalTargets = new Targets
         {
-            Type = "targets", 
+            Type = "targets",
             SpecVersion = "1.0.0",
             Version = 999,
             Expires = DateTimeOffset.ParseExact("2025-09-10T16:45:00Z", Proxies.CanonicalDateTimeOffsetProxy.DateTimeOffsetFormat, CultureInfo.InvariantCulture),
@@ -222,7 +225,7 @@ public class SerializationRoundTripTests
                     },
                     new()
                     {
-                        Name = "lib-team", 
+                        Name = "lib-team",
                         KeyIds = ["delegated_key_1"],
                         Threshold = 1,
                         PathHashPrefixes = ["aa", "bb", "cc"],
@@ -258,7 +261,7 @@ public class SerializationRoundTripTests
         var originalTargets = new Targets
         {
             Type = "targets",
-            SpecVersion = "1.0.0", 
+            SpecVersion = "1.0.0",
             Version = 1,
             Expires = DateTimeOffset.ParseExact("2025-01-01T00:00:00Z", Proxies.CanonicalDateTimeOffsetProxy.DateTimeOffsetFormat, CultureInfo.InvariantCulture),
             TargetMap = new Dictionary<string, TargetFile>

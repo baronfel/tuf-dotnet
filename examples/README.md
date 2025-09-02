@@ -22,6 +22,15 @@ A comprehensive command-line interface built with `System.CommandLine` that prov
 
 **Best for**: Understanding how to build production TUF applications or using as a development tool.
 
+### [RepositoryManager](./RepositoryManager/)
+A repository creation and management tool that demonstrates TUF repository setup:
+- Complete TUF repository creation with all required metadata
+- Key generation for different TUF roles (Ed25519 and RSA)
+- Target file management and metadata signing
+- Production-ready security warnings and best practices
+
+**Best for**: Creating TUF repositories for testing and understanding repository management workflows.
+
 ### [SigningDemo](./SigningDemo/)
 Demonstrates TUF signing capabilities and key management:
 - Ed25519 and RSA-PSS key generation and signing
@@ -51,15 +60,20 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
    # From the repository root
    dotnet build examples/BasicClient/
    dotnet build examples/CliTool/
+   dotnet build examples/RepositoryManager/
    dotnet build examples/SigningDemo/
    dotnet build examples/TufConformanceCli/
    ```
 
 3. **Run Examples**
    ```bash
+   # Create a TUF repository first
+   cd examples/RepositoryManager
+   dotnet run ./my-tuf-repo
+
    # Basic client example
    cd examples/BasicClient
-   dotnet run https://example.com/metadata file.txt
+   dotnet run file:///path/to/my-tuf-repo/metadata hello.txt
 
    # CLI tool example
    cd examples/CliTool

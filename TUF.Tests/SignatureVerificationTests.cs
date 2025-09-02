@@ -1,7 +1,10 @@
 using System.Security.Cryptography;
 using System.Text;
+
 using CanonicalJson;
+
 using TUF.Models;
+
 using TUnit.Assertions;
 using TUnit.Core;
 
@@ -40,7 +43,7 @@ public class SignatureVerificationTests
     {
         // Arrange
         var signer = Ed25519Signer.Generate();
-        
+
         // Create a simple metadata object
         var metadata = new Root
         {
@@ -69,7 +72,7 @@ public class SignatureVerificationTests
         // Assert - Signature should be valid
         await Assert.That(signature.KeyId).IsEqualTo(signer.Key.GetKeyId());
         await Assert.That(signature.Sig).IsNotEmpty();
-        
+
         // Verify canonical serialization is deterministic
         var canonicalBytes2 = Serializer.Serialize(metadata);
         await Assert.That(canonicalBytes).IsEquivalentTo(canonicalBytes2);
@@ -94,7 +97,7 @@ public class SignatureVerificationTests
         // Assert - Different signers produce different signatures
         await Assert.That(signature1.KeyId).IsNotEqualTo(signature2.KeyId);
         await Assert.That(signature1.Sig).IsNotEqualTo(signature2.Sig);
-        
+
         // Both should be valid for their respective keys
         await Assert.That(signature1.KeyId).IsEqualTo(signer1.Key.GetKeyId());
         await Assert.That(signature2.KeyId).IsEqualTo(signer2.Key.GetKeyId());
@@ -136,13 +139,13 @@ public class SignatureVerificationTests
 
         // Assert - Signature should be valid hex string
         await Assert.That(signature.Sig).IsNotEmpty();
-        
+
         // Should be able to decode as hex
         try
         {
             var signatureBytes = Convert.FromHexString(signature.Sig);
             await Assert.That(signatureBytes).IsNotEmpty();
-            
+
             // Ed25519 signatures are always 64 bytes
             await Assert.That(signatureBytes).HasCount().EqualTo(64);
         }

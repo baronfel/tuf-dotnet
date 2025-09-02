@@ -19,7 +19,7 @@ public partial record RoleKeys
     /// </summary>
     [property: SerdeMemberOptions(Rename = "keyids")]
     public List<string> KeyIds { get; init; } = new();
-    
+
     /// <summary>
     /// Minimum number of signatures required from the authorized keys.
     /// Must be at least 1 and no more than the number of key IDs.
@@ -51,28 +51,28 @@ public partial record Roles
     /// </summary>
     [property: SerdeMemberOptions(Rename = "root")]
     public required RoleKeys Root { get; init; }
-    
+
     /// <summary>
     /// Key assignment for the timestamp role.
     /// The timestamp role signs timestamp metadata, which references the latest snapshot.
     /// </summary>
     [property: SerdeMemberOptions(Rename = "timestamp")]
     public RoleKeys? Timestamp { get; init; }
-    
+
     /// <summary>
     /// Key assignment for the snapshot role.
     /// The snapshot role signs snapshot metadata, which lists all current metadata versions.
     /// </summary>
     [property: SerdeMemberOptions(Rename = "snapshot")]
     public RoleKeys? Snapshot { get; init; }
-    
+
     /// <summary>
     /// Key assignment for the targets role.
     /// The targets role signs targets metadata, which lists available target files.
     /// </summary>
     [property: SerdeMemberOptions(Rename = "targets")]
     public RoleKeys? Targets { get; init; }
-    
+
     /// <summary>
     /// Optional key assignment for the mirrors role (TAP 5).
     /// The mirrors role provides information about available repository mirrors.
@@ -98,14 +98,14 @@ public partial record FileMetadata
     /// </summary>
     [property: SerdeMemberOptions(Rename = "version")]
     public int Version { get; init; } = 1;
-    
+
     /// <summary>
     /// Length of the referenced file in bytes.
     /// Optional field that can be used to detect truncation attacks.
     /// </summary>
     [property: SerdeMemberOptions(Rename = "length")]
     public int? Length { get; init; }
-    
+
     /// <summary>
     /// Dictionary of cryptographic hashes for integrity verification.
     /// Key is the hash algorithm name (e.g., "sha256"), value is the hex-encoded hash.
