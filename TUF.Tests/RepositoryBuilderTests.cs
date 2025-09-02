@@ -255,10 +255,50 @@ public class RepositoryBuilderTests
         await Assert.That(targetMetadata.Hashes).HasCount().GreaterThan(0);
     }
 
-    // TODO: RSA signer test disabled due to JSON parsing issue with newlines in RSA public keys
-    // This appears to be an existing issue in the codebase that needs to be addressed separately
-    // [Test]
-    // public async Task Build_WithRsaSigners_CreatesValidRepository() { ... }
+    [Test]
+    public async Task Build_WithRsaSigners_CreatesValidRepository()
+    {
+        // RSA signer test - confirming that RSA key serialization works correctly
+        // with PEM format keys including newlines
+        using var rootSigner = RsaSigner.Generate(2048);
+        using var timestampSigner = RsaSigner.Generate(2048);
+        using var snapshotSigner = RsaSigner.Generate(2048);
+        using var targetsSigner = RsaSigner.Generate(2048);
+
+        var testFile = "test-file.txt"u8.ToArray();
+
+        var builder = new RepositoryBuilder()
+            .AddSigner("root", rootSigner)
+            .AddSigner("timestamp", timestampSigner)
+            .AddSigner("snapshot", snapshotSigner)
+            .AddSigner("targets", targetsSigner)
+            .AddTarget("test-file.txt", testFile);
+
+        // This should not throw any JSON parsing errors
+        var repository = builder.Build();
+
+        // Verify the repository was created successfully
+        await Assert.That(repository).IsNotNull();
+        await Assert.That(repository.Root).IsNotNull();
+        await Assert.That(repository.Timestamp).IsNotNull();
+        await Assert.That(repository.Snapshot).IsNotNull();
+        await Assert.That(repository.Targets).IsNotNull();
+
+        // Verify all signatures are present and valid
+        await Assert.That(repository.Root.Signatures).HasCount().EqualTo(1);
+        await Assert.That(repository.Timestamp.Signatures).HasCount().EqualTo(1);
+        await Assert.That(repository.Snapshot.Signatures).HasCount().EqualTo(1);
+        await Assert.That(repository.Targets.Signatures).HasCount().EqualTo(1);
+
+        // Verify the target was added correctly
+        var targetsRole = repository.Targets.Signed;
+        await Assert.That(targetsRole.TargetMap.Count).IsEqualTo(1);
+        await Assert.That(targetsRole.TargetMap).ContainsKey("test-file.txt");
+        
+        var targetMetadata = targetsRole.TargetMap["test-file.txt"];
+        await Assert.That(targetMetadata.Length).IsEqualTo(testFile.Length);
+        await Assert.That(targetMetadata.Hashes).HasCount().GreaterThan(0);
+    }
 
     [Test]
     public async Task Build_WithMultipleSignersPerRole_IncludesAllSignatures()
