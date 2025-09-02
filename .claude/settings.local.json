@@ -13,7 +13,8 @@
       "Bash(dotnet test:*)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:api.github.com)",
-      "Bash(dotnet run:*)"
+      "Bash(dotnet run:*)",
+      "Bash(dotnet script:*)"
     ],
     "deny": [],
     "ask": []

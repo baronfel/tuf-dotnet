@@ -526,9 +526,15 @@ public sealed class CanonicalJsonEncoder : JavaScriptEncoder
 
     public override bool WillEncode(int unicodeScalar)
     {
-        // Canonical JSON (OLPC) only escapes two byte values: backslash (0x5C) and double quote (0x22)
-        // Control characters and other bytes are left as literal uninterpreted bytes
-        return unicodeScalar == 0x22 || unicodeScalar == 0x5C;
+        // Canonical JSON as subset of valid JSON - escape all required JSON characters
+        return unicodeScalar == 0x22   // " (quote)
+            || unicodeScalar == 0x5C   // \ (backslash) 
+            || unicodeScalar == 0x08   // \b (backspace)
+            || unicodeScalar == 0x0C   // \f (form feed)
+            || unicodeScalar == 0x0A   // \n (line feed)
+            || unicodeScalar == 0x0D   // \r (carriage return)
+            || unicodeScalar == 0x09   // \t (tab)
+            || unicodeScalar < 0x20;   // Other control characters
     }
 
     public override unsafe int FindFirstCharacterToEncode(char* text, int textLength)
@@ -557,26 +563,63 @@ public sealed class CanonicalJsonEncoder : JavaScriptEncoder
             return false;
         }
 
-        if (unicodeScalar == 0x22) // "
+        switch (unicodeScalar)
         {
-            buffer[0] = '\\';
-            buffer[1] = '"';
-            numberOfCharactersWritten = 2;
-            return true;
+            case 0x22: // "
+                buffer[0] = '\\';
+                buffer[1] = '"';
+                numberOfCharactersWritten = 2;
+                return true;
+            case 0x5C: // \
+                buffer[0] = '\\';
+                buffer[1] = '\\';
+                numberOfCharactersWritten = 2;
+                return true;
+            case 0x08: // \b
+                buffer[0] = '\\';
+                buffer[1] = 'b';
+                numberOfCharactersWritten = 2;
+                return true;
+            case 0x0C: // \f
+                buffer[0] = '\\';
+                buffer[1] = 'f';
+                numberOfCharactersWritten = 2;
+                return true;
+            case 0x0A: // \n
+                buffer[0] = '\\';
+                buffer[1] = 'n';
+                numberOfCharactersWritten = 2;
+                return true;
+            case 0x0D: // \r
+                buffer[0] = '\\';
+                buffer[1] = 'r';
+                numberOfCharactersWritten = 2;
+                return true;
+            case 0x09: // \t
+                buffer[0] = '\\';
+                buffer[1] = 't';
+                numberOfCharactersWritten = 2;
+                return true;
+            default:
+                // Other control characters - use Unicode escape
+                if (unicodeScalar < 0x20 && bufferLength >= 6)
+                {
+                    buffer[0] = '\\';
+                    buffer[1] = 'u';
+                    buffer[2] = '0';
+                    buffer[3] = '0';
+                    var hex = ((ushort)unicodeScalar).ToString("x2");
+                    buffer[4] = hex[0];
+                    buffer[5] = hex[1];
+                    numberOfCharactersWritten = 6;
+                    return true;
+                }
+                break;
         }
 
-        if (unicodeScalar == 0x5C) // \
-        {
-            buffer[0] = '\\';
-            buffer[1] = '\\';
-            numberOfCharactersWritten = 2;
-            return true;
-        }
-
-        // This should never happen since WillEncode only returns true for quote and backslash
         numberOfCharactersWritten = 0;
         return false;
     }
 
-    public override int MaxOutputCharactersPerInputCharacter => 2; // For \" or \\
+    public override int MaxOutputCharactersPerInputCharacter => 6; // For \uXXXX Unicode escapes
 }
