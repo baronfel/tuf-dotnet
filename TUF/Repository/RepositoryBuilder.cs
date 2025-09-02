@@ -211,7 +211,7 @@ public class RepositoryBuilder
 
     private Dictionary<string, FileMetadata> CreateSnapshotMeta(Metadata<Targets> targetsMetadata)
     {
-        var targetsBytes = CanonicalJson.Serializer.Serialize<Metadata<Targets>, MetadataProxy.Ser<Targets>>(targetsMetadata);
+        var targetsBytes = System.Text.Encoding.UTF8.GetBytes(Serde.Json.JsonSerializer.Serialize<Metadata<Targets>, MetadataProxy.Ser<Targets>>(targetsMetadata));
 
         var sha256Hash = System.Security.Cryptography.SHA256.HashData(targetsBytes);
         var hashes = new Dictionary<string, string>
@@ -232,7 +232,7 @@ public class RepositoryBuilder
 
     private Dictionary<string, FileMetadata> CreateTimestampMeta(Metadata<Snapshot> snapshotMetadata)
     {
-        var snapshotBytes = CanonicalJson.Serializer.Serialize<Metadata<Snapshot>, MetadataProxy.Ser<Snapshot>>(snapshotMetadata);
+        var snapshotBytes = System.Text.Encoding.UTF8.GetBytes(Serde.Json.JsonSerializer.Serialize<Metadata<Snapshot>, MetadataProxy.Ser<Snapshot>>(snapshotMetadata));
 
         var sha256Hash = System.Security.Cryptography.SHA256.HashData(snapshotBytes);
         var hashes = new Dictionary<string, string>
@@ -252,7 +252,7 @@ public class RepositoryBuilder
     }
 
     private void SignMetadata<T>(Metadata<T> metadata, string role)
-        where T : ISerializeProvider<T>
+        where T : ISerializeProvider<T>, IDeserializeProvider<T>
     {
         if (!_roleSigners.TryGetValue(role, out var signerIds))
             throw new InvalidOperationException($"No signers configured for {role}");
@@ -263,8 +263,8 @@ public class RepositoryBuilder
         {
             var signer = _signers[signerId];
 
-            // Get signed bytes using canonical JSON serialization
-            var signedBytes = CanonicalJson.Serializer.Serialize(metadata.Signed);
+            // Get signed bytes using the GetSignedBytes method for consistency
+            var signedBytes = metadata.GetSignedBytes();
             var signature = signer.SignBytes(signedBytes);
 
             metadata.Signatures.Add(signature);
