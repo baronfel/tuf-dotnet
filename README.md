@@ -1,63 +1,141 @@
 # TUF for .NET
 
-A .NET implementation of parts of The Update Framework (TUF) and utilities for canonical JSON handling.
+A comprehensive .NET implementation of [The Update Framework (TUF)](https://theupdateframework.io/), providing secure software update capabilities and utilities for canonical JSON handling.
 
-This repository contains two libraries, tests, and examples:
+[![Build Status](https://github.com/baronfel/tuf-dotnet/actions/workflows/build.yml/badge.svg)](https://github.com/baronfel/tuf-dotnet/actions)
+[![NuGet Version](https://img.shields.io/nuget/v/TUF.svg)](https://www.nuget.org/packages/TUF/)
+[![.NET](https://img.shields.io/badge/.NET-8.0%2B-blue.svg)](https://dotnet.microsoft.com/)
 
-- `CanonicalJson/` — utilities for producing and parsing canonical JSON.
-- `TUF/` — models and serialization helpers for TUF metadata and signing.
-- `examples/` — example applications demonstrating TUF usage patterns.
-- Test projects for both libraries under `*.Tests` directories.
+## Overview
 
-## Quick start
+TUF .NET brings enterprise-grade security to software distribution in the .NET ecosystem. It protects against repository compromise, man-in-the-middle attacks, rollback attacks, and other threats that traditional update mechanisms cannot defend against.
 
-Prerequisites
+**Key Features:**
+- 🔐 **Complete TUF specification implementation** with full security guarantees
+- 🚀 **High-performance** canonical JSON handling optimized for .NET
+- 🛠️ **Production-ready** with comprehensive error handling and logging
+- 🔑 **Multi-algorithm support** (Ed25519, RSA-PSS, ECDSA)
+- 🌐 **Multi-repository support** (TAP 4) for enhanced security
+- ⚡ **AOT compatible** for minimal startup overhead
+- 🧪 **Conformance tested** against official TUF specification
 
-- .NET SDK 10.0 or newer (needed for SLNX - the library targets .NET8+)
+## Quick Start
 
-Build (from repository root)
-
+### Installation
 ```shell
+dotnet add package TUF
+```
+
+### Basic Usage
+```csharp
+using TUF;
+
+// Configure TUF client
+var config = new UpdaterConfig
+{
+    LocalTrustedRoot = await File.ReadAllBytesAsync("trusted-root.json"),
+    RemoteMetadataUrl = new Uri("https://example.com/metadata/"),
+    LocalMetadataDir = "./metadata",
+    LocalTargetsDir = "./downloads",
+    Client = new HttpClient()
+};
+
+var updater = new Updater(config);
+
+// Securely download and verify files
+await updater.RefreshAsync();
+var targetInfo = await updater.GetTargetInfo("app.exe");
+if (targetInfo.HasValue)
+{
+    var (localPath, data) = await updater.DownloadTarget(
+        targetInfo.Value.File, "app.exe");
+    Console.WriteLine($"Downloaded {data.Length} bytes to {localPath}");
+}
+```
+
+## Documentation
+
+### 📚 **Getting Started**
+- **[Quick Start Guide](docs/guides/quick-start.md)** - Get up and running in 5 minutes
+- **[What is TUF?](docs/guides/what-is-tuf.md)** - Understanding the security framework
+- **[Core Concepts](docs/guides/core-concepts.md)** - Essential TUF concepts for .NET developers
+
+### 📖 **API Documentation**
+- **[Updater API](docs/api/updater.md)** - Primary client for TUF operations
+- **[Repository Builder](docs/api/repository-builder.md)** - Create and manage TUF repositories  
+- **[Multi-Repository Client](docs/api/multi-repository-client.md)** - Multi-repository consensus (TAP 4)
+- **[Complete API Reference](docs/api/)** - Comprehensive API documentation
+
+### 🛡️ **Security**
+- **[Security Model](docs/security/security-model.md)** - Comprehensive security documentation
+- **[Threat Analysis](docs/security/threat-analysis.md)** - Attack prevention and detection
+- **[Best Practices](docs/security/implementation-practices.md)** - Secure implementation guidance
+
+### 📋 **Guides**
+- **[Building Clients](docs/guides/building-clients.md)** - Production client development
+- **[Creating Repositories](docs/guides/creating-repositories.md)** - Repository setup and management
+- **[Migration Guide](docs/guides/migration.md)** - Migrating from other TUF implementations
+- **[All Guides](docs/guides/)** - Complete guide directory
+
+## Project Structure
+
+Root solution: `TUF.slnx` (requires .NET 10 SDK, libraries target .NET 8+)
+
+### Core Libraries
+- **`TUF/`** — Complete TUF implementation with client, repository, and signing APIs
+- **`CanonicalJson/`** — High-performance canonical JSON serialization
+
+### Examples & Tools
+- **`examples/BasicClient/`** — Simple TUF client demonstration
+- **`examples/RepositoryManager/`** — Create and manage TUF repositories
+- **`examples/MultiRepositoryClient/`** — Multi-repository consensus example
+- **`examples/TufConformanceCli/`** — TUF conformance testing CLI
+- **`examples/SigningDemo/`** — Cryptographic signing demonstrations
+- **`examples/CliTool/`** — Command-line TUF operations interface
+
+### Testing
+- **`TUF.Tests/`** — Comprehensive unit and integration tests
+- **`CanonicalJson.Tests/`** — Canonical JSON serialization tests  
+- **`TUF.ConformanceTests/`** — Official TUF specification conformance tests
+
+## Development
+
+### Prerequisites
+- .NET SDK 10.0+ (for solution format - libraries target .NET 8+)
+- Modern operating system (Windows, macOS, or Linux)
+
+### Build
+```shell
+# Restore and build all projects
+dotnet restore
+dotnet build --configuration Release
+
+# Run all tests
+dotnet test --configuration Release
+
+# Build specific examples
+cd examples/BasicClient
 dotnet build
 ```
 
-Run tests
-
+### Examples
 ```shell
-dotnet test
-```
+# Create a TUF repository
+cd examples/RepositoryManager
+dotnet run ./my-repo
 
-Or run tests for a single project:
-
-```shell
-dotnet test CanonicalJson.Tests/CanonicalJson.Tests.csproj
-```
-
-## Project layout
-
-Root solution: `TIF.slnx`
-
-- `CanonicalJson/` — Canonical JSON library and its tests.
-- `TUF/` — TUF models, signing, and serialization code.
-- `examples/` — Example applications showing how to use TUF .NET:
-  - `BasicClient/` — Simple TUF client demonstrating core workflow
-  - `CliTool/` — Command-line interface for TUF operations
-
-## Examples
-
-To get started with TUF .NET, check out the examples:
-
-```shell
-# Build and run the basic client example
+# Use the repository with a client
 cd examples/BasicClient
-dotnet run https://example.com/metadata file.txt
+dotnet run file://./my-repo/metadata app.exe
 
-# Build and explore the CLI tool
+# Try multi-repository consensus
+cd examples/MultiRepositoryClient
+dotnet run
+
+# Explore CLI operations
 cd examples/CliTool
 dotnet run -- --help
 ```
-
-See the [examples README](examples/README.md) for detailed information.
 
 ## Contributing
 
