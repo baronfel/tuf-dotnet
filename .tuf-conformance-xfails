@@ -1,0 +1,31 @@
+# TUF .NET Conformance Test Expected Failures
+#
+# This file lists test cases that are expected to fail while the .NET TUF implementation
+# is being developed to achieve full conformance. As features are implemented, tests
+# should be removed from this list.
+#
+# Format: One test identifier per line, comments starting with #
+#
+# Common categories of expected failures during development:
+#
+# Key algorithm support - if specific key types aren't implemented yet:
+# test_*[ed25519]
+# test_*[ecdsa]
+# test_*[rsa-pss]
+#
+# Hash algorithm support - if specific hash algorithms aren't implemented yet:
+# test_*[sha512]
+# test_*[blake2b]
+#
+# Advanced TUF features - if not yet implemented:
+# test_delegations_*
+# test_multisig_*
+# test_consistent_snapshot_*
+#
+# Network/HTTP specific behavior:
+# test_max_request_*
+# test_timeout_*
+#
+# For now, we'll start with no expected failures and see what the test suite reveals
+# about the current implementation state. This file can be updated based on actual
+# test results.

@@ -22,14 +22,23 @@ A comprehensive command-line interface built with `System.CommandLine` that prov
 
 **Best for**: Understanding how to build production TUF applications or using as a development tool.
 
-### [MultiRepositoryClient](./MultiRepositoryClient/)
-An implementation of **TAP 4: Multiple repository consensus on entrusted targets** that demonstrates:
-- Multi-repository configuration with map.json files
-- Consensus validation across multiple TUF repositories
-- Enhanced security through distributed trust
-- Flexible mapping rules for different target types
+### [SigningDemo](./SigningDemo/)
+Demonstrates TUF signing capabilities and key management:
+- Ed25519 and RSA-PSS key generation and signing
+- Signature verification workflows
+- Security best practices for key handling
+- Integration patterns for signing operations
 
-**Best for**: High-security environments requiring multiple repositories to agree on targets before trusting them.
+**Best for**: Understanding TUF cryptographic operations and implementing signing workflows.
+
+### [TufConformanceCli](./TufConformanceCli/)
+Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specification](https://github.com/theupdateframework/tuf-conformance/blob/main/CLIENT-CLI.md):
+- Standard `init`, `refresh`, and `download` commands
+- Compatible with the official TUF conformance test suite
+- Enables validation of .NET TUF implementation compliance
+- Automated testing integration via GitHub Actions
+
+**Best for**: TUF conformance testing, validation against the official TUF specification, and ensuring compatibility with other TUF implementations.
 
 ## Getting Started
 
@@ -42,7 +51,8 @@ An implementation of **TAP 4: Multiple repository consensus on entrusted targets
    # From the repository root
    dotnet build examples/BasicClient/
    dotnet build examples/CliTool/
-   dotnet build examples/MultiRepositoryClient/
+   dotnet build examples/SigningDemo/
+   dotnet build examples/TufConformanceCli/
    ```
 
 3. **Run Examples**
@@ -54,10 +64,6 @@ An implementation of **TAP 4: Multiple repository consensus on entrusted targets
    # CLI tool example
    cd examples/CliTool
    dotnet run -- --help
-
-   # Multi-repository client example
-   cd examples/MultiRepositoryClient
-   dotnet run ./demo-map.json target-file.txt
    ```
 
 ## Understanding TUF
