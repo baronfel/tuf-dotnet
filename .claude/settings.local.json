@@ -14,7 +14,10 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:api.github.com)",
       "Bash(dotnet run:*)",
-      "Bash(dotnet script:*)"
+      "Bash(dotnet script:*)",
+      "Bash(grep:*)",
+      "Bash(mklink:*)",
+      "Bash(ln:*)"
     ],
     "deny": [],
     "ask": []
