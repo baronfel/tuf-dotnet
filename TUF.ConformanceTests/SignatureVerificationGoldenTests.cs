@@ -4,6 +4,7 @@ using TUnit.Core;
 using TUnit.Assertions;
 using CanonicalJson;
 using System.Globalization;
+using Serde.Json;
 
 namespace TUF.ConformanceTests;
 
@@ -122,8 +123,8 @@ public class SignatureVerificationGoldenTests
     [Test]
     public async Task SampleRootSignedBytesEqualsRootStringLiteral()
     {
-        Metadata<Root> samplefromJson = CanonicalJson.Serializer.Deserialize<Metadata<Root>, MetadataProxy.De<Root>>(SampleRootMetadataJson);
-        await Assert.That(Encoding.UTF8.GetString(samplefromJson.GetSignedBytes())).IsEquivalentTo(SampleRootJson);
+        Metadata<Root> samplefromJson = JsonSerializer.Deserialize<Metadata<Root>, MetadataProxy.De<Root>>(SampleRootMetadataJson);
+        await Assert.That(Encoding.UTF8.GetString(samplefromJson.GetSignedBytes())).IsEqualTo(SampleRootJson);
     }
 
     [Test]

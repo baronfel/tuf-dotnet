@@ -267,10 +267,10 @@ public class TrustedMetadataTests
     public async Task ExpirationChecking_ShouldWorkCorrectly()
     {
         // Create new signers and root metadata with expired timestamp  
-        var rootSigner = Ed25519Signer.Generate();
-        var timestampSigner = Ed25519Signer.Generate();
-        var snapshotSigner = Ed25519Signer.Generate();
-        var targetsSigner = Ed25519Signer.Generate();
+        var rootSigner = EcdsaSigner.Generate();
+        var timestampSigner = EcdsaSigner.Generate();
+        var snapshotSigner = EcdsaSigner.Generate();
+        var targetsSigner = EcdsaSigner.Generate();
         
         var rootKeyId = rootSigner.Key.GetKeyId();
         var timestampKeyId = timestampSigner.Key.GetKeyId();
