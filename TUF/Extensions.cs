@@ -1,8 +1,8 @@
+using System.Security.Cryptography;
+
 using CanonicalJson;
 
 using Serde;
-
-using System.Security.Cryptography;
 
 namespace TUF.Models;
 
@@ -227,7 +227,7 @@ public static class SimplifiedMetadataExtensions
         {
             // Serialize the key to canonical JSON
             var keyBytes = CanonicalJson.Serializer.Serialize(key);
-            
+
             // Compute SHA-256 hash
             var hashBytes = System.Security.Cryptography.SHA256.HashData(keyBytes);
             return Convert.ToHexString(hashBytes).ToLowerInvariant();

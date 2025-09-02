@@ -1,6 +1,9 @@
 using System.Text;
+
 using CanonicalJson;
+
 using TUF.Models;
+
 using TUnit.Assertions;
 using TUnit.Core;
 
@@ -21,7 +24,7 @@ public class KeyManagementTests
     {
         // Arrange
         var ed25519Signer = Ed25519Signer.Generate();
-        
+
         // Act & Assert - Ed25519 key should have consistent type and scheme per TUF spec
         await Assert.That(ed25519Signer.Key.KeyType).IsEqualTo("ed25519");
         await Assert.That(ed25519Signer.Key.Scheme).IsEqualTo("ed25519");
@@ -44,7 +47,7 @@ public class KeyManagementTests
         await Assert.That(signer1.Key.GetKeyId()).IsNotEqualTo(signer2.Key.GetKeyId());
         await Assert.That(signer1.Key.GetKeyId()).IsNotEqualTo(signer3.Key.GetKeyId());
         await Assert.That(signer2.Key.GetKeyId()).IsNotEqualTo(signer3.Key.GetKeyId());
-        
+
         await Assert.That(signer1.Key.KeyVal.Public).IsNotEqualTo(signer2.Key.KeyVal.Public);
         await Assert.That(signer1.Key.KeyVal.Public).IsNotEqualTo(signer3.Key.KeyVal.Public);
         await Assert.That(signer2.Key.KeyVal.Public).IsNotEqualTo(signer3.Key.KeyVal.Public);
@@ -59,17 +62,17 @@ public class KeyManagementTests
     {
         // Arrange
         var signer = Ed25519Signer.Generate();
-        
+
         // Act - Get key ID multiple times
         var keyId1 = signer.Key.GetKeyId();
         var keyId2 = signer.Key.GetKeyId();
         var keyId3 = signer.Key.GetKeyId();
-        
+
         // Assert - Should always be the same for the same key
         await Assert.That(keyId1).IsEqualTo(keyId2);
         await Assert.That(keyId2).IsEqualTo(keyId3);
         await Assert.That(keyId1).IsNotEmpty();
-        
+
         // Should be lowercase hex
         await Assert.That(keyId1).Matches("^[0-9a-f]+$");
     }

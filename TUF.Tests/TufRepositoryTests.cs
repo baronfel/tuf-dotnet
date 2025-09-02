@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+
 using TUF.Repository;
 using TUF.Signing;
 
@@ -59,11 +60,11 @@ public class TufRepositoryTests
             {
                 var filePath = Path.Combine(metadataDir, expectedFile);
                 await Assert.That(File.Exists(filePath)).IsTrue();
-                
+
                 // Verify file is valid JSON
                 var content = await File.ReadAllTextAsync(filePath);
                 await Assert.That(content).IsNotEmpty();
-                
+
                 // Should be valid JSON
                 var _ = JsonDocument.Parse(content);
             }
@@ -86,18 +87,18 @@ public class TufRepositoryTests
             repository.WriteToDirectory(tempDir);
 
             var targetsDir = Path.Combine(tempDir, "targets");
-            
+
             // Check hello.txt
             var helloPath = Path.Combine(targetsDir, "hello.txt");
             await Assert.That(File.Exists(helloPath)).IsTrue();
-            
+
             var helloContent = await File.ReadAllTextAsync(helloPath);
             await Assert.That(helloContent).IsEqualTo("Hello, World!");
 
             // Check config/app.json (nested directory)
             var configPath = Path.Combine(targetsDir, "config", "app.json");
             await Assert.That(File.Exists(configPath)).IsTrue();
-            
+
             var configContent = await File.ReadAllTextAsync(configPath);
             await Assert.That(configContent).IsEqualTo("{\"version\":\"1.0\"}");
         }
@@ -117,7 +118,7 @@ public class TufRepositoryTests
         try
         {
             Directory.CreateDirectory(tempDir);
-            
+
             // Create an existing file that should be overwritten
             var existingFile = Path.Combine(tempDir, "metadata", "root.json");
             Directory.CreateDirectory(Path.GetDirectoryName(existingFile)!);
@@ -128,7 +129,7 @@ public class TufRepositoryTests
             // File should be overwritten with new content
             var newContent = await File.ReadAllTextAsync(existingFile);
             await Assert.That(newContent).IsNotEqualTo("old content");
-            
+
             // Should be valid JSON
             var _ = JsonDocument.Parse(newContent);
         }
@@ -158,7 +159,7 @@ public class TufRepositoryTests
 
             var deepFile = Path.Combine(tempDir, "targets", "level1", "level2", "deep.txt");
             await Assert.That(File.Exists(deepFile)).IsTrue();
-            
+
             var content = await File.ReadAllTextAsync(deepFile);
             await Assert.That(content).IsEqualTo("deep content");
         }
@@ -220,7 +221,7 @@ public class TufRepositoryTests
             // Check that root.json has required TUF structure
             await Assert.That(rootJson.RootElement.TryGetProperty("signed", out _)).IsTrue();
             await Assert.That(rootJson.RootElement.TryGetProperty("signatures", out _)).IsTrue();
-            
+
             var signed = rootJson.RootElement.GetProperty("signed");
             await Assert.That(signed.TryGetProperty("spec_version", out _)).IsTrue();
             await Assert.That(signed.TryGetProperty("roles", out _)).IsTrue();
@@ -262,10 +263,10 @@ public class TufRepositoryTests
 
         await Assert.That(repository.TargetFiles.ContainsKey("hello.txt")).IsTrue();
         await Assert.That(repository.TargetFiles.ContainsKey("config/app.json")).IsTrue();
-        
+
         var helloFile = repository.TargetFiles["hello.txt"];
         await Assert.That(Encoding.UTF8.GetString(helloFile.Content)).IsEqualTo("Hello, World!");
-        
+
         var configFile = repository.TargetFiles["config/app.json"];
         await Assert.That(Encoding.UTF8.GetString(configFile.Content)).IsEqualTo("{\"version\":\"1.0\"}");
     }

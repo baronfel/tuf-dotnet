@@ -1,10 +1,14 @@
-using System.Text;
-using TUF.Models;
-using TUnit.Core;
-using TUnit.Assertions;
-using CanonicalJson;
 using System.Globalization;
+using System.Text;
+
+using CanonicalJson;
+
 using Serde.Json;
+
+using TUF.Models;
+
+using TUnit.Assertions;
+using TUnit.Core;
 
 namespace TUF.ConformanceTests;
 
@@ -84,7 +88,7 @@ public class SignatureVerificationGoldenTests
         // Test that our canonical JSON implementation properly serializes TUF metadata
         // Since we updated to "canonical JSON as valid JSON subset", signature verification
         // will fail with old signatures, but serialization should work correctly
-        
+
         var (keyId, key) = SampleRoot.Signed.Keys.First();
 
         // Use canonical JSON serialization to get the signed bytes, just like the real implementation
@@ -92,7 +96,7 @@ public class SignatureVerificationGoldenTests
 
         Console.WriteLine($"Testing canonical JSON serialization for ECDSA P-256");
         Console.WriteLine($"Key Type: {key.KeyType}");
-        Console.WriteLine($"Key Scheme: {key.Scheme}");  
+        Console.WriteLine($"Key Scheme: {key.Scheme}");
         Console.WriteLine($"Key ID: {keyId}");
         Console.WriteLine($"Key ID from key: {key.GetKeyId()}");
         Console.WriteLine($"Signed Data Length: {signedBytes.Length}");
@@ -101,11 +105,11 @@ public class SignatureVerificationGoldenTests
 
         // Verify key ID calculation works correctly with new canonical JSON format
         await Assert.That(key.GetKeyId()).IsEqualTo(keyId);
-        
+
         // Verify canonical JSON serialization produces valid JSON
         await Assert.That(jsonString).IsNotNull();
         await Assert.That(jsonString.Length).IsGreaterThan(0);
-        
+
         // Verify we can deserialize the canonical JSON back to the same object
         var deserialized = CanonicalJson.Serializer.Deserialize<Root>(jsonString);
         await Assert.That(deserialized.Type).IsEqualTo(SampleRoot.Signed.Type);

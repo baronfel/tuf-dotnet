@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+
 using TUF.Models.Keys;
 using TUF.Repository;
 using TUF.Signing;
@@ -13,9 +14,9 @@ public class RepositoryBuilderTests
     {
         var builder = new RepositoryBuilder();
         var signer = Ed25519Signer.Generate();
-        
+
         var result = builder.AddSigner("root", signer);
-        
+
         await Assert.That(result).IsSameReferenceAs(builder);
     }
 
@@ -25,10 +26,10 @@ public class RepositoryBuilderTests
         var builder = new RepositoryBuilder();
         var signer1 = Ed25519Signer.Generate();
         var signer2 = Ed25519Signer.Generate();
-        
+
         builder.AddSigner("root", signer1);
         builder.AddSigner("root", signer2);
-        
+
         // Should not throw - multiple signers per role are allowed
         await Task.CompletedTask;
     }
@@ -39,9 +40,9 @@ public class RepositoryBuilderTests
         var builder = new RepositoryBuilder();
         var signer = Ed25519Signer.Generate();
         const string customId = "custom-signer-id";
-        
+
         var result = builder.AddSigner("root", signer, customId);
-        
+
         await Assert.That(result).IsSameReferenceAs(builder);
     }
 
@@ -50,9 +51,9 @@ public class RepositoryBuilderTests
     {
         var builder = new RepositoryBuilder();
         var customExpiry = DateTimeOffset.UtcNow.AddMonths(6);
-        
+
         var result = builder.SetDefaultExpiry(customExpiry);
-        
+
         await Assert.That(result).IsSameReferenceAs(builder);
     }
 
@@ -60,9 +61,9 @@ public class RepositoryBuilderTests
     public async Task SetConsistentSnapshots_ValidValue_UpdatesSetting()
     {
         var builder = new RepositoryBuilder();
-        
+
         var result = builder.SetConsistentSnapshots(false);
-        
+
         await Assert.That(result).IsSameReferenceAs(builder);
     }
 
@@ -71,9 +72,9 @@ public class RepositoryBuilderTests
     {
         var builder = new RepositoryBuilder();
         var content = Encoding.UTF8.GetBytes("test content");
-        
+
         var result = builder.AddTarget("test.txt", content);
-        
+
         await Assert.That(result).IsSameReferenceAs(builder);
     }
 
@@ -83,9 +84,9 @@ public class RepositoryBuilderTests
         var builder = new RepositoryBuilder();
         var content = Encoding.UTF8.GetBytes("test content");
         var custom = new Dictionary<string, object> { ["test"] = "value" };
-        
+
         var result = builder.AddTarget("test.txt", content, custom);
-        
+
         await Assert.That(result).IsSameReferenceAs(builder);
     }
 
@@ -93,7 +94,7 @@ public class RepositoryBuilderTests
     public async Task Build_WithoutRequiredSigners_ThrowsException()
     {
         var builder = new RepositoryBuilder();
-        
+
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => builder.Build()));
         await Assert.That(exception.Message).Contains("No signers configured for root role");
     }
@@ -105,7 +106,7 @@ public class RepositoryBuilderTests
             .AddSigner("root", Ed25519Signer.Generate())
             .AddSigner("snapshot", Ed25519Signer.Generate())
             .AddSigner("targets", Ed25519Signer.Generate());
-        
+
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => builder.Build()));
         await Assert.That(exception.Message).Contains("No signers configured for timestamp role");
     }
@@ -117,7 +118,7 @@ public class RepositoryBuilderTests
             .AddSigner("root", Ed25519Signer.Generate())
             .AddSigner("timestamp", Ed25519Signer.Generate())
             .AddSigner("targets", Ed25519Signer.Generate());
-        
+
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => builder.Build()));
         await Assert.That(exception.Message).Contains("No signers configured for snapshot role");
     }
@@ -129,7 +130,7 @@ public class RepositoryBuilderTests
             .AddSigner("root", Ed25519Signer.Generate())
             .AddSigner("timestamp", Ed25519Signer.Generate())
             .AddSigner("snapshot", Ed25519Signer.Generate());
-        
+
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => builder.Build()));
         await Assert.That(exception.Message).Contains("No signers configured for targets role");
     }
@@ -171,7 +172,7 @@ public class RepositoryBuilderTests
         // Check that expiry dates are set correctly (within a reasonable range)
         var rootExpiry = repository.Root.Signed.Expires;
         var timeDifference = Math.Abs((rootExpiry - customExpiry).TotalMinutes);
-        
+
         await Assert.That(timeDifference).IsLessThan(5);
     }
 
@@ -245,11 +246,11 @@ public class RepositoryBuilderTests
 
         var targetFile = repository.TargetFiles["test.txt"];
         await Assert.That(targetFile.Content).IsEqualTo(content);
-        
+
         // Check that targets metadata contains correct information
         var targetsRole = repository.Targets.Signed;
         await Assert.That(targetsRole.Targets.Count).IsEqualTo(1);
-        
+
         var targetMetadata = targetsRole.Targets.Values.First();
         await Assert.That(targetMetadata.Length).IsEqualTo((uint)content.Length);
         await Assert.That(targetMetadata.Hashes).HasCount().GreaterThan(0);
@@ -298,7 +299,7 @@ public class RepositoryBuilderTests
 
             await Assert.That(repository.TargetFiles).HasCount().EqualTo(1);
             await Assert.That(repository.TargetFiles.ContainsKey("myfile.txt")).IsTrue();
-            
+
             var targetContent = Encoding.UTF8.GetString(repository.TargetFiles["myfile.txt"].Content);
             await Assert.That(targetContent).IsEqualTo(content);
         }

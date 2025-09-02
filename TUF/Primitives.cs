@@ -1,5 +1,6 @@
-using Serde;
 using System.Text;
+
+using Serde;
 
 namespace TUF.Models;
 
@@ -89,7 +90,7 @@ public partial record Key
     /// </summary>
     [property: SerdeMemberOptions(Rename = "keyval")]
     public KeyValue KeyVal { get; init; } = new();
-    
+
     [property: SerdeMemberOptions(Skip = true)]
     public KeyId Id
     {

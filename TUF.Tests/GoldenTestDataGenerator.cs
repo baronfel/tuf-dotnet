@@ -1,6 +1,8 @@
-using TUF.Models;
-using CanonicalJson;
 using System.Text.Json;
+
+using CanonicalJson;
+
+using TUF.Models;
 
 namespace TUF.Tests;
 
@@ -14,7 +16,7 @@ public static class GoldenTestDataGenerator
     {
         // Create signers for each role
         var rootSigner = Ed25519Signer.Generate();
-        var timestampSigner = Ed25519Signer.Generate(); 
+        var timestampSigner = Ed25519Signer.Generate();
         var snapshotSigner = Ed25519Signer.Generate();
         var targetsSigner = Ed25519Signer.Generate();
 
@@ -61,7 +63,7 @@ public static class GoldenTestDataGenerator
         );
     }
 
-    private static Metadata<Root> CreateRootMetadata(Ed25519Signer rootSigner, Ed25519Signer timestampSigner, 
+    private static Metadata<Root> CreateRootMetadata(Ed25519Signer rootSigner, Ed25519Signer timestampSigner,
         Ed25519Signer snapshotSigner, Ed25519Signer targetsSigner)
     {
         var rootKeyId = rootSigner.Key.GetKeyId();

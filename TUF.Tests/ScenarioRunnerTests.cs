@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Text;
+
 using TUnit.Assertions;
 using TUnit.Core;
 
@@ -38,7 +39,7 @@ public class ScenarioRunnerTests
         private void LoadScenarioFiles()
         {
             var refreshPath = Path.Combine(_scenarioPath, "refresh-1");
-            
+
             // Map TUF metadata URLs to local files
             var fileMap = new Dictionary<string, string>
             {
@@ -60,11 +61,11 @@ public class ScenarioRunnerTests
         }
 
         protected override Task<HttpResponseMessage> SendAsync(
-            HttpRequestMessage request, 
+            HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
             var path = request.RequestUri?.AbsolutePath ?? "";
-            
+
             if (_responses.TryGetValue(path, out var content))
             {
                 return Task.FromResult(new HttpResponseMessage(System.Net.HttpStatusCode.OK)
@@ -72,7 +73,7 @@ public class ScenarioRunnerTests
                     Content = new StringContent(content, Encoding.UTF8, "application/json")
                 });
             }
-            
+
             // Return 404 for unknown paths
             return Task.FromResult(new HttpResponseMessage(System.Net.HttpStatusCode.NotFound));
         }
@@ -85,7 +86,7 @@ public class ScenarioRunnerTests
     public static IEnumerable<object[]> GetScenarios()
     {
         var scenariosPath = GetScenariosPath();
-        
+
         if (!Directory.Exists(scenariosPath))
             yield break;
 
@@ -94,7 +95,7 @@ public class ScenarioRunnerTests
             var scenarioName = Path.GetFileName(scenarioDir);
             var refresh1Path = Path.Combine(scenarioDir, "refresh-1");
             var rootPath = Path.Combine(refresh1Path, "1.root.json");
-            
+
             // Only include scenarios that have the required structure
             if (Directory.Exists(refresh1Path) && File.Exists(rootPath))
             {
@@ -177,9 +178,9 @@ public class ScenarioRunnerTests
     {
         var scenariosPath = GetScenariosPath();
         var scenarioPath = Path.Combine(scenariosPath, scenarioName);
-        
+
         await Assert.That(Directory.Exists(scenarioPath)).IsTrue();
-            
+
         await RunScenario(scenarioName, scenarioPath);
     }
 }

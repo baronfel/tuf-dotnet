@@ -1,9 +1,11 @@
 using System.Text;
+
 using CanonicalJson;
 
 using Serde.Json;
 
 using TUF.Models;
+
 using TUnit.Assertions;
 using TUnit.Core;
 
@@ -204,7 +206,7 @@ public class MetadataApiTests
         // Act & Assert
         await Assert.That(metadata.Signed.Roles.Root.Threshold).IsEqualTo(1);
         await Assert.That(metadata.Signed.Roles.Root.KeyIds).HasCount().GreaterThanOrEqualTo((int)metadata.Signed.Roles.Root.Threshold);
-        
+
         await Assert.That(metadata.Signed.Roles.Targets!.Threshold).IsEqualTo(1);
         await Assert.That(metadata.Signed.Roles.Targets.KeyIds).HasCount().GreaterThanOrEqualTo((int)metadata.Signed.Roles.Targets.Threshold);
     }

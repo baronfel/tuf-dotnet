@@ -25,14 +25,14 @@ public partial record Timestamp
     /// </summary>
     [property: SerdeMemberOptions(Rename = "_type")]
     public string Type { get; init; } = "timestamp";
-    
+
     /// <summary>
     /// The version of the TUF specification this metadata conforms to.
     /// Should follow semantic versioning (e.g., "1.0.0").
     /// </summary>
     [property: SerdeMemberOptions(Rename = "spec_version")]
     public string SpecVersion { get; init; } = "";
-    
+
     /// <summary>
     /// Version number of this timestamp metadata instance.
     /// Must be incremented for each new version.
@@ -44,7 +44,7 @@ public partial record Timestamp
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "version")]
     public int Version { get; init; } = 1;
-    
+
     /// <summary>
     /// Expiration timestamp in ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ).
     /// Clients must reject metadata after this time.
@@ -56,7 +56,7 @@ public partial record Timestamp
     /// </remarks>
     [property: SerdeMemberOptions(Rename = "expires", Proxy = typeof(CanonicalJson.Proxies.CanonicalDateTimeOffsetProxy))]
     public DateTimeOffset Expires { get; init; }
-    
+
     /// <summary>
     /// Metadata information for files referenced by this timestamp.
     /// Typically contains only "snapshot.json" with its version and hashes.

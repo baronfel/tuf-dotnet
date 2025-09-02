@@ -140,7 +140,7 @@ public static class MetadataTProxy
 
             return Create(signed, sigList);
         }
-        
+
         protected abstract TMetadata Create(T signed, List<SignatureObject> sigs);
     }
 

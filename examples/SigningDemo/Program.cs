@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+
 using TUF.Models;
 
 namespace SigningDemo;
@@ -115,7 +116,7 @@ public class Program
         Console.WriteLine("\n✓ Cross-algorithm verification tests:");
         Console.WriteLine($"  Ed25519 verifying RSA signature:    {ed25519Signer.Key.VerifySignature(rsaSignature.Sig, testData)} (Expected: False)");
         Console.WriteLine($"  RSA verifying Ed25519 signature:    {rsaSigner.Key.VerifySignature(ed25519Signature.Sig, testData)} (Expected: False)");
-        
+
         // Demonstrate proper verification
         Console.WriteLine("\n✓ Proper algorithm verification:");
         Console.WriteLine($"  Ed25519 verifying own signature:    {ed25519Signer.Key.VerifySignature(ed25519Signature.Sig, testData)} (Expected: True)");
