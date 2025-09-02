@@ -13,6 +13,10 @@ TUF.slnx                     # Main solution file (SLNX format)
 ├── TUF/                     # Core TUF implementation
 ├── TUF.Tests/               # Unit tests for TUF library  
 ├── TUF.ConformanceTests/    # TUF specification conformance tests
+├── docs/                    # Comprehensive documentation
+│   ├── api/                 # API reference documentation
+│   ├── guides/              # User guides and tutorials
+│   └── security/            # Security model and practices
 ├── examples/                # Example applications
 │   ├── BasicClient/         # Simple TUF client demo
 │   ├── CliTool/             # Command-line TUF operations
@@ -241,6 +245,13 @@ dotnet run
 - `TUF/Signing.cs` - Cryptographic operations
 - `TUF/TrustedMetadata.cs` - Metadata verification logic
 
+### Documentation Files
+- `docs/README.md` - Main documentation hub and navigation
+- `docs/api/updater.md` - Primary client API documentation
+- `docs/guides/quick-start.md` - 5-minute getting started guide
+- `docs/guides/what-is-tuf.md` - TUF conceptual introduction
+- `docs/security/security-model.md` - Complete security model documentation
+
 ### Test Data
 - `scenarios/` - Test scenarios and sample data. Each folder is a distinct scenario.
 - `.tuf-conformance-xfails` - Expected test failures
@@ -282,6 +293,30 @@ This codebase implements **critical security infrastructure** for software updat
 - **Signature verification**: Verify canonical JSON bytes match expected
 - **AOT compilation errors**: Look for reflection usage, dynamic code generation
 - **Performance issues**: Use dotnet-trace, PerfView, or BenchmarkDotNet
+
+## Documentation Maintenance
+
+**CRITICAL FOR AI AGENTS**: When making **any** API changes, behavior modifications, or adding new functionality:
+
+1. **Always review and update** the comprehensive documentation in `docs/`:
+   - **[API Documentation](docs/api/)** - Update API reference docs when changing public APIs
+   - **[User Guides](docs/guides/)** - Update guides when changing user-facing behavior  
+   - **[Security Documentation](docs/security/)** - Update security docs when changing security-related functionality
+   - **[Quick Start Guide](docs/guides/quick-start.md)** - Ensure examples still work after changes
+   - **[What is TUF? Guide](docs/guides/what-is-tuf.md)** - Update conceptual explanations if needed
+
+2. **Documentation structure overview**:
+   - `docs/README.md` - Main documentation hub with navigation to all sections
+   - `docs/api/` - Complete API reference with examples
+   - `docs/guides/` - Task-oriented guides for developers
+   - `docs/security/` - Security model and threat analysis
+
+3. **Key files requiring frequent updates**:
+   - `docs/api/updater.md` - Primary TUF client API (update when changing Updater class)
+   - `docs/guides/quick-start.md` - 5-minute getting started guide (keep examples working)
+   - `docs/security/security-model.md` - Security guarantees (update when changing crypto/security)
+
+**Remember**: This project prioritizes excellent developer experience through comprehensive documentation. Outdated docs break trust and slow adoption.
 
 ## External Resources
 
