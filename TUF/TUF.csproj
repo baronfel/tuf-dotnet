@@ -17,6 +17,7 @@
     <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="NSec.Cryptography" />
+    <PackageReference Include="Serde" />
   </ItemGroup>
 
 </Project>
