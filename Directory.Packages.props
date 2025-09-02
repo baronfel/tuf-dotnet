@@ -5,6 +5,9 @@
 
   <ItemGroup>
     <PackageVersion Include="Microsoft.Extensions.FileSystemGlobbing" Version="10.0.0-preview.7.25380.108" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.0-preview.7.25380.108" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0-preview.7.25380.108" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.0-preview.7.25380.108" />
     <PackageVersion Include="NSec.Cryptography" Version="25.4.0" />
     <PackageVersion Include="Serde" Version="0.8.0" />
     <PackageVersion Include="System.CommandLine" Version="2.0.0-beta7.25380.108" />
