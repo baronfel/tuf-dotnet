@@ -5,6 +5,31 @@ namespace CliTool;
 
 public class Program
 {
+    // Shared options to reduce duplication
+    private static readonly Option<string> MetadataUrlOption = new("--metadata-url")
+    {
+        Description = "URL to the TUF metadata repository",
+        Required = true
+    };
+
+    private static readonly Option<DirectoryInfo> MetadataDirOption = new("--metadata-dir")
+    {
+        Description = "Local directory to store metadata",
+        Required = true
+    };
+
+    private static readonly Option<DirectoryInfo> TargetsDirOption = new("--targets-dir")
+    {
+        Description = "Local directory to store targets",
+        Required = true
+    };
+
+    private static readonly Option<FileInfo> TrustedRootOption = new("--trusted-root")
+    {
+        Description = "Path to trusted root metadata file",
+        Required = true
+    };
+
     public static async Task<int> Main(string[] args)
     {
         var rootCommand = new RootCommand("TUF .NET CLI Tool - Demonstrates TUF client operations")
@@ -14,131 +39,93 @@ public class Program
             CreateInfoCommand()
         };
 
-        return await rootCommand.InvokeAsync(args);
+        return await rootCommand.Parse(args).InvokeAsync();
     }
 
     private static Command CreateRefreshCommand()
     {
-        var metadataUrlOption = new Option<string>(
-            "--metadata-url", 
-            description: "URL to the TUF metadata repository")
-        { IsRequired = true };
-
-        var metadataDirOption = new Option<DirectoryInfo>(
-            "--metadata-dir",
-            description: "Local directory to store metadata")
-        { IsRequired = true };
-
-        var targetsDirOption = new Option<DirectoryInfo>(
-            "--targets-dir", 
-            description: "Local directory to store targets")
-        { IsRequired = true };
-
-        var trustedRootOption = new Option<FileInfo>(
-            "--trusted-root",
-            description: "Path to trusted root metadata file")
-        { IsRequired = true };
-
         var command = new Command("refresh", "Refresh TUF metadata from repository")
         {
-            metadataUrlOption,
-            metadataDirOption,
-            targetsDirOption,
-            trustedRootOption
+            MetadataUrlOption,
+            MetadataDirOption,
+            TargetsDirOption,
+            TrustedRootOption
         };
 
-        command.SetHandler(async (metadataUrl, metadataDir, targetsDir, trustedRoot) =>
+        command.SetAction(async (parseResult, token) =>
         {
+            var metadataUrl = parseResult.GetValue(MetadataUrlOption)!;
+            var metadataDir = parseResult.GetValue(MetadataDirOption)!;
+            var targetsDir = parseResult.GetValue(TargetsDirOption)!;
+            var trustedRoot = parseResult.GetValue(TrustedRootOption)!;
+            
             await RefreshMetadata(metadataUrl, metadataDir, targetsDir, trustedRoot);
-        }, metadataUrlOption, metadataDirOption, targetsDirOption, trustedRootOption);
+            return 0;
+        });
 
         return command;
     }
 
     private static Command CreateDownloadCommand()
     {
-        var metadataUrlOption = new Option<string>(
-            "--metadata-url", 
-            description: "URL to the TUF metadata repository")
-        { IsRequired = true };
-
-        var metadataDirOption = new Option<DirectoryInfo>(
-            "--metadata-dir",
-            description: "Local directory with metadata")
-        { IsRequired = true };
-
-        var targetsDirOption = new Option<DirectoryInfo>(
-            "--targets-dir", 
-            description: "Local directory to store targets")
-        { IsRequired = true };
-
-        var trustedRootOption = new Option<FileInfo>(
-            "--trusted-root",
-            description: "Path to trusted root metadata file")
-        { IsRequired = true };
-
-        var targetFileOption = new Option<string>(
-            "--target-file",
-            description: "Name of the target file to download")
-        { IsRequired = true };
+        var targetFileOption = new Option<string>("--target-file")
+        {
+            Description = "Name of the target file to download",
+            Required = true
+        };
 
         var command = new Command("download", "Download a target file from TUF repository")
         {
-            metadataUrlOption,
-            metadataDirOption,
-            targetsDirOption,
-            trustedRootOption,
+            MetadataUrlOption,
+            MetadataDirOption,
+            TargetsDirOption,
+            TrustedRootOption,
             targetFileOption
         };
 
-        command.SetHandler(async (metadataUrl, metadataDir, targetsDir, trustedRoot, targetFile) =>
+        command.SetAction(async (parseResult, token) =>
         {
+            var metadataUrl = parseResult.GetValue(MetadataUrlOption)!;
+            var metadataDir = parseResult.GetValue(MetadataDirOption)!;
+            var targetsDir = parseResult.GetValue(TargetsDirOption)!;
+            var trustedRoot = parseResult.GetValue(TrustedRootOption)!;
+            var targetFile = parseResult.GetValue(targetFileOption)!;
+            
             await DownloadTarget(metadataUrl, metadataDir, targetsDir, trustedRoot, targetFile);
-        }, metadataUrlOption, metadataDirOption, targetsDirOption, trustedRootOption, targetFileOption);
+            return 0;
+        });
 
         return command;
     }
 
     private static Command CreateInfoCommand()
     {
-        var metadataUrlOption = new Option<string>(
-            "--metadata-url", 
-            description: "URL to the TUF metadata repository")
-        { IsRequired = true };
-
-        var metadataDirOption = new Option<DirectoryInfo>(
-            "--metadata-dir",
-            description: "Local directory with metadata")
-        { IsRequired = true };
-
-        var targetsDirOption = new Option<DirectoryInfo>(
-            "--targets-dir", 
-            description: "Local directory for targets")
-        { IsRequired = true };
-
-        var trustedRootOption = new Option<FileInfo>(
-            "--trusted-root",
-            description: "Path to trusted root metadata file")
-        { IsRequired = true };
-
-        var targetFileOption = new Option<string?>(
-            "--target-file",
-            description: "Name of the target file to get info about (optional)")
-        { IsRequired = false };
+        var targetFileOption = new Option<string?>("--target-file")
+        {
+            Description = "Name of the target file to get info about (optional)",
+            Required = false
+        };
 
         var command = new Command("info", "Get information about TUF repository or target file")
         {
-            metadataUrlOption,
-            metadataDirOption,
-            targetsDirOption,
-            trustedRootOption,
+            MetadataUrlOption,
+            MetadataDirOption,
+            TargetsDirOption,
+            TrustedRootOption,
             targetFileOption
         };
 
-        command.SetHandler(async (metadataUrl, metadataDir, targetsDir, trustedRoot, targetFile) =>
+        command.SetAction(async (parseResult, token) =>
         {
+            var metadataUrl = parseResult.GetValue(MetadataUrlOption)!;
+            var metadataDir = parseResult.GetValue(MetadataDirOption)!;
+            var targetsDir = parseResult.GetValue(TargetsDirOption)!;
+            var trustedRoot = parseResult.GetValue(TrustedRootOption)!;
+            var targetFile = parseResult.GetValue(targetFileOption);
+            
             await ShowInfo(metadataUrl, metadataDir, targetsDir, trustedRoot, targetFile);
-        }, metadataUrlOption, metadataDirOption, targetsDirOption, trustedRootOption, targetFileOption);
+            return 0;
+        });
 
         return command;
     }
@@ -165,7 +152,7 @@ public class Program
             };
 
             var updater = new Updater(config);
-            await updater.Refresh();
+            await updater.RefreshAsync();
 
             Console.WriteLine("✅ Metadata refresh completed successfully!");
         }
@@ -196,16 +183,16 @@ public class Program
             var updater = new Updater(config);
             
             Console.WriteLine("Refreshing metadata...");
-            await updater.Refresh();
+            await updater.RefreshAsync();
 
             Console.WriteLine("Getting target information...");
-            var targetInfo = await updater.GetTargetInfo(targetFile);
+            var (targetPath, targetInfo) = await updater.GetTargetInfo(targetFile);
             
-            Console.WriteLine($"Target found: {targetInfo.Path}");
+            Console.WriteLine($"Target found: {targetPath}");
             Console.WriteLine($"Length: {targetInfo.Length} bytes");
 
             // Check for cached version first
-            var cached = await updater.FindCachedTarget(targetInfo, null);
+            var cached = await updater.FindCachedTarget(targetInfo, targetPath, null);
             if (cached.HasValue)
             {
                 Console.WriteLine($"✅ Found cached version at: {cached.Value.FilePath}");
@@ -213,7 +200,7 @@ public class Program
             else
             {
                 Console.WriteLine("Downloading...");
-                var result = await updater.DownloadTarget(targetInfo, null, null);
+                var result = await updater.DownloadTarget(targetInfo, targetPath, null, null);
                 Console.WriteLine($"✅ Downloaded to: {result.FilePath}");
             }
         }
@@ -242,7 +229,7 @@ public class Program
             var updater = new Updater(config);
             
             Console.WriteLine("Refreshing metadata...");
-            await updater.Refresh();
+            await updater.RefreshAsync();
 
             var trustedMetadata = updater.GetTrustedMetadataSet();
             
@@ -254,13 +241,13 @@ public class Program
             if (targetFile != null)
             {
                 Console.WriteLine($"\n=== Target File Information: {targetFile} ===");
-                var targetInfo = await updater.GetTargetInfo(targetFile);
-                Console.WriteLine($"Path: {targetInfo.Path}");
+                var (targetPath, targetInfo) = await updater.GetTargetInfo(targetFile);
+                Console.WriteLine($"Path: {targetPath}");
                 Console.WriteLine($"Length: {targetInfo.Length} bytes");
                 Console.WriteLine("Hashes:");
                 foreach (var hash in targetInfo.Hashes)
                 {
-                    Console.WriteLine($"  {hash.Algorithm}: {hash.HexEncodedValue}");
+                    Console.WriteLine($"  {hash.Key}: {hash.Value}");
                 }
 
                 if (targetInfo.Custom != null && targetInfo.Custom.Count > 0)

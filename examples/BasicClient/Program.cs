@@ -48,18 +48,18 @@ public class Program
             var updater = new Updater(config);
 
             Console.WriteLine("Refreshing TUF metadata...");
-            await updater.Refresh();
+            await updater.RefreshAsync();
 
             Console.WriteLine("Getting target information...");
-            var targetInfo = await updater.GetTargetInfo(targetFileName);
+            var (path, targetInfo) = await updater.GetTargetInfo(targetFileName);
 
             Console.WriteLine($"Target found:");
-            Console.WriteLine($"  Path: {targetInfo.Path}");
+            Console.WriteLine($"  Path: {path}");
             Console.WriteLine($"  Length: {targetInfo.Length} bytes");
-            Console.WriteLine($"  Hashes: {string.Join(", ", targetInfo.Hashes.Select(h => $"{h.Algorithm}:{h.HexEncodedValue[..8]}..."))}");
+            Console.WriteLine($"  Hashes: {string.Join(", ", targetInfo.Hashes.Select(h => $"{h.Key}:{h.Value[..8]}..."))}");
 
             Console.WriteLine("Checking for cached version...");
-            var cached = await updater.FindCachedTarget(targetInfo, null);
+            var cached = await updater.FindCachedTarget(targetInfo, path, null);
             if (cached.HasValue)
             {
                 Console.WriteLine($"Found cached version at: {cached.Value.FilePath}");
@@ -68,7 +68,7 @@ public class Program
             else
             {
                 Console.WriteLine("Downloading target file...");
-                var result = await updater.DownloadTarget(targetInfo, null, null);
+                var result = await updater.DownloadTarget(targetInfo, path, null, null);
                 Console.WriteLine($"Downloaded to: {result.FilePath}");
                 Console.WriteLine($"File size: {result.Data.Length} bytes");
             }
