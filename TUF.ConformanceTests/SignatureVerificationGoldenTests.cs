@@ -24,7 +24,7 @@ public class SignatureVerificationGoldenTests
         {
             Type = "root",
             ConsistentSnapshot = true,
-            Expires = DateTimeOffset.ParseExact("2025-10-01T05:26:16Z", CanonicalJsonSerializer.DateTimeOffsetFormat, CultureInfo.InvariantCulture),
+            Expires = DateTimeOffset.ParseExact("2025-10-01T05:26:16Z", Proxies.CanonicalDateTimeOffsetProxy.DateTimeOffsetFormat, CultureInfo.InvariantCulture),
             Keys = new Dictionary<string, Key>
             {
                 ["9c77c0b277eab2fb88d41546d25c82a57286e86969bee8187dedc195e900fb8f"] = new Key
@@ -117,6 +117,7 @@ public class SignatureVerificationGoldenTests
     public async Task SampleRootCanonicalEqualsStringLiteral()
     {
         Metadata<Root> samplefromJson = CanonicalJson.Serializer.Deserialize<Metadata<Root>, MetadataProxy.De<Root>>(SampleRootMetadataJson);
+        await Assert.That(samplefromJson.Signed.Expires).IsEqualTo(SampleRoot.Signed.Expires);
         await Assert.That(samplefromJson).IsEquivalentTo(SampleRoot);
     }
 

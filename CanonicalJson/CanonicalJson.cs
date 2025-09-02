@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using System.Text.Encodings.Web;
 
@@ -67,5 +68,29 @@ public static class Serializer
             if (ca != cb) return ca - cb;
         }
         return ab.Length - bb.Length;
+    }
+}
+
+public static class Proxies
+{
+    public class CanonicalDateTimeOffsetProxy : ISerdeProvider<DateTimeOffset>, ISerde<DateTimeOffset>
+    {
+        public static string DateTimeOffsetFormat = "yyyy-MM-ddTHH:mm:ssZ";
+        public static ISerialize<DateTimeOffset> Instance => new CanonicalDateTimeOffsetProxy();
+
+        static IDeserialize<DateTimeOffset> IDeserializeProvider<DateTimeOffset>.Instance => new CanonicalDateTimeOffsetProxy();
+
+        public ISerdeInfo SerdeInfo => Serde.SerdeInfo.MakePrimitive("expires", PrimitiveKind.DateTime);
+
+        public DateTimeOffset Deserialize(IDeserializer deserializer)
+        {
+            var dateString = deserializer.ReadString();
+            return DateTimeOffset.ParseExact(dateString, DateTimeOffsetFormat, CultureInfo.InvariantCulture);
+        }
+
+        public void Serialize(DateTimeOffset value, ISerializer serializer)
+        {
+            serializer.WriteString(value.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture));
+        }
     }
 }

@@ -113,8 +113,8 @@ public partial record Mirrors
     /// since mirror lists change infrequently. The expiration ensures clients
     /// eventually discover new mirrors or remove defunct ones.
     /// </remarks>
-    [property: SerdeMemberOptions(Rename = "expires")]
-    public string Expires { get; init; } = "";
+    [property: SerdeMemberOptions(Rename = "expires", Proxy = typeof(CanonicalJson.Proxies.CanonicalDateTimeOffsetProxy))]
+    public DateTimeOffset Expires { get; init; }
     
     /// <summary>
     /// List of available repository mirrors.

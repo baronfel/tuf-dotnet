@@ -136,7 +136,7 @@ public sealed class CanonicalJsonSerdeReader : IDeserializer, ITypeDeserializer,
     {
         EnsureValueKind(JsonValueKind.String);
         var dateString = GetCanonicalString();
-        return DateTime.Parse(dateString);
+        return DateTimeOffset.ParseExact(dateString, Proxies.CanonicalDateTimeOffsetProxy.DateTimeOffsetFormat, CultureInfo.InvariantCulture).UtcDateTime;
     }
 
     public DateTime ReadDateTime(ISerdeInfo info, int index) => ReadDateTime();

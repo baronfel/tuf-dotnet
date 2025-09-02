@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using Serde;
 
 namespace TUF.Models;
@@ -71,7 +73,7 @@ public partial record Root
     /// Root metadata typically has longer expiration times (e.g., 1 year) since
     /// it's updated less frequently and requires out-of-band distribution.
     /// </remarks>
-    [property: SerdeMemberOptions(Rename = "expires")]
+    [property: SerdeMemberOptions(Rename = "expires", Proxy = typeof(CanonicalJson.Proxies.CanonicalDateTimeOffsetProxy))]
     public DateTimeOffset Expires { get; init; }
     
     /// <summary>

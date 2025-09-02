@@ -285,7 +285,7 @@ public partial record Targets
     /// since target file lists change less frequently than snapshot/timestamp metadata.
     /// The expiration time balances security against operational burden.
     /// </remarks>
-    [property: SerdeMemberOptions(Rename = "expires")]
+    [property: SerdeMemberOptions(Rename = "expires", Proxy = typeof(CanonicalJson.Proxies.CanonicalDateTimeOffsetProxy))]
     public DateTimeOffset Expires { get; init; }
     
     /// <summary>

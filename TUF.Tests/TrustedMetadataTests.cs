@@ -3,6 +3,7 @@ using TUF.Models;
 using TUnit.Core;
 using TUnit.Assertions;
 using CanonicalJson;
+using System.Text;
 
 namespace TUF.Tests;
 
@@ -284,7 +285,7 @@ public class TrustedMetadataTests
                 Type = "root",
                 SpecVersion = "1.0.0",
                 Version = 1,
-                Expires = DateTimeOffset.ParseExact("2020-01-01T00:00:00Z", CanonicalJsonSerializer.DateTimeOffsetFormat, CultureInfo.InvariantCulture), // Expired
+                Expires = DateTimeOffset.ParseExact("2020-01-01T00:00:00Z", Proxies.CanonicalDateTimeOffsetProxy.DateTimeOffsetFormat, CultureInfo.InvariantCulture), // Expired
                 Keys = new Dictionary<string, Key>
                 {
                     [rootKeyId] = rootSigner.Key,
@@ -302,15 +303,22 @@ public class TrustedMetadataTests
             },
             Signatures = []
         };
-        
+
         // Sign the expired root
-        var expiredSignedBytes = CanonicalJson.Serializer.Serialize(expiredRoot.Signed);
+        var expiredSignedBytes = expiredRoot.GetSignedBytes();
+        var expectedCanonicalJsonString = Encoding.UTF8.GetString(expiredSignedBytes);
         var expiredSignature = rootSigner.SignBytes(expiredSignedBytes);
         expiredRoot = expiredRoot with { Signatures = [expiredSignature] };
         
         var expiredRootJson = Serde.Json.JsonSerializer.Serialize<Metadata<Root>, MetadataProxy.Ser<Root>>(expiredRoot);
         var rootData = System.Text.Encoding.UTF8.GetBytes(expiredRootJson);
-        
+        var deserializedExpiredRoot = Serde.Json.JsonSerializer.Deserialize<Metadata<Root>, MetadataProxy.De<Root>>(rootData, MetadataProxy.De<Root>.Instance);
+        await Assert.That(expiredRoot).IsEquivalentTo(deserializedExpiredRoot);
+
+        var deserializedSignedBytes = deserializedExpiredRoot.GetSignedBytes();
+        var deserializedCanonicalJsonString = Encoding.UTF8.GetString(deserializedSignedBytes);
+
+        await Assert.That(deserializedCanonicalJsonString).IsEqualTo(expectedCanonicalJsonString);
         // Should fail due to expiration
         await Assert.That(() => TrustedMetadata.CreateFromRootData(rootData))
             .Throws<Exception>()
