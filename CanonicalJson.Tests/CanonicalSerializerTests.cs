@@ -21,6 +21,41 @@ public partial record TestKeyValueContainer(int one, string two);
 [GenerateSerde]
 public partial record TestJapaneseContainer(int 日, int 本);
 
+// Additional test models for comprehensive collection and dictionary testing
+[GenerateSerde]
+public partial record TestListContainer(List<string> Items);
+
+[GenerateSerde]
+public partial record TestArrayContainer(string[] Items);
+
+[GenerateSerde]
+public partial record TestDictionaryContainer(Dictionary<string, string> StringDict);
+
+[GenerateSerde]
+public partial record TestMixedDictionaryContainer(Dictionary<string, int> IntDict, Dictionary<string, bool> BoolDict);
+
+[GenerateSerde]
+public partial record TestNestedContainer(Dictionary<string, List<string>> NestedDict);
+
+[GenerateSerde]
+public partial record TestComplexValueContainer(Dictionary<string, TestKeyValueContainer> ComplexDict);
+
+[GenerateSerde]
+public partial record TestEmptyCollectionsContainer(
+    List<string> EmptyList, 
+    Dictionary<string, string> EmptyDict,
+    string[] EmptyArray);
+
+[GenerateSerde]
+public partial record TestNullableContainer(
+    List<string>? NullableList,
+    Dictionary<string, string>? NullableDict,
+    string? NullableString);
+
+[GenerateSerde]
+public partial record TestDeepNestingContainer(
+    Dictionary<string, Dictionary<string, List<TestKeyValueContainer>>> DeepNested);
+
 public partial class CanonicalSerializerTests
 {
     [Test]
@@ -190,7 +225,7 @@ public partial class CanonicalSerializerTests
     }
 
     ISerdeInfo DummyPropertyInfo(string nameYouWant) => new TestSerdeInfo(nameYouWant);
-    ISerdeInfo DummyArrayInfo() => new TestSerdeInfo(null, kind: InfoKind.List);
+    ISerdeInfo DummyArrayInfo() => new TestSerdeInfo(null!, kind: InfoKind.List);
 
     [Test]
     public async Task VerifyGoldenTestData_JapaneseCharactersWithNumbers() 
@@ -291,6 +326,347 @@ public partial class CanonicalSerializerTests
         // Expected golden data from cjson: 7d9231d659b4fee07dabfbb4545fb55d66ec05cb44b5610aae31f468a22a1dd3.json
         var expectedJson = "{\"日\":1,\"本\":2}";
         await Assert.That(serializedString).IsEqualTo(expectedJson);
+    }
+
+    // Collection and Dictionary Serialization Tests
+    
+    [Test]
+    public async Task VerifyCollectionListSerialization()
+    {
+        var testObj = new TestListContainer(new List<string> { "first", "second", "third" });
+        
+        var serialized = Serializer.Serialize(testObj);
+        var serializedString = Encoding.UTF8.GetString(serialized);
+        
+        var expectedJson = "{\"items\":[\"first\",\"second\",\"third\"]}";
+        await Assert.That(serializedString).IsEqualTo(expectedJson);
+    }
+
+    [Test]
+    public async Task VerifyCollectionArraySerialization()
+    {
+        var testObj = new TestArrayContainer(new string[] { "alpha", "beta", "gamma" });
+        
+        var serialized = Serializer.Serialize(testObj);
+        var serializedString = Encoding.UTF8.GetString(serialized);
+        
+        var expectedJson = "{\"items\":[\"alpha\",\"beta\",\"gamma\"]}";
+        await Assert.That(serializedString).IsEqualTo(expectedJson);
+    }
+
+    [Test]
+    public async Task VerifySimpleDictionarySerialization()
+    {
+        var dict = new Dictionary<string, string>
+        {
+            ["key1"] = "value1",
+            ["key2"] = "value2",
+            ["aaa"] = "first"  // Should come first in canonical ordering
+        };
+        var testObj = new TestDictionaryContainer(dict);
+        
+        var serialized = Serializer.Serialize(testObj);
+        var serializedString = Encoding.UTF8.GetString(serialized);
+        
+        // Keys should be sorted in UTF-8 lexicographic order
+        var expectedJson = "{\"stringDict\":{\"key1\":\"value1\",\"key2\":\"value2\",\"aaa\":\"first\"}}";
+        await Assert.That(serializedString).IsEqualTo(expectedJson);
+    }
+
+    [Test]
+    public async Task VerifyMixedDictionariesSerialization()
+    {
+        var intDict = new Dictionary<string, int>
+        {
+            ["count"] = 42,
+            ["age"] = 25
+        };
+        var boolDict = new Dictionary<string, bool>
+        {
+            ["enabled"] = true,
+            ["active"] = false
+        };
+        var testObj = new TestMixedDictionaryContainer(intDict, boolDict);
+        
+        var serialized = Serializer.Serialize(testObj);
+        var serializedString = Encoding.UTF8.GetString(serialized);
+        
+        // Both object properties and dictionary keys should be sorted
+        var expectedJson = "{\"boolDict\":{\"enabled\":true,\"active\":false},\"intDict\":{\"count\":42,\"age\":25}}";
+        await Assert.That(serializedString).IsEqualTo(expectedJson);
+    }
+
+    [Test]
+    public async Task VerifyNestedDictionarySerialization()
+    {
+        var nestedDict = new Dictionary<string, List<string>>
+        {
+            ["fruits"] = new List<string> { "apple", "banana" },
+            ["colors"] = new List<string> { "red", "blue", "green" }
+        };
+        var testObj = new TestNestedContainer(nestedDict);
+        
+        var serialized = Serializer.Serialize(testObj);
+        var serializedString = Encoding.UTF8.GetString(serialized);
+        
+        // Dictionary keys should be sorted
+        var expectedJson = "{\"nestedDict\":{\"fruits\":[\"apple\",\"banana\"],\"colors\":[\"red\",\"blue\",\"green\"]}}";
+        await Assert.That(serializedString).IsEqualTo(expectedJson);
+    }
+
+    [Test]
+    public async Task VerifyComplexValueDictionarySerialization()
+    {
+        var complexDict = new Dictionary<string, TestKeyValueContainer>
+        {
+            ["item1"] = new TestKeyValueContainer(100, "first"),
+            ["item2"] = new TestKeyValueContainer(200, "second")
+        };
+        var testObj = new TestComplexValueContainer(complexDict);
+        
+        var serialized = Serializer.Serialize(testObj);
+        var serializedString = Encoding.UTF8.GetString(serialized);
+        
+        var expectedJson = "{\"complexDict\":{\"item1\":{\"one\":100,\"two\":\"first\"},\"item2\":{\"one\":200,\"two\":\"second\"}}}";
+        await Assert.That(serializedString).IsEqualTo(expectedJson);
+    }
+
+    [Test]
+    public async Task VerifyEmptyCollectionsSerialization()
+    {
+        var testObj = new TestEmptyCollectionsContainer(
+            new List<string>(),
+            new Dictionary<string, string>(),
+            new string[0]
+        );
+        
+        var serialized = Serializer.Serialize(testObj);
+        var serializedString = Encoding.UTF8.GetString(serialized);
+        
+        var expectedJson = "{\"emptyArray\":[],\"emptyDict\":{},\"emptyList\":[]}";
+        await Assert.That(serializedString).IsEqualTo(expectedJson);
+    }
+
+    [Test]
+    public async Task VerifyNullableCollectionsSerialization()
+    {
+        var testObj = new TestNullableContainer(
+            NullableList: null,
+            NullableDict: null,
+            NullableString: null
+        );
+        
+        var serialized = Serializer.Serialize(testObj);
+        var serializedString = Encoding.UTF8.GetString(serialized);
+        
+        var expectedJson = "{}";
+        await Assert.That(serializedString).IsEqualTo(expectedJson);
+    }
+
+    [Test]
+    public async Task VerifyDeepNestingSerialization()
+    {
+        var deepNested = new Dictionary<string, Dictionary<string, List<TestKeyValueContainer>>>
+        {
+            ["level1"] = new Dictionary<string, List<TestKeyValueContainer>>
+            {
+                ["level2a"] = new List<TestKeyValueContainer>
+                {
+                    new TestKeyValueContainer(1, "one"),
+                    new TestKeyValueContainer(2, "two")
+                },
+                ["level2b"] = new List<TestKeyValueContainer>
+                {
+                    new TestKeyValueContainer(3, "three")
+                }
+            }
+        };
+        var testObj = new TestDeepNestingContainer(deepNested);
+        
+        var serialized = Serializer.Serialize(testObj);
+        var serializedString = Encoding.UTF8.GetString(serialized);
+        
+        // All levels should maintain canonical ordering
+        var expectedJson = "{\"deepNested\":{\"level1\":{\"level2a\":[{\"one\":1,\"two\":\"one\"},{\"one\":2,\"two\":\"two\"}],\"level2b\":[{\"one\":3,\"two\":\"three\"}]}}}";
+        await Assert.That(serializedString).IsEqualTo(expectedJson);
+    }
+
+    // Collection and Dictionary Deserialization Tests
+
+    [Test]
+    public async Task VerifyCollectionListDeserialization()
+    {
+        var json = "{\"items\":[\"first\",\"second\",\"third\"]}";
+        
+        var result = Serializer.Deserialize<TestListContainer, TestListContainer>(json);
+        
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result.Items).HasCount().EqualTo(3);
+        await Assert.That(result.Items[0]).IsEqualTo("first");
+        await Assert.That(result.Items[1]).IsEqualTo("second");
+        await Assert.That(result.Items[2]).IsEqualTo("third");
+    }
+
+    [Test]
+    public async Task VerifyCollectionArrayDeserialization()
+    {
+        var json = "{\"items\":[\"alpha\",\"beta\",\"gamma\"]}";
+        
+        var result = Serializer.Deserialize<TestArrayContainer, TestArrayContainer>(json);
+        
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result.Items).HasCount().EqualTo(3);
+        await Assert.That(result.Items[0]).IsEqualTo("alpha");
+        await Assert.That(result.Items[1]).IsEqualTo("beta");
+        await Assert.That(result.Items[2]).IsEqualTo("gamma");
+    }
+
+    [Test]
+    public async Task VerifySimpleDictionaryDeserialization()
+    {
+        var json = "{\"stringDict\":{\"key1\":\"value1\"}}";
+        
+        var result = Serializer.Deserialize<TestDictionaryContainer, TestDictionaryContainer>(json);
+        
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result.StringDict).HasCount().EqualTo(1);
+        await Assert.That(result.StringDict["key1"]).IsEqualTo("value1");
+    }
+
+    [Test]
+    public async Task VerifyMixedDictionariesDeserialization()
+    {
+        var json = "{\"boolDict\":{\"enabled\":true,\"active\":false},\"intDict\":{\"count\":42,\"age\":25}}";
+        
+        var result = Serializer.Deserialize<TestMixedDictionaryContainer, TestMixedDictionaryContainer>(json);
+        
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result.IntDict).HasCount().EqualTo(2);
+        await Assert.That(result.IntDict["count"]).IsEqualTo(42);
+        await Assert.That(result.IntDict["age"]).IsEqualTo(25);
+        await Assert.That(result.BoolDict).HasCount().EqualTo(2);
+        await Assert.That(result.BoolDict["enabled"]).IsEqualTo(true);
+        await Assert.That(result.BoolDict["active"]).IsEqualTo(false);
+    }
+
+    [Test]
+    public async Task VerifyNestedDictionaryDeserialization()
+    {
+        var json = "{\"nestedDict\":{\"fruits\":[\"apple\",\"banana\"],\"colors\":[\"red\",\"blue\",\"green\"]}}";
+        
+        var result = Serializer.Deserialize<TestNestedContainer, TestNestedContainer>(json);
+        
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result.NestedDict).HasCount().EqualTo(2);
+        await Assert.That(result.NestedDict["colors"]).HasCount().EqualTo(3);
+        await Assert.That(result.NestedDict["colors"][0]).IsEqualTo("red");
+        await Assert.That(result.NestedDict["fruits"]).HasCount().EqualTo(2);
+        await Assert.That(result.NestedDict["fruits"][0]).IsEqualTo("apple");
+    }
+
+    [Test]
+    public async Task VerifyComplexValueDictionaryDeserialization()
+    {
+        var json = "{\"complexDict\":{\"item1\":{\"one\":100,\"two\":\"first\"},\"item2\":{\"one\":200,\"two\":\"second\"}}}";
+        
+        var result = Serializer.Deserialize<TestComplexValueContainer, TestComplexValueContainer>(json);
+        
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result.ComplexDict).HasCount().EqualTo(2);
+        await Assert.That(result.ComplexDict["item1"].one).IsEqualTo(100);
+        await Assert.That(result.ComplexDict["item1"].two).IsEqualTo("first");
+        await Assert.That(result.ComplexDict["item2"].one).IsEqualTo(200);
+        await Assert.That(result.ComplexDict["item2"].two).IsEqualTo("second");
+    }
+
+    [Test]
+    public async Task VerifyEmptyCollectionsDeserialization()
+    {
+        var json = "{\"emptyArray\":[],\"emptyDict\":{},\"emptyList\":[]}";
+        
+        var result = Serializer.Deserialize<TestEmptyCollectionsContainer, TestEmptyCollectionsContainer>(json);
+        
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result.EmptyList).HasCount().EqualTo(0);
+        await Assert.That(result.EmptyDict).HasCount().EqualTo(0);
+        await Assert.That(result.EmptyArray).HasCount().EqualTo(0);
+    }
+
+    [Test]
+    public async Task VerifyDeepNestingDeserialization()
+    {
+        var json = "{\"deepNested\":{\"level1\":{\"level2a\":[{\"one\":1,\"two\":\"one\"},{\"one\":2,\"two\":\"two\"}],\"level2b\":[{\"one\":3,\"two\":\"three\"}]}}}";
+        
+        var result = Serializer.Deserialize<TestDeepNestingContainer, TestDeepNestingContainer>(json);
+        
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result.DeepNested).HasCount().EqualTo(1);
+        await Assert.That(result.DeepNested["level1"]).HasCount().EqualTo(2);
+        await Assert.That(result.DeepNested["level1"]["level2a"]).HasCount().EqualTo(2);
+        await Assert.That(result.DeepNested["level1"]["level2a"][0].one).IsEqualTo(1);
+        await Assert.That(result.DeepNested["level1"]["level2a"][0].two).IsEqualTo("one");
+        await Assert.That(result.DeepNested["level1"]["level2b"]).HasCount().EqualTo(1);
+        await Assert.That(result.DeepNested["level1"]["level2b"][0].one).IsEqualTo(3);
+    }
+
+    // Roundtrip Tests (Serialize then Deserialize)
+    
+    [Test]
+    public async Task VerifyRoundtripDictionaryWithSpecialCharacters()
+    {
+        var dict = new Dictionary<string, string>
+        {
+            ["key with spaces"] = "value with spaces",
+            ["key\"with\"quotes"] = "value\"with\"quotes",
+            ["key\\with\\backslashes"] = "value\\with\\backslashes",
+            ["unicode日本"] = "unicode日本value"
+        };
+        var original = new TestDictionaryContainer(dict);
+        
+        var serialized = Serializer.Serialize(original);
+        var deserialized = Serializer.Deserialize<TestDictionaryContainer, TestDictionaryContainer>(
+            Encoding.UTF8.GetString(serialized));
+        
+        await Assert.That(deserialized).IsNotNull();
+        await Assert.That(deserialized.StringDict).HasCount().EqualTo(4);
+        await Assert.That(deserialized.StringDict["key with spaces"]).IsEqualTo("value with spaces");
+        await Assert.That(deserialized.StringDict["key\"with\"quotes"]).IsEqualTo("value\"with\"quotes");
+        await Assert.That(deserialized.StringDict["key\\with\\backslashes"]).IsEqualTo("value\\with\\backslashes");
+        await Assert.That(deserialized.StringDict["unicode日本"]).IsEqualTo("unicode日本value");
+    }
+
+    [Test]
+    public async Task VerifyRoundtripComplexNestedStructure()
+    {
+        var complex = new Dictionary<string, Dictionary<string, List<TestKeyValueContainer>>>
+        {
+            ["group1"] = new Dictionary<string, List<TestKeyValueContainer>>
+            {
+                ["subgroup_b"] = new List<TestKeyValueContainer>
+                {
+                    new TestKeyValueContainer(10, "ten"),
+                    new TestKeyValueContainer(20, "twenty")
+                },
+                ["subgroup_a"] = new List<TestKeyValueContainer>
+                {
+                    new TestKeyValueContainer(5, "five")
+                }
+            },
+            ["group0"] = new Dictionary<string, List<TestKeyValueContainer>>()
+        };
+        var original = new TestDeepNestingContainer(complex);
+        
+        var serialized = Serializer.Serialize(original);
+        var serializedString = Encoding.UTF8.GetString(serialized);
+        var deserialized = Serializer.Deserialize<TestDeepNestingContainer, TestDeepNestingContainer>(serializedString);
+        
+        await Assert.That(deserialized).IsNotNull();
+        await Assert.That(deserialized.DeepNested).HasCount().EqualTo(2);
+        await Assert.That(deserialized.DeepNested["group1"]).HasCount().EqualTo(2);
+        await Assert.That(deserialized.DeepNested["group1"]["subgroup_a"]).HasCount().EqualTo(1);
+        await Assert.That(deserialized.DeepNested["group1"]["subgroup_a"][0].one).IsEqualTo(5);
+        await Assert.That(deserialized.DeepNested["group1"]["subgroup_b"]).HasCount().EqualTo(2);
+        await Assert.That(deserialized.DeepNested["group0"]).HasCount().EqualTo(0);
     }
 }
 
