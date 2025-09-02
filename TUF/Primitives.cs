@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Text;
+using System.Text.Json.Nodes;
 
 using Serde;
 
@@ -153,4 +155,51 @@ public partial record SignatureObject
     /// </summary>
     [property: SerdeMemberOptions(Rename = "sig")]
     public string Sig { get; init; } = "";
+}
+
+public static class Util
+{
+    public static JsonObject? ConvertToJsonObject(Dictionary<string, object>? dict)
+    {
+        if (dict == null)
+        {
+            return null;
+        }
+
+        var jsonObject = new JsonObject();
+        foreach (var kvp in dict)
+        {
+            jsonObject[kvp.Key] = ConvertToJsonValue(kvp.Value);
+        }
+        return jsonObject;
+    }
+
+    private static JsonNode? ConvertToJsonValue(object o)
+    {
+        return o switch
+        {
+            string s => JsonValue.Create(s),
+            int i => JsonValue.Create(i),
+            long l => JsonValue.Create(l),
+            short sh => JsonValue.Create(sh),
+            bool b => JsonValue.Create(b),
+            null => null,
+            IEnumerable e => ConvertToJsonArray(e),
+            _ => null
+        };
+    }
+
+    private static JsonNode? ConvertToJsonArray(IEnumerable e)
+    {
+        var jsonArray = new JsonArray();
+        foreach (var item in e)
+        {
+            var jsonValue = ConvertToJsonValue(item);
+            if (jsonValue != null)
+            {
+                jsonArray.Add(jsonValue);
+            }
+        }
+        return jsonArray;
+    }
 }

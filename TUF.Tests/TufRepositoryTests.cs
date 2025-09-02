@@ -1,8 +1,8 @@
 using System.Text;
 using System.Text.Json;
 
+using TUF.Models;
 using TUF.Repository;
-using TUF.Signing;
 
 namespace TUF.Tests;
 

@@ -1,3 +1,6 @@
 {
-    "dotnet.testWindow.useTestingPlatformProtocol": true
+    "dotnet.testWindow.useTestingPlatformProtocol": true,
+    "cSpell.words": [
+        "Serde"
+    ]
 }

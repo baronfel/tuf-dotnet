@@ -1,7 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 using Serde;
 
-using TUF.Models.Primitives;
-using TUF.Serialization;
+using TUF.Models;
 
 namespace TUF.MultiRepository;
 
@@ -14,13 +15,13 @@ namespace TUF.MultiRepository;
 /// <param name="Terminating">If true, stops searching subsequent mappings after this one matches</param>
 [GenerateSerialize, GenerateDeserialize]
 public readonly partial record struct Mapping(
-    [property: SerdeRename("paths")]
-    PathPattern[] Paths,
-    [property: SerdeRename("repositories")]
+    [property: SerdeMemberOptions(Rename = "paths")]
+    string[] Paths,
+    [property: SerdeMemberOptions(Rename = "repositories")]
     string[] Repositories,
-    [property: SerdeRename("threshold")]
+    [property: SerdeMemberOptions(Rename = "threshold")]
     int Threshold,
-    [property: SerdeRename("terminating")]
+    [property: SerdeMemberOptions(Rename = "terminating")]
     bool Terminating = false
 );
 
@@ -33,13 +34,13 @@ public readonly partial record struct Mapping(
 /// <param name="TrustedRootPath">Path to the trusted root.json for this repository</param>
 [GenerateSerialize, GenerateDeserialize]
 public readonly partial record struct RepositoryInfo(
-    [property: SerdeRename("name")]
+    [property: SerdeMemberOptions(Rename = "name")]
     string Name,
-    [property: SerdeRename("metadata_url")]
+    [property: SerdeMemberOptions(Rename = "metadata_url")]
     string MetadataUrl,
-    [property: SerdeRename("targets_url")]
+    [property: SerdeMemberOptions(Rename = "targets_url")]
     string TargetsUrl,
-    [property: SerdeRename("trusted_root")]
+    [property: SerdeMemberOptions(Rename = "trusted_root")]
     string TrustedRootPath
 );
 
@@ -50,10 +51,10 @@ public readonly partial record struct RepositoryInfo(
 /// <param name="Repositories">Dictionary of repository configurations</param>
 /// <param name="Mapping">Ordered list of mapping rules for target resolution</param>
 [GenerateSerialize, GenerateDeserialize]
-public readonly partial record struct MultiRepositoryMap(
-    [property: SerdeRename("repositories")]
+public partial record MultiRepositoryMap(
+    [property: SerdeMemberOptions(Rename = "repositories")]
     Dictionary<string, RepositoryInfo> Repositories,
-    [property: SerdeRename("mapping")]
+    [property: SerdeMemberOptions(Rename = "mapping")]
     Mapping[] Mapping
 );
 
@@ -93,7 +94,7 @@ public record MultiRepositoryConfig
 /// <param name="RepositoriesChecked">List of repository names that were consulted</param>
 public record MultiRepositoryTargetResult(
     string TargetPath,
-    Models.Roles.Targets.TargetMetadata? TargetInfo,
+    TargetFile? TargetInfo,
     int AgreementCount,
     int RequiredThreshold,
     string[] RepositoriesChecked
@@ -103,4 +104,10 @@ public record MultiRepositoryTargetResult(
     /// Indicates whether the target was found and meets the consensus threshold
     /// </summary>
     public bool IsValid => TargetInfo != null && AgreementCount >= RequiredThreshold;
+
+    public bool TryGetValidFile([NotNullWhen(true)]out TargetFile? targetFile)
+    {
+        targetFile = IsValid ? TargetInfo : null;
+        return targetFile != null;
+    }
 }

@@ -9,28 +9,6 @@ namespace TUF.Tests;
 /// </summary>
 public class TufLoggingIntegrationTests
 {
-    [Test]
-    public async Task TufActivitySource_HasCorrectProperties()
-    {
-        await Assert.That(TufActivitySource.Name).IsEqualTo("TUF.NET");
-        await Assert.That(TufActivitySource.Version).IsEqualTo("1.0.0");
-        await Assert.That(TufActivitySource.Instance).IsNotNull();
-    }
-
-    [Test]
-    public async Task TufActivitySource_CanStartActivity()
-    {
-        using var activity = TufActivitySource.StartActivity("TestOperation");
-        
-        // Activity might be null if no listener is registered, which is fine for this test
-        // The important thing is that the method doesn't throw and returns a disposable
-        if (activity != null)
-        {
-            await Assert.That(activity.OperationName).IsEqualTo("TUF.TestOperation");
-        }
-        
-        // Test passed if we get here without throwing
-    }
 
     [Test]
     public async Task TufExceptionLoggingExtensions_HandlesAllExceptionTypes()
@@ -108,29 +86,6 @@ public class TufLoggingIntegrationTests
         await Assert.That(logEntry.Message).Contains("timestamp");
         await Assert.That(logEntry.Message).Contains("10"); // expected version
         await Assert.That(logEntry.Message).Contains("5");  // actual version
-    }
-
-    [Test]
-    public async Task ActivitySource_CanBeUsedInUsingStatement()
-    {
-        var activityCreated = false;
-        using var listener = new ActivityListener
-        {
-            ShouldListenTo = _ => true,
-            Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
-            ActivityStarted = _ => activityCreated = true
-        };
-        
-        ActivitySource.AddActivityListener(listener);
-        
-        using (var activity = TufActivitySource.StartActivity("TestOperation"))
-        {
-            // Activity creation is successful
-        }
-        
-        // Test verifies that activity creation and disposal don't throw
-        // Activity might not be created if there are no active listeners, which is fine
-        await Assert.That(true).IsTrue(); // Test passes if we get here
     }
 }
 

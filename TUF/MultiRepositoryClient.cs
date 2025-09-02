@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using Serde.Json;
 
-using TUF.Models.Roles.Targets;
+using TUF.Models;
 using TUF.MultiRepository;
 
 namespace TUF;
@@ -15,7 +15,7 @@ public class MultiRepositoryClient
 {
     private readonly MultiRepositoryConfig _config;
     private readonly Dictionary<string, Updater> _repositoryClients;
-    private MultiRepositoryMap? _map;
+    private MultiRepositoryMap _map = default!;
 
     public MultiRepositoryClient(MultiRepositoryConfig config)
     {
@@ -27,14 +27,11 @@ public class MultiRepositoryClient
     /// Initializes the multi-repository client by loading the map.json configuration
     /// and setting up individual TUF clients for each repository.
     /// </summary>
-    [RequiresUnreferencedCode("JSON deserialization may require types that cannot be statically analyzed")]
-    [RequiresDynamicCode("JSON deserialization may require runtime code generation")]
     public async Task InitializeAsync()
     {
         // Load the map.json file
         var mapJson = await File.ReadAllTextAsync(_config.MapFilePath);
-        _map = JsonSerializer.Deserialize<MultiRepositoryMap>(mapJson)
-            ?? throw new InvalidOperationException("Failed to parse map.json file");
+        _map = JsonSerializer.Deserialize<MultiRepositoryMap>(mapJson);
 
         // Ensure metadata and targets directories exist
         Directory.CreateDirectory(_config.MetadataDir);
@@ -77,12 +74,12 @@ public class MultiRepositoryClient
     /// </summary>
     public async Task RefreshAsync()
     {
-        if (_map == null)
+        if (_map == default)
         {
             throw new InvalidOperationException("Client not initialized. Call InitializeAsync() first.");
         }
 
-        var refreshTasks = _repositoryClients.Values.Select(client => client.Refresh());
+        var refreshTasks = _repositoryClients.Values.Select(client => client.RefreshAsync());
         await Task.WhenAll(refreshTasks);
     }
 
@@ -91,9 +88,9 @@ public class MultiRepositoryClient
     /// </summary>
     /// <param name="targetPath">Path of the target file to search for</param>
     /// <returns>Result containing target information and consensus details</returns>
-    public async Task<MultiRepositoryTargetResult> GetTargetInfoAsync(string targetPath)
+    public async Task<MultiRepositoryTargetResult?> GetTargetInfoAsync(string targetPath)
     {
-        if (_map == null)
+        if (_map == default)
         {
             throw new InvalidOperationException("Client not initialized. Call InitializeAsync() first.");
         }
@@ -102,26 +99,20 @@ public class MultiRepositoryClient
         foreach (var mapping in _map.Mapping)
         {
             // Check if this mapping applies to the target path
-            if (mapping.Paths.Any(pattern => pattern.IsMatch(targetPath)))
+            if (mapping.Paths.Any(pattern => DelegatedRole.PathIsMatch(pattern, targetPath)))
             {
                 var result = await CheckRepositoriesForTarget(targetPath, mapping);
 
                 // If terminating mapping or target found, return result
-                if (mapping.Terminating || result.IsValid)
+                if (mapping.Terminating || (result != null && result.IsValid))
                 {
-                    return result;
+                    return result is null ? null : result.IsValid ? result : null;
                 }
             }
         }
 
         // Target not found in any matching mapping
-        return new MultiRepositoryTargetResult(
-            targetPath,
-            null,
-            0,
-            0,
-            Array.Empty<string>()
-        );
+        return null;
     }
 
     /// <summary>
@@ -133,13 +124,12 @@ public class MultiRepositoryClient
     {
         var targetResult = await GetTargetInfoAsync(targetPath);
 
-        if (!targetResult.IsValid || targetResult.TargetInfo == null)
+        if (targetResult is null || !targetResult.TryGetValidFile(out var targetInfo))
         {
             return false;
         }
 
         // Try to download from each repository that has this target
-        var targetInfo = targetResult.TargetInfo;
         foreach (var repoName in targetResult.RepositoriesChecked)
         {
             try
@@ -158,11 +148,11 @@ public class MultiRepositoryClient
         return false;
     }
 
-    private async Task<MultiRepositoryTargetResult> CheckRepositoriesForTarget(
+    private async Task<MultiRepositoryTargetResult?> CheckRepositoriesForTarget(
         string targetPath,
         Mapping mapping)
     {
-        var targetCandidates = new Dictionary<string, TargetMetadata>();
+        var targetCandidates = new Dictionary<string, TargetFile>();
         var checkedRepositories = new List<string>();
 
         // Check each repository in this mapping
@@ -178,11 +168,11 @@ public class MultiRepositoryClient
             try
             {
                 var targetInfo = await client.GetTargetInfo(targetPath);
-                if (targetInfo != null)
+                if (targetInfo is (var remotePath, var file))
                 {
                     // Use a key based on metadata that should be identical across repositories
-                    var candidateKey = $"{targetInfo.Length}:{string.Join(",", targetInfo.Hashes.Select(h => h.ToString()))}";
-                    targetCandidates[candidateKey] = targetInfo;
+                    var candidateKey = $"{remotePath}:{string.Join(",", file.Hashes.Select(h => h.ToString()))}";
+                    targetCandidates[candidateKey] = file;
                 }
             }
             catch
@@ -192,18 +182,21 @@ public class MultiRepositoryClient
             }
         }
 
+        if (targetCandidates.Count == 0)
+        {
+            return null;
+        }
+
         // Find the target metadata that appears in the most repositories
         var bestCandidate = targetCandidates
             .GroupBy(kvp => kvp.Key)
             .OrderByDescending(g => g.Count())
-            .FirstOrDefault();
-
-        var agreementCount = bestCandidate?.Count() ?? 0;
-        var targetMetadata = agreementCount > 0 ? bestCandidate!.First().Value : null;
-
+            .First();
+        var agreementCount = bestCandidate.Count();
+        var targetFile = agreementCount == 0 ? null : bestCandidate.First().Value;
         return new MultiRepositoryTargetResult(
             targetPath,
-            targetMetadata,
+            targetFile,
             agreementCount,
             mapping.Threshold,
             checkedRepositories.ToArray()

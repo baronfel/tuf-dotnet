@@ -290,7 +290,10 @@ public class Program
             await updater.RefreshAsync();
 
             // Get target information and download
-            var (targetPath, targetInfo) = await updater.GetTargetInfo(targetName);
+            if (await updater.GetTargetInfo(targetName) is not (var targetPath, var targetInfo))
+            {
+                throw new Exception($"Target '{targetName}' not found in repository.");
+            }
             Console.WriteLine($"Target found: {targetPath}");
 
             // Check for cached version first

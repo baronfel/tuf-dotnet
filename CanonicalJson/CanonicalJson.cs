@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using System.Text.Encodings.Web;
+using System.Text.Json.Nodes;
 
 using Serde;
 
@@ -91,6 +92,47 @@ public static class Proxies
         public void Serialize(DateTimeOffset value, ISerializer serializer)
         {
             serializer.WriteString(value.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture));
+        }
+    }
+
+    /// <summary>
+    /// Serde proxy for System.Text.Json.Nodes.JsonObject that preserves the canonical JSON structure.
+    /// Handles serialization and deserialization of custom metadata in target files.
+    /// Preserves actual JSON types (string, number, boolean, etc.) without converting to strings.
+    /// </summary>
+    public class JsonObjectProxy : ISerdeProvider<JsonObject?>, ISerde<JsonObject?>
+    {
+        public static ISerialize<JsonObject?> Instance => new JsonObjectProxy();
+
+        static IDeserialize<JsonObject?> IDeserializeProvider<JsonObject?>.Instance => new JsonObjectProxy();
+
+        public ISerdeInfo SerdeInfo => StringProxy.SerdeInfo;
+
+        public JsonObject? Deserialize(IDeserializer deserializer)
+        {
+            // Read the JSON as a string and parse it back to JsonObject
+            var jsonString = StringProxy.Instance.Deserialize(deserializer);
+            
+            if (jsonString is null)
+            {
+                return null;
+            }
+            
+            // Parse the JSON string back to JsonObject, preserving all original types
+            return JsonNode.Parse(jsonString)?.AsObject();
+        }
+
+        public void Serialize(JsonObject? value, ISerializer serializer)
+        {
+            if (value is null)
+            {
+                serializer.WriteNull();
+                return;
+            }
+
+            // Serialize the JsonObject as a JSON string, preserving all original JSON types
+            var jsonString = value.ToJsonString();
+            ((ISerialize<string>)StringProxy.Instance).Serialize(jsonString, serializer);
         }
     }
 }

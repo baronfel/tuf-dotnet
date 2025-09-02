@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using System.Text.Json.Nodes;
 
 using CanonicalJson;
 
@@ -186,7 +187,7 @@ public class SerializationRoundTripTests
                     {
                         ["sha256"] = "binary_hash_256_value_here_64_characters_long_aabbccdd11223344"
                     },
-                    Custom = new Dictionary<string, string>
+                    Custom = new JsonObject
                     {
                         ["version"] = "1.2.3",
                         ["platform"] = "windows"

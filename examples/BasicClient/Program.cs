@@ -51,7 +51,10 @@ public class Program
             await updater.RefreshAsync();
 
             Console.WriteLine("Getting target information...");
-            var (path, targetInfo) = await updater.GetTargetInfo(targetFileName);
+            if (await updater.GetTargetInfo(targetFileName) is not (var path, var targetInfo))
+            {
+                throw new Exception($"Target '{targetFileName}' not found in repository.");
+            }
 
             Console.WriteLine($"Target found:");
             Console.WriteLine($"  Path: {path}");

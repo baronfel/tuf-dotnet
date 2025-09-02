@@ -57,18 +57,17 @@ public class Updater
 
     public TrustedMetadata GetTrustedMetadataSet() => _trusted;
 
-    public async Task<(string RemotePath, TargetFile File)> GetTargetInfo(string targetPath)
+    public async Task<(string RemotePath, TargetFile File)?> GetTargetInfo(string targetPath)
     {
         if (_trusted is not CompleteTrustedMetadata c)
         {
             await RefreshAsync();
         }
 
-        var (metaPath, fileData) = await PreOrderDepthFirstWalk(targetPath);
-        return (metaPath, fileData);
+        return await PreOrderDepthFirstWalk(targetPath);
     }
 
-    public async Task<(string FilePath, byte[] Data)> DownloadTarget(TargetFile targetFile, string targetPath, string? destinationFilePath, Uri? baseUrl)
+    public async Task<(string FilePath, byte[] Data)> DownloadTarget(TargetFile targetFile, string targetPath, string? destinationFilePath = null, Uri? baseUrl = null)
     {
         var localDestinationPath = destinationFilePath ?? Path.Combine(_config.LocalTargetsDir, targetPath);
         var targetBaseUrl = baseUrl ?? _config.RemoteTargetsUrl;
@@ -162,7 +161,7 @@ public class Updater
         }
     }
 
-    private async Task<(string Path, TargetFile File)> PreOrderDepthFirstWalk(string targetFilePath)
+    private async Task<(string Path, TargetFile File)?> PreOrderDepthFirstWalk(string targetFilePath)
     {
         if (_trusted is not CompleteTrustedMetadata complete)
         {
@@ -209,7 +208,7 @@ public class Updater
             throw new Exception("Maximum delegation depth reached");
         }
         // otherwise didn't find target
-        throw new Exception("Target not found");
+        return null;
     }
 
     private async Task OnlineRefresh()

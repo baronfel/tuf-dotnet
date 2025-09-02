@@ -1,3 +1,5 @@
+using System.Text.Json.Nodes;
+
 using Microsoft.Extensions.FileSystemGlobbing;
 
 using Serde;
@@ -60,8 +62,8 @@ public partial record TargetFile
     /// 
     /// Custom metadata is protected by TUF signatures but is opaque to TUF itself.
     /// </remarks>
-    [property: SerdeMemberOptions(Rename = "custom")]
-    public Dictionary<string, string>? Custom { get; init; }
+    [property: SerdeMemberOptions(Rename = "custom", Proxy = typeof(CanonicalJson.Proxies.JsonObjectProxy))]
+    public JsonObject? Custom { get; init; }
 }
 
 /// <summary>
@@ -162,9 +164,9 @@ public partial record DelegatedRole
         return Paths.Any(p => PathIsMatch(p, targetFile));
     }
 
-    public static bool PathIsMatch(string path, string targetFile)
+    public static bool PathIsMatch(string pathPattern, string targetFile)
     {
-        var matcher = new Matcher(StringComparison.Ordinal).AddInclude(path);
+        var matcher = new Matcher(StringComparison.Ordinal).AddInclude(pathPattern);
         return matcher.Match(targetFile).HasMatches;
     }
 }

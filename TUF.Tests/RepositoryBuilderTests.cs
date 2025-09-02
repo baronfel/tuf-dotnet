@@ -1,9 +1,8 @@
 using System.Text;
 using System.Text.Json;
 
-using TUF.Models.Keys;
+using TUF.Models;
 using TUF.Repository;
-using TUF.Signing;
 
 namespace TUF.Tests;
 
@@ -96,7 +95,7 @@ public class RepositoryBuilderTests
         var builder = new RepositoryBuilder();
 
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => builder.Build()));
-        await Assert.That(exception.Message).Contains("No signers configured for root role");
+        await Assert.That(exception!.Message).Contains("No signers configured for root role");
     }
 
     [Test]
@@ -108,7 +107,7 @@ public class RepositoryBuilderTests
             .AddSigner("targets", Ed25519Signer.Generate());
 
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => builder.Build()));
-        await Assert.That(exception.Message).Contains("No signers configured for timestamp role");
+        await Assert.That(exception!.Message).Contains("No signers configured for timestamp role");
     }
 
     [Test]
@@ -120,7 +119,7 @@ public class RepositoryBuilderTests
             .AddSigner("targets", Ed25519Signer.Generate());
 
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => builder.Build()));
-        await Assert.That(exception.Message).Contains("No signers configured for snapshot role");
+        await Assert.That(exception!.Message).Contains("No signers configured for snapshot role");
     }
 
     [Test]
@@ -132,7 +131,7 @@ public class RepositoryBuilderTests
             .AddSigner("snapshot", Ed25519Signer.Generate());
 
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => builder.Build()));
-        await Assert.That(exception.Message).Contains("No signers configured for targets role");
+        await Assert.That(exception!.Message).Contains("No signers configured for targets role");
     }
 
     [Test]
@@ -249,10 +248,10 @@ public class RepositoryBuilderTests
 
         // Check that targets metadata contains correct information
         var targetsRole = repository.Targets.Signed;
-        await Assert.That(targetsRole.Targets.Count).IsEqualTo(1);
+        await Assert.That(targetsRole.TargetMap.Count).IsEqualTo(1);
 
-        var targetMetadata = targetsRole.Targets.Values.First();
-        await Assert.That(targetMetadata.Length).IsEqualTo((uint)content.Length);
+        var targetMetadata = targetsRole.TargetMap.Values.First();
+        await Assert.That(targetMetadata.Length).IsEqualTo(content.Length);
         await Assert.That(targetMetadata.Hashes).HasCount().GreaterThan(0);
     }
 

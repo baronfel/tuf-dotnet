@@ -1,4 +1,5 @@
-using CanonicalJson;
+using System.Collections;
+using System.Text.Json.Nodes;
 
 using Serde;
 
@@ -53,16 +54,16 @@ public class RepositoryBuilder
     /// <summary>
     /// Add a target file to the repository
     /// </summary>
-    public RepositoryBuilder AddTarget(string path, byte[] content, Dictionary<string, string>? custom = null)
+    public RepositoryBuilder AddTarget(string path, byte[] content, Dictionary<string, object>? custom = null)
     {
-        _targets.Add(new TargetFileInfo(path, content, custom));
+        _targets.Add(new TargetFileInfo(path, content, Util.ConvertToJsonObject(custom)));
         return this;
     }
 
     /// <summary>
     /// Add a target file from a file path
     /// </summary>
-    public RepositoryBuilder AddTargetFromFile(string targetPath, string filePath, Dictionary<string, string>? custom = null)
+    public RepositoryBuilder AddTargetFromFile(string targetPath, string filePath, Dictionary<string, object>? custom = null)
     {
         var content = File.ReadAllBytes(filePath);
         return AddTarget(targetPath, content, custom);
@@ -275,7 +276,7 @@ public class RepositoryBuilder
 /// <summary>
 /// Represents a target file in the repository builder
 /// </summary>
-public record TargetFileInfo(string Path, byte[] Content, Dictionary<string, string>? Custom = null);
+public record TargetFileInfo(string Path, byte[] Content, JsonObject? Custom = null);
 
 /// <summary>
 /// Internal helper for role configuration

@@ -187,7 +187,10 @@ public class Program
             await updater.RefreshAsync();
 
             Console.WriteLine("Getting target information...");
-            var (targetPath, targetInfo) = await updater.GetTargetInfo(targetFile);
+            if (await updater.GetTargetInfo(targetFile) is not (var targetPath, var targetInfo))
+            {
+                throw new Exception($"Target '{targetFile}' not found in repository.");
+            }
 
             Console.WriteLine($"Target found: {targetPath}");
             Console.WriteLine($"Length: {targetInfo.Length} bytes");
@@ -242,7 +245,10 @@ public class Program
             if (targetFile != null)
             {
                 Console.WriteLine($"\n=== Target File Information: {targetFile} ===");
-                var (targetPath, targetInfo) = await updater.GetTargetInfo(targetFile);
+                if (await updater.GetTargetInfo(targetFile) is not (var targetPath, var targetInfo))
+                {
+                    throw new Exception($"Target '{targetFile}' not found in repository.");
+                }
                 Console.WriteLine($"Path: {targetPath}");
                 Console.WriteLine($"Length: {targetInfo.Length} bytes");
                 Console.WriteLine("Hashes:");
