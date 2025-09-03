@@ -7,6 +7,11 @@
     <Nullable>enable</Nullable>
     <IsAotCompatible>true</IsAotCompatible>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    
+    <!-- Core library optimizations -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IncludeSymbols>false</IncludeSymbols>
+    <PublishReadyToRun Condition="'$(Configuration)' == 'Release'">true</PublishReadyToRun>
   </PropertyGroup>
   
   <ItemGroup>

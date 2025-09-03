@@ -1,0 +1,38 @@
+<Project>
+  
+  <!-- MSBuild Performance Optimizations -->
+  <PropertyGroup>
+    <!-- Parallel build settings -->
+    <BuildInParallel>true</BuildInParallel>
+    <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    
+    <!-- Reduce incremental build overhead -->
+    <DisableFastUpToDateCheck>false</DisableFastUpToDateCheck>
+    
+    <!-- Optimize for build caching -->
+    <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+    
+    <!-- Assembly loading optimization -->
+    <PreferredUILang>en-US</PreferredUILang>
+  </PropertyGroup>
+
+  <!-- Skip unnecessary targets for test projects in Release builds -->
+  <PropertyGroup Condition="'$(IsTestProject)' == 'true' and '$(Configuration)' == 'Release'">
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <GenerateNuspecDependsOn />
+  </PropertyGroup>
+
+  <!-- Optimize NuGet package restore -->
+  <PropertyGroup>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
+  </PropertyGroup>
+
+  <!-- Compiler server optimization -->
+  <PropertyGroup Condition="'$(CI)' != 'true'">
+    <UseSharedCompilation>true</UseSharedCompilation>
+    <ProvideCommandLineArgs>true</ProvideCommandLineArgs>
+  </PropertyGroup>
+
+</Project>

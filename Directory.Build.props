@@ -1,0 +1,50 @@
+<Project>
+  
+  <!-- Common optimization properties for all projects -->
+  <PropertyGroup>
+    <!-- Build Performance Optimizations -->
+    <UseSharedCompilation>true</UseSharedCompilation>
+    <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+    <RestoreUseSkipNonexistentTargets>false</RestoreUseSkipNonexistentTargets>
+    
+    <!-- Compiler Optimizations -->
+    <Deterministic>true</Deterministic>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <DebugType>portable</DebugType>
+    <DebugSymbols Condition="'$(Configuration)' == 'Release'">false</DebugSymbols>
+    
+    <!-- Assembly and File Version Management -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    
+    <!-- Reduce Build Verbosity -->
+    <ReportAnalyzer>false</ReportAnalyzer>
+    
+    <!-- MSBuild Performance -->
+    <DisableImplicitFrameworkDefines>false</DisableImplicitFrameworkDefines>
+    
+    <!-- NuGet Performance -->
+    <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
+    
+  </PropertyGroup>
+
+  <!-- Release-specific optimizations -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <Optimize>true</Optimize>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningsNotAsErrors />
+    <NoWarn />
+  </PropertyGroup>
+
+  <!-- Test project optimizations -->
+  <PropertyGroup Condition="'$(IsTestProject)' == 'true' or $(MSBuildProjectName.Contains('Tests'))">
+    <!-- Faster test compilation -->
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <!-- Core library optimizations - suppress documentation warnings in Release -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+</Project>
