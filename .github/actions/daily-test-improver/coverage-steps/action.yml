@@ -33,36 +33,10 @@ runs:
       run: dotnet restore ./TUF.slnx
       shell: bash
       continue-on-error: true
-      
-    # Fallback: restore individual projects if SLNX fails
-    - name: Restore dependencies (fallback individual projects)
-      run: |
-        dotnet restore TUF/TUF.csproj
-        dotnet restore CanonicalJson/CanonicalJson.csproj
-        dotnet restore TUF.Tests/TUF.Tests.csproj
-        dotnet restore CanonicalJson.Tests/CanonicalJson.Tests.csproj
-        # Note: TUF.ConformanceTests requires .NET 10
-        dotnet restore TUF.ConformanceTests/TUF.ConformanceTests.csproj || echo "ConformanceTests restore failed - requires .NET 10"
-      shell: bash
-      continue-on-error: true
-      
+
     # Try to build using SLNX format
     - name: Build solution (SLNX format)
       run: dotnet build ./TUF.slnx --no-restore --configuration Release
-      shell: bash
-      continue-on-error: true
-      
-    # Fallback: build individual projects
-    - name: Build individual projects (fallback)
-      run: |
-        echo "Building core libraries..."
-        dotnet build CanonicalJson/CanonicalJson.csproj --no-restore --configuration Release
-        dotnet build TUF/TUF.csproj --no-restore --configuration Release || echo "TUF build failed - language compatibility issues"
-        
-        echo "Building test projects..."
-        dotnet build TUF.Tests/TUF.Tests.csproj --no-restore --configuration Release || echo "TUF.Tests build failed"
-        dotnet build CanonicalJson.Tests/CanonicalJson.Tests.csproj --no-restore --configuration Release || echo "CanonicalJson.Tests build failed"
-        dotnet build TUF.ConformanceTests/TUF.ConformanceTests.csproj --no-restore --configuration Release || echo "ConformanceTests build failed"
       shell: bash
       continue-on-error: true
       
@@ -75,29 +49,6 @@ runs:
           --results-directory ./coverage \
           --logger trx \
           --logger "console;verbosity=detailed"
-      shell: bash
-      continue-on-error: true
-      
-    # Fallback: run individual test projects with coverage
-    - name: Run individual tests with coverage (fallback)
-      run: |
-        echo "Running CanonicalJson tests..."
-        dotnet test CanonicalJson.Tests/CanonicalJson.Tests.csproj --configuration Release \
-          --collect:"XPlat Code Coverage" \
-          --results-directory ./coverage/CanonicalJson \
-          --logger trx || echo "CanonicalJson tests failed"
-          
-        echo "Running TUF tests..."
-        dotnet test TUF.Tests/TUF.Tests.csproj --configuration Release \
-          --collect:"XPlat Code Coverage" \
-          --results-directory ./coverage/TUF \
-          --logger trx || echo "TUF tests failed"
-          
-        echo "Running ConformanceTests..."
-        dotnet test TUF.ConformanceTests/TUF.ConformanceTests.csproj --configuration Release \
-          --collect:"XPlat Code Coverage" \
-          --results-directory ./coverage/Conformance \
-          --logger trx || echo "ConformanceTests failed - requires .NET 10"
       shell: bash
       continue-on-error: true
       
