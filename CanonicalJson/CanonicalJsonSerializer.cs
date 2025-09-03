@@ -72,7 +72,23 @@ public sealed class CanonicalJsonSerializer : ISerializer, ITypeSerializer, IDis
         return new ReorderingSerializer(this);
     }
 
-    public void WriteRaw(string value) => _writer.WriteRawValue(_utf8.GetBytes(value));
+    public void WriteRaw(string value)
+    {
+        // Optimize for common small strings by using stack allocation
+        const int StackAllocThreshold = 512;
+        
+        var maxByteCount = _utf8.GetMaxByteCount(value.Length);
+        
+        // Use stack allocation for small strings, heap allocation for large ones
+        Span<byte> buffer = maxByteCount <= StackAllocThreshold 
+            ? stackalloc byte[maxByteCount] 
+            : new byte[maxByteCount];
+            
+        var actualByteCount = _utf8.GetBytes(value, buffer);
+        
+        // Write only the actual bytes used
+        _writer.WriteRawValue(buffer[..actualByteCount]);
+    }
 
     public void WriteObjectStart() => _writer.WriteStartObject();
     public void WriteObjectEnd() => _writer.WriteEndObject();
@@ -608,9 +624,12 @@ public sealed class CanonicalJsonEncoder : JavaScriptEncoder
                     buffer[1] = 'u';
                     buffer[2] = '0';
                     buffer[3] = '0';
-                    var hex = ((ushort)unicodeScalar).ToString("x2");
-                    buffer[4] = hex[0];
-                    buffer[5] = hex[1];
+                    
+                    // Convert to hex without string allocation
+                    var value = (ushort)unicodeScalar;
+                    buffer[4] = GetHexChar((value >> 4) & 0xF);
+                    buffer[5] = GetHexChar(value & 0xF);
+                    
                     numberOfCharactersWritten = 6;
                     return true;
                 }
@@ -622,4 +641,12 @@ public sealed class CanonicalJsonEncoder : JavaScriptEncoder
     }
 
     public override int MaxOutputCharactersPerInputCharacter => 6; // For \uXXXX Unicode escapes
+
+    /// <summary>
+    /// Converts a 4-bit value to its lowercase hex character representation without allocation.
+    /// </summary>
+    private static char GetHexChar(int value)
+    {
+        return value < 10 ? (char)('0' + value) : (char)('a' + value - 10);
+    }
 }
