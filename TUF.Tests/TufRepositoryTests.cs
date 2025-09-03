@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using TUF.Models;
 using TUF.Repository;
+using TUF.Tests.TestFixtures;
 
 namespace TUF.Tests;
 
@@ -25,33 +26,23 @@ public class TufRepositoryTests
     public async Task WriteToDirectory_ValidPath_CreatesCorrectStructure()
     {
         var repository = CreateTestRepository();
-        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        var tempDir = SharedTestResources.CreateTempDirectory();
 
-        try
-        {
-            repository.WriteToDirectory(tempDir);
+        repository.WriteToDirectory(tempDir);
 
-            // Check that directories are created
-            await Assert.That(Directory.Exists(tempDir)).IsTrue();
-            await Assert.That(Directory.Exists(Path.Combine(tempDir, "metadata"))).IsTrue();
-            await Assert.That(Directory.Exists(Path.Combine(tempDir, "targets"))).IsTrue();
-        }
-        finally
-        {
-            if (Directory.Exists(tempDir))
-                Directory.Delete(tempDir, true);
-        }
+        // Check that directories are created
+        await Assert.That(Directory.Exists(tempDir)).IsTrue();
+        await Assert.That(Directory.Exists(Path.Combine(tempDir, "metadata"))).IsTrue();
+        await Assert.That(Directory.Exists(Path.Combine(tempDir, "targets"))).IsTrue();
     }
 
     [Test]
     public async Task WriteToDirectory_ValidPath_CreatesAllMetadataFiles()
     {
         var repository = CreateTestRepository();
-        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        var tempDir = SharedTestResources.CreateTempDirectory();
 
-        try
-        {
-            repository.WriteToDirectory(tempDir);
+        repository.WriteToDirectory(tempDir);
 
             var metadataDir = Path.Combine(tempDir, "metadata");
             var expectedFiles = new[] { "root.json", "timestamp.json", "snapshot.json", "targets.json" };
@@ -68,23 +59,15 @@ public class TufRepositoryTests
                 // Should be valid JSON
                 var _ = JsonDocument.Parse(content);
             }
-        }
-        finally
-        {
-            if (Directory.Exists(tempDir))
-                Directory.Delete(tempDir, true);
-        }
     }
 
     [Test]
     public async Task WriteToDirectory_ValidPath_CreatesAllTargetFiles()
     {
         var repository = CreateTestRepository();
-        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        var tempDir = SharedTestResources.CreateTempDirectory();
 
-        try
-        {
-            repository.WriteToDirectory(tempDir);
+        repository.WriteToDirectory(tempDir);
 
             var targetsDir = Path.Combine(tempDir, "targets");
 
@@ -101,23 +84,15 @@ public class TufRepositoryTests
 
             var configContent = await File.ReadAllTextAsync(configPath);
             await Assert.That(configContent).IsEqualTo("{\"version\":\"1.0\"}");
-        }
-        finally
-        {
-            if (Directory.Exists(tempDir))
-                Directory.Delete(tempDir, true);
-        }
     }
 
     [Test]
     public async Task WriteToDirectory_ExistingDirectory_OverwritesFiles()
     {
         var repository = CreateTestRepository();
-        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        var tempDir = SharedTestResources.CreateTempDirectory();
 
-        try
-        {
-            Directory.CreateDirectory(tempDir);
+        Directory.CreateDirectory(tempDir);
 
             // Create an existing file that should be overwritten
             var existingFile = Path.Combine(tempDir, "metadata", "root.json");
@@ -132,12 +107,6 @@ public class TufRepositoryTests
 
             // Should be valid JSON
             var _ = JsonDocument.Parse(newContent);
-        }
-        finally
-        {
-            if (Directory.Exists(tempDir))
-                Directory.Delete(tempDir, true);
-        }
     }
 
     [Test]
@@ -151,23 +120,15 @@ public class TufRepositoryTests
             .AddTarget("level1/level2/deep.txt", Encoding.UTF8.GetBytes("deep content"));
 
         var repository = builder.Build();
-        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        var tempDir = SharedTestResources.CreateTempDirectory();
 
-        try
-        {
-            repository.WriteToDirectory(tempDir);
+        repository.WriteToDirectory(tempDir);
 
             var deepFile = Path.Combine(tempDir, "targets", "level1", "level2", "deep.txt");
             await Assert.That(File.Exists(deepFile)).IsTrue();
 
             var content = await File.ReadAllTextAsync(deepFile);
             await Assert.That(content).IsEqualTo("deep content");
-        }
-        finally
-        {
-            if (Directory.Exists(tempDir))
-                Directory.Delete(tempDir, true);
-        }
     }
 
     [Test]
@@ -180,11 +141,9 @@ public class TufRepositoryTests
             .AddSigner("targets", Ed25519Signer.Generate());
 
         var repository = builder.Build();
-        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        var tempDir = SharedTestResources.CreateTempDirectory();
 
-        try
-        {
-            repository.WriteToDirectory(tempDir);
+        repository.WriteToDirectory(tempDir);
 
             // Should still create all metadata files even without targets
             var metadataDir = Path.Combine(tempDir, "metadata");
@@ -196,23 +155,15 @@ public class TufRepositoryTests
             // Targets directory should exist but be empty
             var targetsDir = Path.Combine(tempDir, "targets");
             await Assert.That(Directory.Exists(targetsDir)).IsTrue();
-        }
-        finally
-        {
-            if (Directory.Exists(tempDir))
-                Directory.Delete(tempDir, true);
-        }
     }
 
     [Test]
     public async Task WriteToDirectory_MetadataFilesContainValidTufStructure()
     {
         var repository = CreateTestRepository();
-        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        var tempDir = SharedTestResources.CreateTempDirectory();
 
-        try
-        {
-            repository.WriteToDirectory(tempDir);
+        repository.WriteToDirectory(tempDir);
 
             var rootFile = Path.Combine(tempDir, "metadata", "root.json");
             var rootContent = await File.ReadAllTextAsync(rootFile);
@@ -236,12 +187,6 @@ public class TufRepositoryTests
             await Assert.That(targetsSigned.TryGetProperty("spec_version", out _)).IsTrue();
             await Assert.That(targetsSigned.TryGetProperty("targets", out _)).IsTrue();
             await Assert.That(targetsSigned.TryGetProperty("version", out _)).IsTrue();
-        }
-        finally
-        {
-            if (Directory.Exists(tempDir))
-                Directory.Delete(tempDir, true);
-        }
     }
 
     [Test]

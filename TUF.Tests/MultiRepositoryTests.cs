@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using TUF.Models;
 using TUF.MultiRepository;
+using TUF.Tests.TestFixtures;
 
 using TUnit.Assertions;
 using TUnit.Core;
@@ -11,13 +12,10 @@ namespace TUF.Tests;
 public class MultiRepositoryTests : IDisposable
 {
     private readonly string _tempDir;
-    private readonly HttpClient _httpClient;
 
     public MultiRepositoryTests()
     {
-        _tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(_tempDir);
-        _httpClient = new HttpClient();
+        _tempDir = SharedTestResources.CreateTempDirectory();
     }
 
     [Test]
@@ -90,7 +88,7 @@ public class MultiRepositoryTests : IDisposable
             MapFilePath = "dummy.json",
             MetadataDir = Path.Combine(_tempDir, "metadata"),
             TargetsDir = Path.Combine(_tempDir, "targets"),
-            HttpClient = _httpClient
+            HttpClient = SharedTestResources.HttpClient
         };
 
         // Act
@@ -243,7 +241,7 @@ public class MultiRepositoryTests : IDisposable
             MapFilePath = mapPath,
             MetadataDir = Path.Combine(_tempDir, "metadata"),
             TargetsDir = Path.Combine(_tempDir, "targets"),
-            HttpClient = _httpClient
+            HttpClient = SharedTestResources.HttpClient
         };
 
         var client = new MultiRepositoryClient(config);
@@ -458,18 +456,7 @@ public class MultiRepositoryTests : IDisposable
 
     public void Dispose()
     {
-        _httpClient?.Dispose();
-
-        if (Directory.Exists(_tempDir))
-        {
-            try
-            {
-                Directory.Delete(_tempDir, recursive: true);
-            }
-            catch
-            {
-                // Ignore cleanup errors in tests
-            }
-        }
+        // Temp directory cleanup is handled by SharedTestResources
+        // HttpClient cleanup is handled by SharedTestResources
     }
 }
