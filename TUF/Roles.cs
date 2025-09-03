@@ -50,7 +50,7 @@ public partial record Roles
     /// The root role signs root metadata and delegates trust to other roles.
     /// </summary>
     [property: SerdeMemberOptions(Rename = "root")]
-    public required RoleKeys Root { get; init; }
+    public RoleKeys? Root { get; init; }
 
     /// <summary>
     /// Key assignment for the timestamp role.
