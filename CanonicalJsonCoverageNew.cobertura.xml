@@ -1,0 +1,3234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<coverage line-rate="0.42810000000000004" branch-rate="0.585" version="1.9" timestamp="1756866696" lines-covered="298" lines-valid="696" branches-covered="117" branches-valid="200">
+  <sources>
+    <source>/home/runner/work/tuf-dotnet/tuf-dotnet/CanonicalJson/</source>
+  </sources>
+  <packages>
+    <package name="CanonicalJson" line-rate="0.42810000000000004" branch-rate="0.585" complexity="429">
+      <classes>
+        <class name="CanonicalJson.Serializer" filename="CanonicalJson.cs" line-rate="0.95" branch-rate="1" complexity="6">
+          <methods>
+            <method name="Serialize" signature="(T)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="27" hits="15" branch="False" />
+                <line number="35" hits="15" branch="False" />
+                <line number="36" hits="15" branch="False" />
+                <line number="37" hits="15" branch="False" />
+                <line number="38" hits="15" branch="False" />
+                <line number="39" hits="15" branch="False" />
+                <line number="40" hits="15" branch="False" />
+              </lines>
+            </method>
+            <method name="Deserialize" signature="(System.String)" line-rate="0.8" branch-rate="1" complexity="1">
+              <lines>
+                <line number="46" hits="0" branch="False" />
+                <line number="54" hits="10" branch="False" />
+                <line number="55" hits="10" branch="False" />
+                <line number="56" hits="10" branch="False" />
+                <line number="57" hits="10" branch="False" />
+              </lines>
+            </method>
+            <method name="CompareUtf8" signature="(System.String,System.String)" line-rate="1" branch-rate="1" complexity="4">
+              <lines>
+                <line number="62" hits="33" branch="False" />
+                <line number="63" hits="33" branch="False" />
+                <line number="64" hits="33" branch="False" />
+                <line number="65" hits="4136" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="68" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="67" hits="2055" branch="False" />
+                <line number="68" hits="2055" branch="False" />
+                <line number="69" hits="2075" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="54" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="71" hits="13" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="27" hits="15" branch="False" />
+            <line number="35" hits="15" branch="False" />
+            <line number="36" hits="15" branch="False" />
+            <line number="37" hits="15" branch="False" />
+            <line number="38" hits="15" branch="False" />
+            <line number="39" hits="15" branch="False" />
+            <line number="40" hits="15" branch="False" />
+            <line number="46" hits="0" branch="False" />
+            <line number="54" hits="10" branch="False" />
+            <line number="55" hits="10" branch="False" />
+            <line number="56" hits="10" branch="False" />
+            <line number="57" hits="10" branch="False" />
+            <line number="62" hits="33" branch="False" />
+            <line number="63" hits="33" branch="False" />
+            <line number="64" hits="33" branch="False" />
+            <line number="65" hits="4136" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="68" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="67" hits="2055" branch="False" />
+            <line number="68" hits="2055" branch="False" />
+            <line number="69" hits="2075" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="54" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="71" hits="13" branch="False" />
+          </lines>
+        </class>
+        <class name="CanonicalJson.Proxies/CanonicalDateTimeOffsetProxy" filename="CanonicalJson.cs" line-rate="0" branch-rate="1" complexity="6">
+          <methods>
+            <method name="get_Instance" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="80" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Serde.IDeserializeProvider&lt;System.DateTimeOffset&gt;.get_Instance" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="82" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_SerdeInfo" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="84" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Deserialize" signature="(Serde.IDeserializer)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="88" hits="0" branch="False" />
+                <line number="89" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Serialize" signature="(System.DateTimeOffset,Serde.ISerializer)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="94" hits="0" branch="False" />
+                <line number="95" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".cctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="79" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="80" hits="0" branch="False" />
+            <line number="82" hits="0" branch="False" />
+            <line number="84" hits="0" branch="False" />
+            <line number="88" hits="0" branch="False" />
+            <line number="89" hits="0" branch="False" />
+            <line number="94" hits="0" branch="False" />
+            <line number="95" hits="0" branch="False" />
+            <line number="79" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="CanonicalJson.Proxies/JsonObjectProxy" filename="CanonicalJson.cs" line-rate="0" branch-rate="0" complexity="9">
+          <methods>
+            <method name="get_Instance" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="105" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Serde.IDeserializeProvider&lt;System.Text.Json.Nodes.JsonObject&gt;.get_Instance" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="107" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_SerdeInfo" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="109" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Deserialize" signature="(Serde.IDeserializer)" line-rate="0" branch-rate="0" complexity="4">
+              <lines>
+                <line number="114" hits="0" branch="False" />
+                <line number="116" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="13" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="118" hits="0" branch="False" />
+                <line number="122" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="42" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+              </lines>
+            </method>
+            <method name="Serialize" signature="(System.Text.Json.Nodes.JsonObject,Serde.ISerializer)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="127" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="1" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="129" hits="0" branch="False" />
+                <line number="130" hits="0" branch="False" />
+                <line number="134" hits="0" branch="False" />
+                <line number="135" hits="0" branch="False" />
+                <line number="136" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="105" hits="0" branch="False" />
+            <line number="107" hits="0" branch="False" />
+            <line number="109" hits="0" branch="False" />
+            <line number="114" hits="0" branch="False" />
+            <line number="116" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="13" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="118" hits="0" branch="False" />
+            <line number="122" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="42" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="127" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="1" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="129" hits="0" branch="False" />
+            <line number="130" hits="0" branch="False" />
+            <line number="134" hits="0" branch="False" />
+            <line number="135" hits="0" branch="False" />
+            <line number="136" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="CanonicalJson.CanonicalJsonSerdeReader" filename="CanonicalJsonDeserializer.cs" line-rate="0.5402" branch-rate="0.6581999999999999" complexity="114">
+          <methods>
+            <method name="get_SizeOpt" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="97" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Dispose" signature="()" line-rate="1" branch-rate="0.75" complexity="4">
+              <lines>
+                <line number="101" hits="10" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="103" hits="10" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="15" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="104" hits="10" branch="False" />
+                <line number="106" hits="10" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadBool" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="110" hits="2" branch="False" />
+                <line number="111" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadBool" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="114" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadBytes" signature="(System.Buffers.IBufferWriter`1&lt;System.Byte&gt;)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="118" hits="0" branch="False" />
+                <line number="119" hits="0" branch="False" />
+                <line number="120" hits="0" branch="False" />
+                <line number="121" hits="0" branch="False" />
+                <line number="122" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadBytes" signature="(Serde.ISerdeInfo,System.Int32,System.Buffers.IBufferWriter`1&lt;System.Byte&gt;)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="124" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadChar" signature="()" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="128" hits="0" branch="False" />
+                <line number="129" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="14" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="130" hits="0" branch="False" />
+                <line number="131" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadChar" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="134" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadDateTime" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="138" hits="0" branch="False" />
+                <line number="139" hits="0" branch="False" />
+                <line number="140" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadDateTime" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="143" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadDecimal" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="147" hits="0" branch="False" />
+                <line number="148" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadDecimal" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="151" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadF32" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="155" hits="0" branch="False" />
+                <line number="156" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadF32" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="159" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadF64" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="163" hits="0" branch="False" />
+                <line number="164" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadF64" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="167" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadI16" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="171" hits="0" branch="False" />
+                <line number="172" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadI16" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="175" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadI32" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="179" hits="10" branch="False" />
+                <line number="180" hits="10" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadI32" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="183" hits="10" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadI64" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="187" hits="0" branch="False" />
+                <line number="188" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadI64" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="191" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadI8" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="195" hits="0" branch="False" />
+                <line number="196" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadI8" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="199" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadNullableRef" signature="(Serde.IDeserialize`1&lt;T&gt;)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="203" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="12" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="205" hits="0" branch="False" />
+                <line number="207" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadString" signature="()" line-rate="0.75" branch-rate="0.5" complexity="2">
+              <lines>
+                <line number="212" hits="24" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="12" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="213" hits="0" branch="False" />
+                <line number="215" hits="24" branch="False" />
+                <line number="216" hits="24" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadString" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="219" hits="24" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadType" signature="(Serde.ISerdeInfo)" line-rate="1" branch-rate="1" complexity="4">
+              <lines>
+                <line number="223" hits="40" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="225" hits="10" branch="False" />
+                <line number="226" hits="10" branch="False" />
+                <line number="228" hits="30" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="39" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="230" hits="12" branch="False" />
+                <line number="231" hits="12" branch="False" />
+                <line number="235" hits="18" branch="False" />
+                <line number="236" hits="18" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadU16" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="242" hits="0" branch="False" />
+                <line number="243" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadU16" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="246" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadU32" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="250" hits="0" branch="False" />
+                <line number="251" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadU32" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="254" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadU64" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="258" hits="0" branch="False" />
+                <line number="259" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadU64" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="262" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadU8" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="266" hits="0" branch="False" />
+                <line number="267" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadU8" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="270" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Serde.ITypeDeserializer.ReadValue" signature="(Serde.ISerdeInfo,System.Int32,Serde.IDeserialize`1&lt;T&gt;)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="274" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="SkipValue" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="280" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="TryReadIndex" signature="(Serde.ISerdeInfo,System.String&amp;)" line-rate="0.909" branch-rate="0.75" complexity="4">
+              <lines>
+                <line number="284" hits="47" branch="False" />
+                <line number="286" hits="47" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="9" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="288" hits="0" branch="False" />
+                <line number="291" hits="47" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="24" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="293" hits="18" branch="False" />
+                <line number="294" hits="18" branch="False" />
+                <line number="297" hits="29" branch="False" />
+                <line number="298" hits="29" branch="False" />
+                <line number="300" hits="29" branch="False" />
+                <line number="301" hits="29" branch="False" />
+                <line number="303" hits="29" branch="False" />
+              </lines>
+            </method>
+            <method name="EnsureValueKind" signature="(System.Text.Json.JsonValueKind[])" line-rate="0.75" branch-rate="0.75" complexity="4">
+              <lines>
+                <line number="309" hits="230" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="33" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="311" hits="77" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="22" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="312" hits="76" branch="False" />
+                <line number="315" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="GetCanonicalString" signature="()" line-rate="0.4545" branch-rate="0.6409999999999999" complexity="39">
+              <lines>
+                <line number="325" hits="24" branch="False" />
+                <line number="328" hits="24" branch="True" condition-coverage="100% (6/6)">
+                  <conditions>
+                    <condition number="19" type="jump" coverage="100%" />
+                    <condition number="30" type="jump" coverage="100%" />
+                    <condition number="48" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="330" hits="24" branch="False" />
+                <line number="334" hits="24" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="79" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="336" hits="22" branch="False" />
+                <line number="340" hits="2" branch="False" />
+                <line number="341" hits="2" branch="False" />
+                <line number="343" hits="41" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="437" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="345" hits="39" branch="True" condition-coverage="100% (4/4)">
+                  <conditions>
+                    <condition number="111" type="jump" coverage="100%" />
+                    <condition number="125" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="347" hits="4" branch="False" />
+                <line number="348" hits="4" branch="True" condition-coverage="42.85% (9/21)">
+                  <conditions>
+                    <condition number="145" type="jump" coverage="50%" />
+                    <condition number="151" type="jump" coverage="100%" />
+                    <condition number="157" type="jump" coverage="50%" />
+                    <condition number="174" type="jump" coverage="0%" />
+                    <condition number="180" type="jump" coverage="0%" />
+                    <condition number="197" type="jump" coverage="0%" />
+                    <condition number="163" type="jump" coverage="100%" />
+                    <condition number="186" type="jump" coverage="50%" />
+                    <condition number="204" type="switch" coverage="40%" />
+                  </conditions>
+                </line>
+                <line number="351" hits="2" branch="False" />
+                <line number="352" hits="2" branch="False" />
+                <line number="353" hits="2" branch="False" />
+                <line number="355" hits="2" branch="False" />
+                <line number="356" hits="2" branch="False" />
+                <line number="357" hits="2" branch="False" />
+                <line number="359" hits="0" branch="False" />
+                <line number="360" hits="0" branch="False" />
+                <line number="361" hits="0" branch="False" />
+                <line number="363" hits="0" branch="False" />
+                <line number="364" hits="0" branch="False" />
+                <line number="365" hits="0" branch="False" />
+                <line number="367" hits="0" branch="False" />
+                <line number="368" hits="0" branch="False" />
+                <line number="369" hits="0" branch="False" />
+                <line number="371" hits="0" branch="False" />
+                <line number="372" hits="0" branch="False" />
+                <line number="373" hits="0" branch="False" />
+                <line number="375" hits="0" branch="False" />
+                <line number="376" hits="0" branch="False" />
+                <line number="377" hits="0" branch="False" />
+                <line number="379" hits="0" branch="False" />
+                <line number="380" hits="0" branch="False" />
+                <line number="381" hits="0" branch="False" />
+                <line number="382" hits="0" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="370" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="384" hits="0" branch="False" />
+                <line number="385" hits="0" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="395" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="387" hits="0" branch="False" />
+                <line number="388" hits="0" branch="False" />
+                <line number="389" hits="0" branch="False" />
+                <line number="396" hits="35" branch="False" />
+                <line number="397" hits="35" branch="False" />
+                <line number="400" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name="AdvancePastPropertyName" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="406" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="StartObject" signature="(System.Text.Json.JsonElement)" line-rate="1" branch-rate="1" complexity="2">
+              <lines>
+                <line number="412" hits="30" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="414" hits="20" branch="False" />
+                <line number="417" hits="30" branch="False" />
+                <line number="418" hits="30" branch="False" />
+              </lines>
+            </method>
+            <method name="EndObject" signature="()" line-rate="1" branch-rate="1" complexity="2">
+              <lines>
+                <line number="423" hits="30" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="13" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="424" hits="30" branch="False" />
+              </lines>
+            </method>
+            <method name="StartArray" signature="(System.Text.Json.JsonElement)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="428" hits="10" branch="False" />
+                <line number="429" hits="10" branch="False" />
+              </lines>
+            </method>
+            <method name="TryGetNextArrayElement" signature="(System.Text.Json.JsonElement&amp;)" line-rate="1" branch-rate="0.75" complexity="4">
+              <lines>
+                <line number="433" hits="27" branch="False" />
+                <line number="434" hits="27" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="18" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="436" hits="27" branch="False" />
+                <line number="437" hits="27" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="40" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="439" hits="17" branch="False" />
+                <line number="440" hits="17" branch="False" />
+                <line number="441" hits="17" branch="False" />
+                <line number="443" hits="10" branch="False" />
+                <line number="444" hits="10" branch="False" />
+                <line number="445" hits="10" branch="False" />
+              </lines>
+            </method>
+            <method name="TryGetNextDictionaryKeyValue" signature="(System.Text.Json.JsonProperty&amp;)" line-rate="1" branch-rate="0.75" complexity="4">
+              <lines>
+                <line number="450" hits="32" branch="False" />
+                <line number="451" hits="32" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="13" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="454" hits="32" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="28" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="456" hits="20" branch="False" />
+                <line number="457" hits="20" branch="False" />
+                <line number="458" hits="20" branch="False" />
+                <line number="461" hits="12" branch="False" />
+                <line number="462" hits="12" branch="False" />
+              </lines>
+            </method>
+            <method name="GetCurrentDictionaryKey" signature="()" line-rate="1" branch-rate="0.5" complexity="4">
+              <lines>
+                <line number="467" hits="20" branch="True" condition-coverage="50% (2/4)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="50%" />
+                    <condition number="18" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String)" line-rate="0.9229999999999999" branch-rate="0.5" complexity="2">
+              <lines>
+                <line number="80" hits="10" branch="False" />
+                <line number="82" hits="10" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="12" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="83" hits="0" branch="False" />
+                <line number="85" hits="10" branch="False" />
+                <line number="86" hits="10" branch="False" />
+                <line number="87" hits="10" branch="False" />
+                <line number="88" hits="10" branch="False" />
+                <line number="89" hits="10" branch="False" />
+                <line number="91" hits="10" branch="False" />
+                <line number="92" hits="10" branch="False" />
+                <line number="93" hits="10" branch="False" />
+                <line number="94" hits="10" branch="False" />
+                <line number="95" hits="10" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="97" hits="0" branch="False" />
+            <line number="101" hits="10" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="103" hits="10" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="15" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="104" hits="10" branch="False" />
+            <line number="106" hits="10" branch="False" />
+            <line number="110" hits="2" branch="False" />
+            <line number="111" hits="2" branch="False" />
+            <line number="114" hits="2" branch="False" />
+            <line number="118" hits="0" branch="False" />
+            <line number="119" hits="0" branch="False" />
+            <line number="120" hits="0" branch="False" />
+            <line number="121" hits="0" branch="False" />
+            <line number="122" hits="0" branch="False" />
+            <line number="124" hits="0" branch="False" />
+            <line number="128" hits="0" branch="False" />
+            <line number="129" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="14" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="130" hits="0" branch="False" />
+            <line number="131" hits="0" branch="False" />
+            <line number="134" hits="0" branch="False" />
+            <line number="138" hits="0" branch="False" />
+            <line number="139" hits="0" branch="False" />
+            <line number="140" hits="0" branch="False" />
+            <line number="143" hits="0" branch="False" />
+            <line number="147" hits="0" branch="False" />
+            <line number="148" hits="0" branch="False" />
+            <line number="151" hits="0" branch="False" />
+            <line number="155" hits="0" branch="False" />
+            <line number="156" hits="0" branch="False" />
+            <line number="159" hits="0" branch="False" />
+            <line number="163" hits="0" branch="False" />
+            <line number="164" hits="0" branch="False" />
+            <line number="167" hits="0" branch="False" />
+            <line number="171" hits="0" branch="False" />
+            <line number="172" hits="0" branch="False" />
+            <line number="175" hits="0" branch="False" />
+            <line number="179" hits="10" branch="False" />
+            <line number="180" hits="10" branch="False" />
+            <line number="183" hits="10" branch="False" />
+            <line number="187" hits="0" branch="False" />
+            <line number="188" hits="0" branch="False" />
+            <line number="191" hits="0" branch="False" />
+            <line number="195" hits="0" branch="False" />
+            <line number="196" hits="0" branch="False" />
+            <line number="199" hits="0" branch="False" />
+            <line number="203" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="12" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="205" hits="0" branch="False" />
+            <line number="207" hits="0" branch="False" />
+            <line number="212" hits="24" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="12" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="213" hits="0" branch="False" />
+            <line number="215" hits="24" branch="False" />
+            <line number="216" hits="24" branch="False" />
+            <line number="219" hits="24" branch="False" />
+            <line number="223" hits="40" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="7" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="225" hits="10" branch="False" />
+            <line number="226" hits="10" branch="False" />
+            <line number="228" hits="30" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="39" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="230" hits="12" branch="False" />
+            <line number="231" hits="12" branch="False" />
+            <line number="235" hits="18" branch="False" />
+            <line number="236" hits="18" branch="False" />
+            <line number="242" hits="0" branch="False" />
+            <line number="243" hits="0" branch="False" />
+            <line number="246" hits="0" branch="False" />
+            <line number="250" hits="0" branch="False" />
+            <line number="251" hits="0" branch="False" />
+            <line number="254" hits="0" branch="False" />
+            <line number="258" hits="0" branch="False" />
+            <line number="259" hits="0" branch="False" />
+            <line number="262" hits="0" branch="False" />
+            <line number="266" hits="0" branch="False" />
+            <line number="267" hits="0" branch="False" />
+            <line number="270" hits="0" branch="False" />
+            <line number="274" hits="0" branch="False" />
+            <line number="280" hits="0" branch="False" />
+            <line number="284" hits="47" branch="False" />
+            <line number="286" hits="47" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="9" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="288" hits="0" branch="False" />
+            <line number="291" hits="47" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="24" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="293" hits="18" branch="False" />
+            <line number="294" hits="18" branch="False" />
+            <line number="297" hits="29" branch="False" />
+            <line number="298" hits="29" branch="False" />
+            <line number="300" hits="29" branch="False" />
+            <line number="301" hits="29" branch="False" />
+            <line number="303" hits="29" branch="False" />
+            <line number="309" hits="230" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="33" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="311" hits="77" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="22" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="312" hits="76" branch="False" />
+            <line number="315" hits="0" branch="False" />
+            <line number="325" hits="24" branch="False" />
+            <line number="328" hits="24" branch="True" condition-coverage="100% (6/6)">
+              <conditions>
+                <condition number="19" type="jump" coverage="100%" />
+                <condition number="30" type="jump" coverage="100%" />
+                <condition number="48" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="330" hits="24" branch="False" />
+            <line number="334" hits="24" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="79" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="336" hits="22" branch="False" />
+            <line number="340" hits="2" branch="False" />
+            <line number="341" hits="2" branch="False" />
+            <line number="343" hits="41" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="437" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="345" hits="39" branch="True" condition-coverage="100% (4/4)">
+              <conditions>
+                <condition number="111" type="jump" coverage="100%" />
+                <condition number="125" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="347" hits="4" branch="False" />
+            <line number="348" hits="4" branch="True" condition-coverage="42.85% (9/21)">
+              <conditions>
+                <condition number="145" type="jump" coverage="50%" />
+                <condition number="151" type="jump" coverage="100%" />
+                <condition number="157" type="jump" coverage="50%" />
+                <condition number="174" type="jump" coverage="0%" />
+                <condition number="180" type="jump" coverage="0%" />
+                <condition number="197" type="jump" coverage="0%" />
+                <condition number="163" type="jump" coverage="100%" />
+                <condition number="186" type="jump" coverage="50%" />
+                <condition number="204" type="switch" coverage="40%" />
+              </conditions>
+            </line>
+            <line number="351" hits="2" branch="False" />
+            <line number="352" hits="2" branch="False" />
+            <line number="353" hits="2" branch="False" />
+            <line number="355" hits="2" branch="False" />
+            <line number="356" hits="2" branch="False" />
+            <line number="357" hits="2" branch="False" />
+            <line number="359" hits="0" branch="False" />
+            <line number="360" hits="0" branch="False" />
+            <line number="361" hits="0" branch="False" />
+            <line number="363" hits="0" branch="False" />
+            <line number="364" hits="0" branch="False" />
+            <line number="365" hits="0" branch="False" />
+            <line number="367" hits="0" branch="False" />
+            <line number="368" hits="0" branch="False" />
+            <line number="369" hits="0" branch="False" />
+            <line number="371" hits="0" branch="False" />
+            <line number="372" hits="0" branch="False" />
+            <line number="373" hits="0" branch="False" />
+            <line number="375" hits="0" branch="False" />
+            <line number="376" hits="0" branch="False" />
+            <line number="377" hits="0" branch="False" />
+            <line number="379" hits="0" branch="False" />
+            <line number="380" hits="0" branch="False" />
+            <line number="381" hits="0" branch="False" />
+            <line number="382" hits="0" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="370" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="384" hits="0" branch="False" />
+            <line number="385" hits="0" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="395" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="387" hits="0" branch="False" />
+            <line number="388" hits="0" branch="False" />
+            <line number="389" hits="0" branch="False" />
+            <line number="396" hits="35" branch="False" />
+            <line number="397" hits="35" branch="False" />
+            <line number="400" hits="2" branch="False" />
+            <line number="406" hits="0" branch="False" />
+            <line number="412" hits="30" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="414" hits="20" branch="False" />
+            <line number="417" hits="30" branch="False" />
+            <line number="418" hits="30" branch="False" />
+            <line number="423" hits="30" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="13" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="424" hits="30" branch="False" />
+            <line number="428" hits="10" branch="False" />
+            <line number="429" hits="10" branch="False" />
+            <line number="433" hits="27" branch="False" />
+            <line number="434" hits="27" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="18" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="436" hits="27" branch="False" />
+            <line number="437" hits="27" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="40" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="439" hits="17" branch="False" />
+            <line number="440" hits="17" branch="False" />
+            <line number="441" hits="17" branch="False" />
+            <line number="443" hits="10" branch="False" />
+            <line number="444" hits="10" branch="False" />
+            <line number="445" hits="10" branch="False" />
+            <line number="450" hits="32" branch="False" />
+            <line number="451" hits="32" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="13" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="454" hits="32" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="28" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="456" hits="20" branch="False" />
+            <line number="457" hits="20" branch="False" />
+            <line number="458" hits="20" branch="False" />
+            <line number="461" hits="12" branch="False" />
+            <line number="462" hits="12" branch="False" />
+            <line number="467" hits="20" branch="True" condition-coverage="50% (2/4)">
+              <conditions>
+                <condition number="7" type="jump" coverage="50%" />
+                <condition number="18" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="80" hits="10" branch="False" />
+            <line number="82" hits="10" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="12" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="83" hits="0" branch="False" />
+            <line number="85" hits="10" branch="False" />
+            <line number="86" hits="10" branch="False" />
+            <line number="87" hits="10" branch="False" />
+            <line number="88" hits="10" branch="False" />
+            <line number="89" hits="10" branch="False" />
+            <line number="91" hits="10" branch="False" />
+            <line number="92" hits="10" branch="False" />
+            <line number="93" hits="10" branch="False" />
+            <line number="94" hits="10" branch="False" />
+            <line number="95" hits="10" branch="False" />
+          </lines>
+        </class>
+        <class name="CanonicalJson.CanonicalJsonSerdeReader/ObjectEnumeratorState" filename="CanonicalJsonDeserializer.cs" line-rate="0.9166" branch-rate="0.75" complexity="8">
+          <methods>
+            <method name="get_Enumerator" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="31" hits="178" branch="False" />
+              </lines>
+            </method>
+            <method name="TryMoveNext" signature="()" line-rate="1" branch-rate="1" complexity="2">
+              <lines>
+                <line number="41" hits="109" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="16" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="42" hits="49" branch="False" />
+                <line number="43" hits="49" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Current" signature="()" line-rate="1" branch-rate="0.5" complexity="2">
+              <lines>
+                <line number="50" hits="69" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="51" hits="69" branch="False" />
+              </lines>
+            </method>
+            <method name="get_HasValue" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="55" hits="20" branch="False" />
+              </lines>
+            </method>
+            <method name="get_IsFinished" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="56" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.Text.Json.JsonElement)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="32" hits="30" branch="False" />
+                <line number="34" hits="30" branch="False" />
+                <line number="36" hits="30" branch="False" />
+                <line number="37" hits="30" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="31" hits="178" branch="False" />
+            <line number="41" hits="109" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="16" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="42" hits="49" branch="False" />
+            <line number="43" hits="49" branch="False" />
+            <line number="50" hits="69" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="7" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="51" hits="69" branch="False" />
+            <line number="55" hits="20" branch="False" />
+            <line number="56" hits="0" branch="False" />
+            <line number="32" hits="30" branch="False" />
+            <line number="34" hits="30" branch="False" />
+            <line number="36" hits="30" branch="False" />
+            <line number="37" hits="30" branch="False" />
+          </lines>
+        </class>
+        <class name="CanonicalJson.CanonicalJsonSerdeReader/ArrayEnumeratorState" filename="CanonicalJsonDeserializer.cs" line-rate="0.9" branch-rate="1" complexity="6">
+          <methods>
+            <method name="get_Enumerator" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="61" hits="54" branch="False" />
+              </lines>
+            </method>
+            <method name="get_HasMoreElements" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="62" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="MoveNext" signature="()" line-rate="1" branch-rate="1" complexity="2">
+              <lines>
+                <line number="72" hits="37" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="16" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="73" hits="17" branch="False" />
+                <line number="74" hits="17" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Current" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="77" hits="17" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.Text.Json.JsonElement)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="63" hits="10" branch="False" />
+                <line number="65" hits="10" branch="False" />
+                <line number="67" hits="10" branch="False" />
+                <line number="68" hits="10" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="61" hits="54" branch="False" />
+            <line number="62" hits="0" branch="False" />
+            <line number="72" hits="37" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="16" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="73" hits="17" branch="False" />
+            <line number="74" hits="17" branch="False" />
+            <line number="77" hits="17" branch="False" />
+            <line number="63" hits="10" branch="False" />
+            <line number="65" hits="10" branch="False" />
+            <line number="67" hits="10" branch="False" />
+            <line number="68" hits="10" branch="False" />
+          </lines>
+        </class>
+        <class name="CanonicalJson.ObjectTypeDeserializer" filename="CanonicalJsonDeserializer.cs" line-rate="0.46659999999999996" branch-rate="1" complexity="24">
+          <methods>
+            <method name="get_SizeOpt" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="486" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="TryReadIndex" signature="(Serde.ISerdeInfo,System.String&amp;)" line-rate="1" branch-rate="1" complexity="4">
+              <lines>
+                <line number="490" hits="47" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="492" hits="18" branch="False" />
+                <line number="493" hits="18" branch="False" />
+                <line number="496" hits="47" branch="False" />
+                <line number="498" hits="47" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="52" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="500" hits="18" branch="False" />
+                <line number="503" hits="47" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadValue" signature="(Serde.ISerdeInfo,System.Int32,Serde.IDeserialize`1&lt;T&gt;)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="508" hits="13" branch="False" />
+              </lines>
+            </method>
+            <method name="SkipValue" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="514" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadBool" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="517" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadChar" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="518" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadU8" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="519" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadU16" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="520" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadU32" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="521" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadU64" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="522" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadI8" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="523" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadI16" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="524" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadI32" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="525" hits="8" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadI64" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="526" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadF32" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="527" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadF64" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="528" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadDecimal" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="529" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadString" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="530" hits="8" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadDateTime" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="531" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadBytes" signature="(Serde.ISerdeInfo,System.Int32,System.Buffers.IBufferWriter`1&lt;System.Byte&gt;)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="532" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(CanonicalJson.CanonicalJsonSerdeReader,Serde.ISerdeInfo)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="480" hits="18" branch="False" />
+                <line number="482" hits="18" branch="False" />
+                <line number="483" hits="18" branch="False" />
+                <line number="484" hits="18" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="486" hits="0" branch="False" />
+            <line number="490" hits="47" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="492" hits="18" branch="False" />
+            <line number="493" hits="18" branch="False" />
+            <line number="496" hits="47" branch="False" />
+            <line number="498" hits="47" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="52" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="500" hits="18" branch="False" />
+            <line number="503" hits="47" branch="False" />
+            <line number="508" hits="13" branch="False" />
+            <line number="514" hits="0" branch="False" />
+            <line number="517" hits="0" branch="False" />
+            <line number="518" hits="0" branch="False" />
+            <line number="519" hits="0" branch="False" />
+            <line number="520" hits="0" branch="False" />
+            <line number="521" hits="0" branch="False" />
+            <line number="522" hits="0" branch="False" />
+            <line number="523" hits="0" branch="False" />
+            <line number="524" hits="0" branch="False" />
+            <line number="525" hits="8" branch="False" />
+            <line number="526" hits="0" branch="False" />
+            <line number="527" hits="0" branch="False" />
+            <line number="528" hits="0" branch="False" />
+            <line number="529" hits="0" branch="False" />
+            <line number="530" hits="8" branch="False" />
+            <line number="531" hits="0" branch="False" />
+            <line number="532" hits="0" branch="False" />
+            <line number="480" hits="18" branch="False" />
+            <line number="482" hits="18" branch="False" />
+            <line number="483" hits="18" branch="False" />
+            <line number="484" hits="18" branch="False" />
+          </lines>
+        </class>
+        <class name="CanonicalJson.DictionaryTypeDeserializer" filename="CanonicalJsonDeserializer.cs" line-rate="0.4146" branch-rate="0.2916" complexity="51">
+          <methods>
+            <method name="get_SizeOpt" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="553" hits="12" branch="False" />
+              </lines>
+            </method>
+            <method name="TryReadIndex" signature="(Serde.ISerdeInfo,System.String&amp;)" line-rate="1" branch-rate="1" complexity="8">
+              <lines>
+                <line number="557" hits="52" branch="False" />
+                <line number="559" hits="52" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="9" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="561" hits="12" branch="False" />
+                <line number="562" hits="12" branch="False" />
+                <line number="565" hits="12" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="53" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="567" hits="2" branch="False" />
+                <line number="568" hits="2" branch="False" />
+                <line number="571" hits="10" branch="False" />
+                <line number="572" hits="10" branch="False" />
+                <line number="575" hits="40" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="83" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="578" hits="20" branch="False" />
+                <line number="579" hits="20" branch="False" />
+                <line number="584" hits="20" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="107" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="586" hits="10" branch="False" />
+                <line number="587" hits="10" branch="False" />
+                <line number="590" hits="10" branch="False" />
+                <line number="591" hits="10" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadValue" signature="(Serde.ISerdeInfo,System.Int32,Serde.IDeserialize`1&lt;T&gt;)" line-rate="0.6666" branch-rate="0.5" complexity="2">
+              <lines>
+                <line number="598" hits="11" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="600" hits="0" branch="False" />
+                <line number="603" hits="11" branch="False" />
+              </lines>
+            </method>
+            <method name="SkipValue" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="609" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadString" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0.8332999999999999" branch-rate="0.75" complexity="4">
+              <lines>
+                <line number="614" hits="25" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="617" hits="20" branch="False" />
+                <line number="618" hits="20" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="20" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="620" hits="0" branch="False" />
+                <line number="622" hits="20" branch="False" />
+                <line number="627" hits="5" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadBool" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0.6666" branch-rate="0.5" complexity="2">
+              <lines>
+                <line number="634" hits="2" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="636" hits="0" branch="False" />
+                <line number="638" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadChar" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="0" complexity="6">
+              <lines>
+                <line number="643" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="645" hits="0" branch="False" />
+                <line number="646" hits="0" branch="True" condition-coverage="0% (0/4)">
+                  <conditions>
+                    <condition number="21" type="jump" coverage="0%" />
+                    <condition number="30" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="648" hits="0" branch="False" />
+                <line number="650" hits="0" branch="False" />
+                <line number="652" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadU8" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="657" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="659" hits="0" branch="False" />
+                <line number="661" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadU16" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="666" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="668" hits="0" branch="False" />
+                <line number="670" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadU32" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="675" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="677" hits="0" branch="False" />
+                <line number="679" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadU64" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="684" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="686" hits="0" branch="False" />
+                <line number="688" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadI8" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="693" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="695" hits="0" branch="False" />
+                <line number="697" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadI16" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="702" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="704" hits="0" branch="False" />
+                <line number="706" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadI32" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0.6666" branch-rate="0.5" complexity="2">
+              <lines>
+                <line number="711" hits="2" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="713" hits="0" branch="False" />
+                <line number="715" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadI64" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="720" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="722" hits="0" branch="False" />
+                <line number="724" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadF32" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="729" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="731" hits="0" branch="False" />
+                <line number="733" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadF64" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="738" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="740" hits="0" branch="False" />
+                <line number="742" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadDecimal" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="747" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="749" hits="0" branch="False" />
+                <line number="751" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadDateTime" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="756" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="758" hits="0" branch="False" />
+                <line number="760" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadBytes" signature="(Serde.ISerdeInfo,System.Int32,System.Buffers.IBufferWriter`1&lt;System.Byte&gt;)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="765" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="767" hits="0" branch="False" />
+                <line number="769" hits="0" branch="False" />
+                <line number="770" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(CanonicalJson.CanonicalJsonSerdeReader,Serde.ISerdeInfo)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="545" hits="12" branch="False" />
+                <line number="547" hits="12" branch="False" />
+                <line number="549" hits="12" branch="False" />
+                <line number="550" hits="12" branch="False" />
+                <line number="551" hits="12" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="553" hits="12" branch="False" />
+            <line number="557" hits="52" branch="False" />
+            <line number="559" hits="52" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="9" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="561" hits="12" branch="False" />
+            <line number="562" hits="12" branch="False" />
+            <line number="565" hits="12" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="53" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="567" hits="2" branch="False" />
+            <line number="568" hits="2" branch="False" />
+            <line number="571" hits="10" branch="False" />
+            <line number="572" hits="10" branch="False" />
+            <line number="575" hits="40" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="83" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="578" hits="20" branch="False" />
+            <line number="579" hits="20" branch="False" />
+            <line number="584" hits="20" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="107" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="586" hits="10" branch="False" />
+            <line number="587" hits="10" branch="False" />
+            <line number="590" hits="10" branch="False" />
+            <line number="591" hits="10" branch="False" />
+            <line number="598" hits="11" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="600" hits="0" branch="False" />
+            <line number="603" hits="11" branch="False" />
+            <line number="609" hits="0" branch="False" />
+            <line number="614" hits="25" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="617" hits="20" branch="False" />
+            <line number="618" hits="20" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="20" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="620" hits="0" branch="False" />
+            <line number="622" hits="20" branch="False" />
+            <line number="627" hits="5" branch="False" />
+            <line number="634" hits="2" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="636" hits="0" branch="False" />
+            <line number="638" hits="2" branch="False" />
+            <line number="643" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="645" hits="0" branch="False" />
+            <line number="646" hits="0" branch="True" condition-coverage="0% (0/4)">
+              <conditions>
+                <condition number="21" type="jump" coverage="0%" />
+                <condition number="30" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="648" hits="0" branch="False" />
+            <line number="650" hits="0" branch="False" />
+            <line number="652" hits="0" branch="False" />
+            <line number="657" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="659" hits="0" branch="False" />
+            <line number="661" hits="0" branch="False" />
+            <line number="666" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="668" hits="0" branch="False" />
+            <line number="670" hits="0" branch="False" />
+            <line number="675" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="677" hits="0" branch="False" />
+            <line number="679" hits="0" branch="False" />
+            <line number="684" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="686" hits="0" branch="False" />
+            <line number="688" hits="0" branch="False" />
+            <line number="693" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="695" hits="0" branch="False" />
+            <line number="697" hits="0" branch="False" />
+            <line number="702" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="704" hits="0" branch="False" />
+            <line number="706" hits="0" branch="False" />
+            <line number="711" hits="2" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="713" hits="0" branch="False" />
+            <line number="715" hits="2" branch="False" />
+            <line number="720" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="722" hits="0" branch="False" />
+            <line number="724" hits="0" branch="False" />
+            <line number="729" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="731" hits="0" branch="False" />
+            <line number="733" hits="0" branch="False" />
+            <line number="738" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="740" hits="0" branch="False" />
+            <line number="742" hits="0" branch="False" />
+            <line number="747" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="749" hits="0" branch="False" />
+            <line number="751" hits="0" branch="False" />
+            <line number="756" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="758" hits="0" branch="False" />
+            <line number="760" hits="0" branch="False" />
+            <line number="765" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="767" hits="0" branch="False" />
+            <line number="769" hits="0" branch="False" />
+            <line number="770" hits="0" branch="False" />
+            <line number="545" hits="12" branch="False" />
+            <line number="547" hits="12" branch="False" />
+            <line number="549" hits="12" branch="False" />
+            <line number="550" hits="12" branch="False" />
+            <line number="551" hits="12" branch="False" />
+          </lines>
+        </class>
+        <class name="CanonicalJson.ArrayTypeDeserializer" filename="CanonicalJsonDeserializer.cs" line-rate="0.4482" branch-rate="1" complexity="24">
+          <methods>
+            <method name="get_SizeOpt" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="787" hits="10" branch="False" />
+              </lines>
+            </method>
+            <method name="TryReadIndex" signature="(Serde.ISerdeInfo,System.String&amp;)" line-rate="1" branch-rate="1" complexity="4">
+              <lines>
+                <line number="791" hits="27" branch="False" />
+                <line number="793" hits="27" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="9" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="795" hits="10" branch="False" />
+                <line number="796" hits="10" branch="False" />
+                <line number="799" hits="27" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="53" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="801" hits="10" branch="False" />
+                <line number="804" hits="17" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadValue" signature="(Serde.ISerdeInfo,System.Int32,Serde.IDeserialize`1&lt;T&gt;)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="809" hits="6" branch="False" />
+              </lines>
+            </method>
+            <method name="SkipValue" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="815" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadBool" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="818" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadChar" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="819" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadU8" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="820" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadU16" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="821" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadU32" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="822" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadU64" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="823" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadI8" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="824" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadI16" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="825" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadI32" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="826" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadI64" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="827" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadF32" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="828" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadF64" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="829" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadDecimal" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="830" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadString" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="831" hits="11" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadDateTime" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="832" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ReadBytes" signature="(Serde.ISerdeInfo,System.Int32,System.Buffers.IBufferWriter`1&lt;System.Byte&gt;)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="833" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(CanonicalJson.CanonicalJsonSerdeReader)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="782" hits="10" branch="False" />
+                <line number="784" hits="10" branch="False" />
+                <line number="785" hits="10" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="787" hits="10" branch="False" />
+            <line number="791" hits="27" branch="False" />
+            <line number="793" hits="27" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="9" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="795" hits="10" branch="False" />
+            <line number="796" hits="10" branch="False" />
+            <line number="799" hits="27" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="53" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="801" hits="10" branch="False" />
+            <line number="804" hits="17" branch="False" />
+            <line number="809" hits="6" branch="False" />
+            <line number="815" hits="0" branch="False" />
+            <line number="818" hits="0" branch="False" />
+            <line number="819" hits="0" branch="False" />
+            <line number="820" hits="0" branch="False" />
+            <line number="821" hits="0" branch="False" />
+            <line number="822" hits="0" branch="False" />
+            <line number="823" hits="0" branch="False" />
+            <line number="824" hits="0" branch="False" />
+            <line number="825" hits="0" branch="False" />
+            <line number="826" hits="0" branch="False" />
+            <line number="827" hits="0" branch="False" />
+            <line number="828" hits="0" branch="False" />
+            <line number="829" hits="0" branch="False" />
+            <line number="830" hits="0" branch="False" />
+            <line number="831" hits="11" branch="False" />
+            <line number="832" hits="0" branch="False" />
+            <line number="833" hits="0" branch="False" />
+            <line number="782" hits="10" branch="False" />
+            <line number="784" hits="10" branch="False" />
+            <line number="785" hits="10" branch="False" />
+          </lines>
+        </class>
+        <class name="CanonicalJson.CanonicalJsonSerializer" filename="CanonicalJsonSerializer.cs" line-rate="0.23" branch-rate="0.75" complexity="53">
+          <methods>
+            <method name="WriteBool" signature="(System.Boolean)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="29" hits="3" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteChar" signature="(System.Char)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="30" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteString" signature="(System.String)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="31" hits="20" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI8" signature="(System.SByte)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="33" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI16" signature="(System.Int16)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="34" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI32" signature="(System.Int32)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="35" hits="3" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI64" signature="(System.Int64)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="36" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU8" signature="(System.Byte)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="38" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU16" signature="(System.UInt16)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="39" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU32" signature="(System.UInt32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="40" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU64" signature="(System.UInt64)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="41" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteF32" signature="(System.Single)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="43" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteF64" signature="(System.Double)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="44" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteDecimal" signature="(System.Decimal)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="46" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteDateTime" signature="(System.DateTime)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="48" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteDateTimeOffset" signature="(System.DateTimeOffset)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="49" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteBytes" signature="(System.ReadOnlyMemory`1&lt;System.Byte&gt;)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="51" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteNull" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="53" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteCollection" signature="(Serde.ISerdeInfo,System.Nullable`1&lt;System.Int32&gt;)" line-rate="0.8332999999999999" branch-rate="0.75" complexity="4">
+              <lines>
+                <line number="57" hits="23" branch="True" condition-coverage="75% (3/4)">
+                  <conditions>
+                    <condition number="9" type="jump" coverage="100%" />
+                    <condition number="13" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="60" hits="12" branch="False" />
+                <line number="61" hits="12" branch="False" />
+                <line number="63" hits="11" branch="False" />
+                <line number="64" hits="11" branch="False" />
+                <line number="66" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteType" signature="(Serde.ISerdeInfo)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="72" hits="30" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteRaw" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="75" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteObjectStart" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="77" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteObjectEnd" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="78" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteArrayStart" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="79" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteArrayEnd" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="80" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteBool" signature="(Serde.ISerdeInfo,System.Int32,System.Boolean)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="84" hits="0" branch="False" />
+                <line number="85" hits="0" branch="False" />
+                <line number="86" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteChar" signature="(Serde.ISerdeInfo,System.Int32,System.Char)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="90" hits="0" branch="False" />
+                <line number="91" hits="0" branch="False" />
+                <line number="92" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteString" signature="(Serde.ISerdeInfo,System.Int32,System.String)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="96" hits="0" branch="False" />
+                <line number="97" hits="0" branch="False" />
+                <line number="98" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI8" signature="(Serde.ISerdeInfo,System.Int32,System.SByte)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="102" hits="0" branch="False" />
+                <line number="103" hits="0" branch="False" />
+                <line number="104" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI16" signature="(Serde.ISerdeInfo,System.Int32,System.Int16)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="108" hits="0" branch="False" />
+                <line number="109" hits="0" branch="False" />
+                <line number="110" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI32" signature="(Serde.ISerdeInfo,System.Int32,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="114" hits="0" branch="False" />
+                <line number="115" hits="0" branch="False" />
+                <line number="116" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI64" signature="(Serde.ISerdeInfo,System.Int32,System.Int64)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="120" hits="0" branch="False" />
+                <line number="121" hits="0" branch="False" />
+                <line number="122" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU8" signature="(Serde.ISerdeInfo,System.Int32,System.Byte)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="126" hits="0" branch="False" />
+                <line number="127" hits="0" branch="False" />
+                <line number="128" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU16" signature="(Serde.ISerdeInfo,System.Int32,System.UInt16)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="132" hits="0" branch="False" />
+                <line number="133" hits="0" branch="False" />
+                <line number="134" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU32" signature="(Serde.ISerdeInfo,System.Int32,System.UInt32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="138" hits="0" branch="False" />
+                <line number="139" hits="0" branch="False" />
+                <line number="140" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU64" signature="(Serde.ISerdeInfo,System.Int32,System.UInt64)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="144" hits="0" branch="False" />
+                <line number="145" hits="0" branch="False" />
+                <line number="146" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteF32" signature="(Serde.ISerdeInfo,System.Int32,System.Single)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="150" hits="0" branch="False" />
+                <line number="151" hits="0" branch="False" />
+                <line number="152" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteF64" signature="(Serde.ISerdeInfo,System.Int32,System.Double)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="156" hits="0" branch="False" />
+                <line number="157" hits="0" branch="False" />
+                <line number="158" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteDecimal" signature="(Serde.ISerdeInfo,System.Int32,System.Decimal)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="162" hits="0" branch="False" />
+                <line number="163" hits="0" branch="False" />
+                <line number="164" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteDateTime" signature="(Serde.ISerdeInfo,System.Int32,System.DateTime)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="168" hits="0" branch="False" />
+                <line number="169" hits="0" branch="False" />
+                <line number="170" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteDateTimeOffset" signature="(Serde.ISerdeInfo,System.Int32,System.DateTimeOffset)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="174" hits="0" branch="False" />
+                <line number="175" hits="0" branch="False" />
+                <line number="176" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteBytes" signature="(Serde.ISerdeInfo,System.Int32,System.ReadOnlyMemory`1&lt;System.Byte&gt;)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="180" hits="0" branch="False" />
+                <line number="181" hits="0" branch="False" />
+                <line number="182" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteNull" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="184" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Serde.ITypeSerializer.WriteValue" signature="(Serde.ISerdeInfo,System.Int32,T,Serde.ISerialize`1&lt;T&gt;)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="188" hits="0" branch="False" />
+                <line number="189" hits="0" branch="False" />
+                <line number="190" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Serde.ITypeSerializer.End" signature="(Serde.ISerdeInfo)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="192" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Dispose" signature="()" line-rate="1" branch-rate="0.75" complexity="4">
+              <lines>
+                <line number="196" hits="24" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="198" hits="24" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="15" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="199" hits="24" branch="False" />
+                <line number="201" hits="24" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.IO.Stream)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="15" hits="24" branch="False" />
+                <line number="18" hits="24" branch="False" />
+                <line number="20" hits="24" branch="False" />
+                <line number="21" hits="24" branch="False" />
+                <line number="22" hits="24" branch="False" />
+                <line number="23" hits="24" branch="False" />
+                <line number="24" hits="24" branch="False" />
+                <line number="25" hits="24" branch="False" />
+                <line number="26" hits="24" branch="False" />
+                <line number="27" hits="24" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="29" hits="3" branch="False" />
+            <line number="30" hits="0" branch="False" />
+            <line number="31" hits="20" branch="False" />
+            <line number="33" hits="0" branch="False" />
+            <line number="34" hits="0" branch="False" />
+            <line number="35" hits="3" branch="False" />
+            <line number="36" hits="0" branch="False" />
+            <line number="38" hits="0" branch="False" />
+            <line number="39" hits="0" branch="False" />
+            <line number="40" hits="0" branch="False" />
+            <line number="41" hits="0" branch="False" />
+            <line number="43" hits="0" branch="False" />
+            <line number="44" hits="0" branch="False" />
+            <line number="46" hits="0" branch="False" />
+            <line number="48" hits="0" branch="False" />
+            <line number="49" hits="0" branch="False" />
+            <line number="51" hits="0" branch="False" />
+            <line number="53" hits="0" branch="False" />
+            <line number="57" hits="23" branch="True" condition-coverage="75% (3/4)">
+              <conditions>
+                <condition number="9" type="jump" coverage="100%" />
+                <condition number="13" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="60" hits="12" branch="False" />
+            <line number="61" hits="12" branch="False" />
+            <line number="63" hits="11" branch="False" />
+            <line number="64" hits="11" branch="False" />
+            <line number="66" hits="0" branch="False" />
+            <line number="72" hits="30" branch="False" />
+            <line number="75" hits="0" branch="False" />
+            <line number="77" hits="0" branch="False" />
+            <line number="78" hits="0" branch="False" />
+            <line number="79" hits="0" branch="False" />
+            <line number="80" hits="0" branch="False" />
+            <line number="84" hits="0" branch="False" />
+            <line number="85" hits="0" branch="False" />
+            <line number="86" hits="0" branch="False" />
+            <line number="90" hits="0" branch="False" />
+            <line number="91" hits="0" branch="False" />
+            <line number="92" hits="0" branch="False" />
+            <line number="96" hits="0" branch="False" />
+            <line number="97" hits="0" branch="False" />
+            <line number="98" hits="0" branch="False" />
+            <line number="102" hits="0" branch="False" />
+            <line number="103" hits="0" branch="False" />
+            <line number="104" hits="0" branch="False" />
+            <line number="108" hits="0" branch="False" />
+            <line number="109" hits="0" branch="False" />
+            <line number="110" hits="0" branch="False" />
+            <line number="114" hits="0" branch="False" />
+            <line number="115" hits="0" branch="False" />
+            <line number="116" hits="0" branch="False" />
+            <line number="120" hits="0" branch="False" />
+            <line number="121" hits="0" branch="False" />
+            <line number="122" hits="0" branch="False" />
+            <line number="126" hits="0" branch="False" />
+            <line number="127" hits="0" branch="False" />
+            <line number="128" hits="0" branch="False" />
+            <line number="132" hits="0" branch="False" />
+            <line number="133" hits="0" branch="False" />
+            <line number="134" hits="0" branch="False" />
+            <line number="138" hits="0" branch="False" />
+            <line number="139" hits="0" branch="False" />
+            <line number="140" hits="0" branch="False" />
+            <line number="144" hits="0" branch="False" />
+            <line number="145" hits="0" branch="False" />
+            <line number="146" hits="0" branch="False" />
+            <line number="150" hits="0" branch="False" />
+            <line number="151" hits="0" branch="False" />
+            <line number="152" hits="0" branch="False" />
+            <line number="156" hits="0" branch="False" />
+            <line number="157" hits="0" branch="False" />
+            <line number="158" hits="0" branch="False" />
+            <line number="162" hits="0" branch="False" />
+            <line number="163" hits="0" branch="False" />
+            <line number="164" hits="0" branch="False" />
+            <line number="168" hits="0" branch="False" />
+            <line number="169" hits="0" branch="False" />
+            <line number="170" hits="0" branch="False" />
+            <line number="174" hits="0" branch="False" />
+            <line number="175" hits="0" branch="False" />
+            <line number="176" hits="0" branch="False" />
+            <line number="180" hits="0" branch="False" />
+            <line number="181" hits="0" branch="False" />
+            <line number="182" hits="0" branch="False" />
+            <line number="184" hits="0" branch="False" />
+            <line number="188" hits="0" branch="False" />
+            <line number="189" hits="0" branch="False" />
+            <line number="190" hits="0" branch="False" />
+            <line number="192" hits="0" branch="False" />
+            <line number="196" hits="24" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="6" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="198" hits="24" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="15" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="199" hits="24" branch="False" />
+            <line number="201" hits="24" branch="False" />
+            <line number="15" hits="24" branch="False" />
+            <line number="18" hits="24" branch="False" />
+            <line number="20" hits="24" branch="False" />
+            <line number="21" hits="24" branch="False" />
+            <line number="22" hits="24" branch="False" />
+            <line number="23" hits="24" branch="False" />
+            <line number="24" hits="24" branch="False" />
+            <line number="25" hits="24" branch="False" />
+            <line number="26" hits="24" branch="False" />
+            <line number="27" hits="24" branch="False" />
+          </lines>
+        </class>
+        <class name="CanonicalJson.CanonicalJsonSerializer/DictImpl" filename="CanonicalJsonSerializer.cs" line-rate="0.375" branch-rate="1" complexity="23">
+          <methods>
+            <method name="End" signature="(Serde.ISerdeInfo)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="208" hits="12" branch="False" />
+                <line number="209" hits="12" branch="False" />
+              </lines>
+            </method>
+            <method name="GetSerializer" signature="(System.Int32)" line-rate="1" branch-rate="1" complexity="2">
+              <lines>
+                <line number="212" hits="44" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="3" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+              </lines>
+            </method>
+            <method name="WriteBool" signature="(Serde.ISerdeInfo,System.Int32,System.Boolean)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="214" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteChar" signature="(Serde.ISerdeInfo,System.Int32,System.Char)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="215" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteDecimal" signature="(Serde.ISerdeInfo,System.Int32,System.Decimal)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="216" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteF32" signature="(Serde.ISerdeInfo,System.Int32,System.Single)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="217" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteF64" signature="(Serde.ISerdeInfo,System.Int32,System.Double)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="218" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI16" signature="(Serde.ISerdeInfo,System.Int32,System.Int16)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="219" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI32" signature="(Serde.ISerdeInfo,System.Int32,System.Int32)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="220" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI64" signature="(Serde.ISerdeInfo,System.Int32,System.Int64)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="221" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI8" signature="(Serde.ISerdeInfo,System.Int32,System.SByte)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="222" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteNull" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="223" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteString" signature="(Serde.ISerdeInfo,System.Int32,System.String)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="224" hits="29" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU16" signature="(Serde.ISerdeInfo,System.Int32,System.UInt16)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="225" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU32" signature="(Serde.ISerdeInfo,System.Int32,System.UInt32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="226" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU64" signature="(Serde.ISerdeInfo,System.Int32,System.UInt64)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="227" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU8" signature="(Serde.ISerdeInfo,System.Int32,System.Byte)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="228" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteDateTime" signature="(Serde.ISerdeInfo,System.Int32,System.DateTime)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="229" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteDateTimeOffset" signature="(Serde.ISerdeInfo,System.Int32,System.DateTimeOffset)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="230" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteBytes" signature="(Serde.ISerdeInfo,System.Int32,System.ReadOnlyMemory`1&lt;System.Byte&gt;)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="231" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteValue" signature="(Serde.ISerdeInfo,System.Int32,T,Serde.ISerialize`1&lt;T&gt;)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="234" hits="11" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(Serde.ISerializer,System.Text.Json.Utf8JsonWriter)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="203" hits="12" branch="False" />
+                <line number="205" hits="12" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="208" hits="12" branch="False" />
+            <line number="209" hits="12" branch="False" />
+            <line number="212" hits="44" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="3" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="214" hits="2" branch="False" />
+            <line number="215" hits="0" branch="False" />
+            <line number="216" hits="0" branch="False" />
+            <line number="217" hits="0" branch="False" />
+            <line number="218" hits="0" branch="False" />
+            <line number="219" hits="0" branch="False" />
+            <line number="220" hits="2" branch="False" />
+            <line number="221" hits="0" branch="False" />
+            <line number="222" hits="0" branch="False" />
+            <line number="223" hits="0" branch="False" />
+            <line number="224" hits="29" branch="False" />
+            <line number="225" hits="0" branch="False" />
+            <line number="226" hits="0" branch="False" />
+            <line number="227" hits="0" branch="False" />
+            <line number="228" hits="0" branch="False" />
+            <line number="229" hits="0" branch="False" />
+            <line number="230" hits="0" branch="False" />
+            <line number="231" hits="0" branch="False" />
+            <line number="234" hits="11" branch="False" />
+            <line number="203" hits="12" branch="False" />
+            <line number="205" hits="12" branch="False" />
+          </lines>
+        </class>
+        <class name="CanonicalJson.CanonicalJsonSerializer/KeySerializer" filename="CanonicalJsonSerializer.cs" line-rate="0.1363" branch-rate="1" complexity="21">
+          <methods>
+            <method name="WriteBool" signature="(System.Boolean)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="240" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteChar" signature="(System.Char)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="241" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU8" signature="(System.Byte)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="242" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU16" signature="(System.UInt16)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="243" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU32" signature="(System.UInt32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="244" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU64" signature="(System.UInt64)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="245" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI8" signature="(System.SByte)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="246" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI16" signature="(System.Int16)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="247" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI32" signature="(System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="248" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI64" signature="(System.Int64)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="249" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteF32" signature="(System.Single)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="250" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteF64" signature="(System.Double)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="251" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteDecimal" signature="(System.Decimal)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="252" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteDateTime" signature="(System.DateTime)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="253" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteDateTimeOffset" signature="(System.DateTimeOffset)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="254" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteBytes" signature="(System.ReadOnlyMemory`1&lt;System.Byte&gt;)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="255" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteString" signature="(System.String)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="259" hits="22" branch="False" />
+                <line number="260" hits="22" branch="False" />
+              </lines>
+            </method>
+            <method name="Serde.ISerializer.WriteCollection" signature="(Serde.ISerdeInfo,System.Nullable`1&lt;System.Int32&gt;)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="262" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Serde.ISerializer.WriteType" signature="(Serde.ISerdeInfo)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="263" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteNull" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="264" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.Text.Json.Utf8JsonWriter)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="237" hits="12" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="240" hits="0" branch="False" />
+            <line number="241" hits="0" branch="False" />
+            <line number="242" hits="0" branch="False" />
+            <line number="243" hits="0" branch="False" />
+            <line number="244" hits="0" branch="False" />
+            <line number="245" hits="0" branch="False" />
+            <line number="246" hits="0" branch="False" />
+            <line number="247" hits="0" branch="False" />
+            <line number="248" hits="0" branch="False" />
+            <line number="249" hits="0" branch="False" />
+            <line number="250" hits="0" branch="False" />
+            <line number="251" hits="0" branch="False" />
+            <line number="252" hits="0" branch="False" />
+            <line number="253" hits="0" branch="False" />
+            <line number="254" hits="0" branch="False" />
+            <line number="255" hits="0" branch="False" />
+            <line number="259" hits="22" branch="False" />
+            <line number="260" hits="22" branch="False" />
+            <line number="262" hits="0" branch="False" />
+            <line number="263" hits="0" branch="False" />
+            <line number="264" hits="0" branch="False" />
+            <line number="237" hits="12" branch="False" />
+          </lines>
+        </class>
+        <class name="CanonicalJson.CanonicalJsonSerializer/KeySerializer/KeyNotStringException" filename="CanonicalJsonSerializer.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name=".ctor" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="239" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="239" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="CanonicalJson.CanonicalJsonSerializer/EnumerableImpl" filename="CanonicalJsonSerializer.cs" line-rate="0.275" branch-rate="1" complexity="21">
+          <methods>
+            <method name="End" signature="(Serde.ISerdeInfo)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="271" hits="11" branch="False" />
+                <line number="272" hits="11" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteBool" signature="(Serde.ISerdeInfo,System.Int32,System.Boolean)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="276" hits="1" branch="False" />
+                <line number="277" hits="1" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteChar" signature="(Serde.ISerdeInfo,System.Int32,System.Char)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="281" hits="0" branch="False" />
+                <line number="282" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU8" signature="(Serde.ISerdeInfo,System.Int32,System.Byte)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="286" hits="0" branch="False" />
+                <line number="287" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU16" signature="(Serde.ISerdeInfo,System.Int32,System.UInt16)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="289" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU32" signature="(Serde.ISerdeInfo,System.Int32,System.UInt32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="293" hits="0" branch="False" />
+                <line number="294" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU64" signature="(Serde.ISerdeInfo,System.Int32,System.UInt64)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="298" hits="0" branch="False" />
+                <line number="299" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI8" signature="(Serde.ISerdeInfo,System.Int32,System.SByte)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="303" hits="0" branch="False" />
+                <line number="304" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI16" signature="(Serde.ISerdeInfo,System.Int32,System.Int16)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="308" hits="0" branch="False" />
+                <line number="309" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI32" signature="(Serde.ISerdeInfo,System.Int32,System.Int32)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="313" hits="1" branch="False" />
+                <line number="314" hits="1" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI64" signature="(Serde.ISerdeInfo,System.Int32,System.Int64)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="318" hits="0" branch="False" />
+                <line number="319" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteF32" signature="(Serde.ISerdeInfo,System.Int32,System.Single)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="323" hits="0" branch="False" />
+                <line number="324" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteF64" signature="(Serde.ISerdeInfo,System.Int32,System.Double)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="328" hits="0" branch="False" />
+                <line number="329" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteDecimal" signature="(Serde.ISerdeInfo,System.Int32,System.Decimal)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="333" hits="0" branch="False" />
+                <line number="334" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteString" signature="(Serde.ISerdeInfo,System.Int32,System.String)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="338" hits="12" branch="False" />
+                <line number="339" hits="12" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteNull" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="343" hits="0" branch="False" />
+                <line number="344" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteDateTime" signature="(Serde.ISerdeInfo,System.Int32,System.DateTime)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="348" hits="0" branch="False" />
+                <line number="349" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteDateTimeOffset" signature="(Serde.ISerdeInfo,System.Int32,System.DateTimeOffset)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="352" hits="0" branch="False" />
+                <line number="353" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteBytes" signature="(Serde.ISerdeInfo,System.Int32,System.ReadOnlyMemory`1&lt;System.Byte&gt;)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="356" hits="0" branch="False" />
+                <line number="357" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteValue" signature="(Serde.ISerdeInfo,System.Int32,T,Serde.ISerialize`1&lt;T&gt;)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="362" hits="6" branch="False" />
+                <line number="363" hits="6" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(Serde.ISerializer,System.Text.Json.Utf8JsonWriter)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="267" hits="11" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="271" hits="11" branch="False" />
+            <line number="272" hits="11" branch="False" />
+            <line number="276" hits="1" branch="False" />
+            <line number="277" hits="1" branch="False" />
+            <line number="281" hits="0" branch="False" />
+            <line number="282" hits="0" branch="False" />
+            <line number="286" hits="0" branch="False" />
+            <line number="287" hits="0" branch="False" />
+            <line number="289" hits="0" branch="False" />
+            <line number="293" hits="0" branch="False" />
+            <line number="294" hits="0" branch="False" />
+            <line number="298" hits="0" branch="False" />
+            <line number="299" hits="0" branch="False" />
+            <line number="303" hits="0" branch="False" />
+            <line number="304" hits="0" branch="False" />
+            <line number="308" hits="0" branch="False" />
+            <line number="309" hits="0" branch="False" />
+            <line number="313" hits="1" branch="False" />
+            <line number="314" hits="1" branch="False" />
+            <line number="318" hits="0" branch="False" />
+            <line number="319" hits="0" branch="False" />
+            <line number="323" hits="0" branch="False" />
+            <line number="324" hits="0" branch="False" />
+            <line number="328" hits="0" branch="False" />
+            <line number="329" hits="0" branch="False" />
+            <line number="333" hits="0" branch="False" />
+            <line number="334" hits="0" branch="False" />
+            <line number="338" hits="12" branch="False" />
+            <line number="339" hits="12" branch="False" />
+            <line number="343" hits="0" branch="False" />
+            <line number="344" hits="0" branch="False" />
+            <line number="348" hits="0" branch="False" />
+            <line number="349" hits="0" branch="False" />
+            <line number="352" hits="0" branch="False" />
+            <line number="353" hits="0" branch="False" />
+            <line number="356" hits="0" branch="False" />
+            <line number="357" hits="0" branch="False" />
+            <line number="362" hits="6" branch="False" />
+            <line number="363" hits="6" branch="False" />
+            <line number="267" hits="11" branch="False" />
+          </lines>
+        </class>
+        <class name="CanonicalJson.ReorderingSerializer" filename="CanonicalJsonSerializer.cs" line-rate="0.4857" branch-rate="1" complexity="22">
+          <methods>
+            <method name="End" signature="(Serde.ISerdeInfo)" line-rate="1" branch-rate="1" complexity="2">
+              <lines>
+                <line number="384" hits="30" branch="False" />
+                <line number="385" hits="219" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="96" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="387" hits="53" branch="False" />
+                <line number="389" hits="30" branch="False" />
+                <line number="390" hits="30" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteBool" signature="(Serde.ISerdeInfo,System.Int32,System.Boolean)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="394" hits="2" branch="False" />
+                <line number="395" hits="4" branch="False" />
+                <line number="396" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteBytes" signature="(Serde.ISerdeInfo,System.Int32,System.ReadOnlyMemory`1&lt;System.Byte&gt;)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="400" hits="0" branch="False" />
+                <line number="401" hits="0" branch="False" />
+                <line number="402" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteChar" signature="(Serde.ISerdeInfo,System.Int32,System.Char)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="406" hits="0" branch="False" />
+                <line number="407" hits="0" branch="False" />
+                <line number="408" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteDateTime" signature="(Serde.ISerdeInfo,System.Int32,System.DateTime)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="412" hits="0" branch="False" />
+                <line number="413" hits="0" branch="False" />
+                <line number="414" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteDateTimeOffset" signature="(Serde.ISerdeInfo,System.Int32,System.DateTimeOffset)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="418" hits="0" branch="False" />
+                <line number="419" hits="0" branch="False" />
+                <line number="420" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteDecimal" signature="(Serde.ISerdeInfo,System.Int32,System.Decimal)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="424" hits="0" branch="False" />
+                <line number="425" hits="0" branch="False" />
+                <line number="426" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteF32" signature="(Serde.ISerdeInfo,System.Int32,System.Single)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="430" hits="0" branch="False" />
+                <line number="431" hits="0" branch="False" />
+                <line number="432" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteF64" signature="(Serde.ISerdeInfo,System.Int32,System.Double)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="436" hits="1" branch="False" />
+                <line number="437" hits="2" branch="False" />
+                <line number="438" hits="1" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI16" signature="(Serde.ISerdeInfo,System.Int32,System.Int16)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="442" hits="0" branch="False" />
+                <line number="443" hits="0" branch="False" />
+                <line number="444" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI32" signature="(Serde.ISerdeInfo,System.Int32,System.Int32)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="448" hits="15" branch="False" />
+                <line number="449" hits="30" branch="False" />
+                <line number="450" hits="15" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI64" signature="(Serde.ISerdeInfo,System.Int32,System.Int64)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="454" hits="0" branch="False" />
+                <line number="455" hits="0" branch="False" />
+                <line number="456" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteI8" signature="(Serde.ISerdeInfo,System.Int32,System.SByte)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="460" hits="0" branch="False" />
+                <line number="461" hits="0" branch="False" />
+                <line number="462" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteNull" signature="(Serde.ISerdeInfo,System.Int32)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="466" hits="1" branch="False" />
+                <line number="467" hits="2" branch="False" />
+                <line number="468" hits="1" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteString" signature="(Serde.ISerdeInfo,System.Int32,System.String)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="472" hits="20" branch="False" />
+                <line number="473" hits="40" branch="False" />
+                <line number="474" hits="20" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU16" signature="(Serde.ISerdeInfo,System.Int32,System.UInt16)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="478" hits="0" branch="False" />
+                <line number="479" hits="0" branch="False" />
+                <line number="480" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU32" signature="(Serde.ISerdeInfo,System.Int32,System.UInt32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="484" hits="0" branch="False" />
+                <line number="485" hits="0" branch="False" />
+                <line number="486" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU64" signature="(Serde.ISerdeInfo,System.Int32,System.UInt64)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="490" hits="1" branch="False" />
+                <line number="491" hits="2" branch="False" />
+                <line number="492" hits="1" branch="False" />
+              </lines>
+            </method>
+            <method name="WriteU8" signature="(Serde.ISerdeInfo,System.Int32,System.Byte)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="496" hits="0" branch="False" />
+                <line number="497" hits="0" branch="False" />
+                <line number="498" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Serde.ITypeSerializer.WriteValue" signature="(Serde.ISerdeInfo,System.Int32,T,Serde.ISerialize`1&lt;T&gt;)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="502" hits="13" branch="False" />
+                <line number="503" hits="13" branch="False" />
+                <line number="504" hits="13" branch="False" />
+                <line number="505" hits="13" branch="False" />
+                <line number="506" hits="13" branch="False" />
+                <line number="507" hits="26" branch="False" />
+                <line number="508" hits="13" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(CanonicalJson.CanonicalJsonSerializer)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="375" hits="30" branch="False" />
+                <line number="377" hits="30" branch="False" />
+                <line number="379" hits="30" branch="False" />
+                <line number="380" hits="30" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="384" hits="30" branch="False" />
+            <line number="385" hits="219" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="96" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="387" hits="53" branch="False" />
+            <line number="389" hits="30" branch="False" />
+            <line number="390" hits="30" branch="False" />
+            <line number="394" hits="2" branch="False" />
+            <line number="395" hits="4" branch="False" />
+            <line number="396" hits="2" branch="False" />
+            <line number="400" hits="0" branch="False" />
+            <line number="401" hits="0" branch="False" />
+            <line number="402" hits="0" branch="False" />
+            <line number="406" hits="0" branch="False" />
+            <line number="407" hits="0" branch="False" />
+            <line number="408" hits="0" branch="False" />
+            <line number="412" hits="0" branch="False" />
+            <line number="413" hits="0" branch="False" />
+            <line number="414" hits="0" branch="False" />
+            <line number="418" hits="0" branch="False" />
+            <line number="419" hits="0" branch="False" />
+            <line number="420" hits="0" branch="False" />
+            <line number="424" hits="0" branch="False" />
+            <line number="425" hits="0" branch="False" />
+            <line number="426" hits="0" branch="False" />
+            <line number="430" hits="0" branch="False" />
+            <line number="431" hits="0" branch="False" />
+            <line number="432" hits="0" branch="False" />
+            <line number="436" hits="1" branch="False" />
+            <line number="437" hits="2" branch="False" />
+            <line number="438" hits="1" branch="False" />
+            <line number="442" hits="0" branch="False" />
+            <line number="443" hits="0" branch="False" />
+            <line number="444" hits="0" branch="False" />
+            <line number="448" hits="15" branch="False" />
+            <line number="449" hits="30" branch="False" />
+            <line number="450" hits="15" branch="False" />
+            <line number="454" hits="0" branch="False" />
+            <line number="455" hits="0" branch="False" />
+            <line number="456" hits="0" branch="False" />
+            <line number="460" hits="0" branch="False" />
+            <line number="461" hits="0" branch="False" />
+            <line number="462" hits="0" branch="False" />
+            <line number="466" hits="1" branch="False" />
+            <line number="467" hits="2" branch="False" />
+            <line number="468" hits="1" branch="False" />
+            <line number="472" hits="20" branch="False" />
+            <line number="473" hits="40" branch="False" />
+            <line number="474" hits="20" branch="False" />
+            <line number="478" hits="0" branch="False" />
+            <line number="479" hits="0" branch="False" />
+            <line number="480" hits="0" branch="False" />
+            <line number="484" hits="0" branch="False" />
+            <line number="485" hits="0" branch="False" />
+            <line number="486" hits="0" branch="False" />
+            <line number="490" hits="1" branch="False" />
+            <line number="491" hits="2" branch="False" />
+            <line number="492" hits="1" branch="False" />
+            <line number="496" hits="0" branch="False" />
+            <line number="497" hits="0" branch="False" />
+            <line number="498" hits="0" branch="False" />
+            <line number="502" hits="13" branch="False" />
+            <line number="503" hits="13" branch="False" />
+            <line number="504" hits="13" branch="False" />
+            <line number="505" hits="13" branch="False" />
+            <line number="506" hits="13" branch="False" />
+            <line number="507" hits="26" branch="False" />
+            <line number="508" hits="13" branch="False" />
+            <line number="375" hits="30" branch="False" />
+            <line number="377" hits="30" branch="False" />
+            <line number="379" hits="30" branch="False" />
+            <line number="380" hits="30" branch="False" />
+          </lines>
+        </class>
+        <class name="CanonicalJson.CanonicalJsonEncoder" filename="CanonicalJsonSerializer.cs" line-rate="0.3934" branch-rate="0.6486" complexity="40">
+          <methods>
+            <method name="WillEncode" signature="(System.Int32)" line-rate="1" branch-rate="1" complexity="14">
+              <lines>
+                <line number="530" hits="712" branch="True" condition-coverage="100% (14/14)">
+                  <conditions>
+                    <condition number="3" type="jump" coverage="100%" />
+                    <condition number="8" type="jump" coverage="100%" />
+                    <condition number="12" type="jump" coverage="100%" />
+                    <condition number="17" type="jump" coverage="100%" />
+                    <condition number="22" type="jump" coverage="100%" />
+                    <condition number="27" type="jump" coverage="100%" />
+                    <condition number="32" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="531" hits="712" branch="False" />
+                <line number="532" hits="712" branch="False" />
+                <line number="533" hits="712" branch="False" />
+                <line number="534" hits="712" branch="False" />
+                <line number="535" hits="712" branch="False" />
+                <line number="536" hits="712" branch="False" />
+                <line number="537" hits="712" branch="False" />
+              </lines>
+            </method>
+            <method name="FindFirstCharacterToEncode" signature="(System.Char*,System.Int32)" line-rate="1" branch-rate="1" complexity="4">
+              <lines>
+                <line number="542" hits="1422" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="27" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="544" hits="603" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="17" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="546" hits="14" branch="False" />
+                <line number="549" hits="108" branch="False" />
+              </lines>
+            </method>
+            <method name="TryEncodeUnicodeScalar" signature="(System.Int32,System.Char*,System.Int32,System.Int32&amp;)" line-rate="0.2173" branch-rate="0.3157" complexity="19">
+              <lines>
+                <line number="554" hits="15" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="556" hits="0" branch="False" />
+                <line number="557" hits="0" branch="False" />
+                <line number="560" hits="15" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="17" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="562" hits="0" branch="False" />
+                <line number="563" hits="0" branch="True" condition-coverage="36.36% (4/11)">
+                  <conditions>
+                    <condition number="28" type="switch" coverage="14.28%" />
+                    <condition number="60" type="jump" coverage="100%" />
+                    <condition number="65" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="569" hits="10" branch="False" />
+                <line number="570" hits="10" branch="False" />
+                <line number="571" hits="10" branch="False" />
+                <line number="572" hits="10" branch="False" />
+                <line number="574" hits="5" branch="False" />
+                <line number="575" hits="5" branch="False" />
+                <line number="576" hits="5" branch="False" />
+                <line number="577" hits="5" branch="False" />
+                <line number="579" hits="0" branch="False" />
+                <line number="580" hits="0" branch="False" />
+                <line number="581" hits="0" branch="False" />
+                <line number="582" hits="0" branch="False" />
+                <line number="584" hits="0" branch="False" />
+                <line number="585" hits="0" branch="False" />
+                <line number="586" hits="0" branch="False" />
+                <line number="587" hits="0" branch="False" />
+                <line number="589" hits="0" branch="False" />
+                <line number="590" hits="0" branch="False" />
+                <line number="591" hits="0" branch="False" />
+                <line number="592" hits="0" branch="False" />
+                <line number="594" hits="0" branch="False" />
+                <line number="595" hits="0" branch="False" />
+                <line number="596" hits="0" branch="False" />
+                <line number="597" hits="0" branch="False" />
+                <line number="599" hits="0" branch="False" />
+                <line number="600" hits="0" branch="False" />
+                <line number="601" hits="0" branch="False" />
+                <line number="602" hits="0" branch="False" />
+                <line number="605" hits="0" branch="True" condition-coverage="0% (0/4)">
+                  <conditions>
+                    <condition number="184" type="jump" coverage="0%" />
+                    <condition number="188" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="607" hits="0" branch="False" />
+                <line number="608" hits="0" branch="False" />
+                <line number="609" hits="0" branch="False" />
+                <line number="610" hits="0" branch="False" />
+                <line number="611" hits="0" branch="False" />
+                <line number="612" hits="0" branch="False" />
+                <line number="613" hits="0" branch="False" />
+                <line number="614" hits="0" branch="False" />
+                <line number="615" hits="0" branch="False" />
+                <line number="620" hits="0" branch="False" />
+                <line number="621" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_MaxOutputCharactersPerInputCharacter" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="624" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="525" hits="2" branch="False" />
+              </lines>
+            </method>
+            <method name=".cctor" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="523" hits="1" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="530" hits="712" branch="True" condition-coverage="100% (14/14)">
+              <conditions>
+                <condition number="3" type="jump" coverage="100%" />
+                <condition number="8" type="jump" coverage="100%" />
+                <condition number="12" type="jump" coverage="100%" />
+                <condition number="17" type="jump" coverage="100%" />
+                <condition number="22" type="jump" coverage="100%" />
+                <condition number="27" type="jump" coverage="100%" />
+                <condition number="32" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="531" hits="712" branch="False" />
+            <line number="532" hits="712" branch="False" />
+            <line number="533" hits="712" branch="False" />
+            <line number="534" hits="712" branch="False" />
+            <line number="535" hits="712" branch="False" />
+            <line number="536" hits="712" branch="False" />
+            <line number="537" hits="712" branch="False" />
+            <line number="542" hits="1422" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="27" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="544" hits="603" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="17" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="546" hits="14" branch="False" />
+            <line number="549" hits="108" branch="False" />
+            <line number="554" hits="15" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="7" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="556" hits="0" branch="False" />
+            <line number="557" hits="0" branch="False" />
+            <line number="560" hits="15" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="17" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="562" hits="0" branch="False" />
+            <line number="563" hits="0" branch="True" condition-coverage="36.36% (4/11)">
+              <conditions>
+                <condition number="28" type="switch" coverage="14.28%" />
+                <condition number="60" type="jump" coverage="100%" />
+                <condition number="65" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="569" hits="10" branch="False" />
+            <line number="570" hits="10" branch="False" />
+            <line number="571" hits="10" branch="False" />
+            <line number="572" hits="10" branch="False" />
+            <line number="574" hits="5" branch="False" />
+            <line number="575" hits="5" branch="False" />
+            <line number="576" hits="5" branch="False" />
+            <line number="577" hits="5" branch="False" />
+            <line number="579" hits="0" branch="False" />
+            <line number="580" hits="0" branch="False" />
+            <line number="581" hits="0" branch="False" />
+            <line number="582" hits="0" branch="False" />
+            <line number="584" hits="0" branch="False" />
+            <line number="585" hits="0" branch="False" />
+            <line number="586" hits="0" branch="False" />
+            <line number="587" hits="0" branch="False" />
+            <line number="589" hits="0" branch="False" />
+            <line number="590" hits="0" branch="False" />
+            <line number="591" hits="0" branch="False" />
+            <line number="592" hits="0" branch="False" />
+            <line number="594" hits="0" branch="False" />
+            <line number="595" hits="0" branch="False" />
+            <line number="596" hits="0" branch="False" />
+            <line number="597" hits="0" branch="False" />
+            <line number="599" hits="0" branch="False" />
+            <line number="600" hits="0" branch="False" />
+            <line number="601" hits="0" branch="False" />
+            <line number="602" hits="0" branch="False" />
+            <line number="605" hits="0" branch="True" condition-coverage="0% (0/4)">
+              <conditions>
+                <condition number="184" type="jump" coverage="0%" />
+                <condition number="188" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="607" hits="0" branch="False" />
+            <line number="608" hits="0" branch="False" />
+            <line number="609" hits="0" branch="False" />
+            <line number="610" hits="0" branch="False" />
+            <line number="611" hits="0" branch="False" />
+            <line number="612" hits="0" branch="False" />
+            <line number="613" hits="0" branch="False" />
+            <line number="614" hits="0" branch="False" />
+            <line number="615" hits="0" branch="False" />
+            <line number="620" hits="0" branch="False" />
+            <line number="621" hits="0" branch="False" />
+            <line number="624" hits="0" branch="False" />
+            <line number="525" hits="2" branch="False" />
+            <line number="523" hits="1" branch="False" />
+          </lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>
