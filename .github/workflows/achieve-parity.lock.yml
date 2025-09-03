@@ -132,6 +132,8 @@ jobs:
               Did we fill a functionality gap? Do we have more samples or docs now? Do we support more kinds of keys now? etc.
               5. Apply any automatic code formatting used in the repo
               6. Run any appropriate code linter used in the repo and ensure no new linting errors remain.
+              7. While developing, ensure to follow the styles and standards of the rest of the repo - including any AGENTS.md or CLAUDE.md files.
+              
           
           [tuf]: https://theupdateframework.io/
           
