@@ -1,0 +1,27 @@
+name: 'TUF .NET Build Steps'
+description: 'Sets up the .NET TUF project environment for development and testing'
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+        
+    - name: Display .NET info
+      run: dotnet --info
+      shell: bash
+      
+    - name: Restore dependencies
+      run: dotnet restore
+      shell: bash
+      
+    - name: Build solution
+      run: dotnet build --no-restore --configuration Release
+      shell: bash
+      continue-on-error: true
+      
+    - name: Run tests
+      run: dotnet test --no-build --configuration Release --verbosity normal
+      shell: bash
+      continue-on-error: true
