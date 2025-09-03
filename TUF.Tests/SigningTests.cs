@@ -11,7 +11,7 @@ public class SigningTests
     public async Task Ed25519Signer_ShouldCreateValidSignature()
     {
         // Arrange
-        var signer = Ed25519Signer.Generate();
+        var signer = SharedCryptoKeyPool.GetEd25519Signer();
         var testData = "Hello, TUF!"u8.ToArray();
 
         // Act
@@ -80,7 +80,7 @@ public class SigningTests
     public async Task Key_GetKeyId_ShouldBeConsistent()
     {
         // Arrange
-        var signer = Ed25519Signer.Generate();
+        var signer = SharedCryptoKeyPool.GetEd25519Signer();
 
         // Act
         var keyId1 = signer.Key.GetKeyId();
@@ -108,9 +108,9 @@ public class SigningTests
     public async Task TypeScheme_Combinations_AreProperlyPinned()
     {
         // Arrange & Act
-        var ed25519Signer = Ed25519Signer.Generate();
-        var rsaSigner = RsaSigner.Generate(2048);
-        var ecdsaSigner = EcdsaSigner.Generate();
+        var ed25519Signer = SharedCryptoKeyPool.GetEd25519Signer();
+        var rsaSigner = SharedCryptoKeyPool.GetRsaSigner();
+        var ecdsaSigner = SharedCryptoKeyPool.GetEcdsaSigner();
 
         // Assert - Verify each signer has the correct pinned type/scheme combination
         // Ed25519: type=ed25519, scheme=ed25519
