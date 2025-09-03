@@ -109,6 +109,49 @@ internal static partial class TufLoggerExtensions
         Message = "Repository operation timed out for {RepositoryUrl} after {TimeoutMs}ms")]
     public static partial void LogRepositoryTimeout(this ILogger logger, Uri? repositoryUrl, int timeoutMs);
 
+    // HTTP Resilience Events (EventId: 1350-1399)
+    [LoggerMessage(
+        EventId = 1351,
+        Level = LogLevel.Debug,
+        Message = "HTTP request attempt {AttemptNumber}/{MaxAttempts} for {Uri}")]
+    public static partial void LogHttpRequestAttempt(this ILogger logger, Uri uri, int attemptNumber, int maxAttempts);
+
+    [LoggerMessage(
+        EventId = 1352,
+        Level = LogLevel.Debug,
+        Message = "HTTP request succeeded for {Uri} on attempt {AttemptNumber} ({ResponseSize} bytes)")]
+    public static partial void LogHttpRequestSuccess(this ILogger logger, Uri uri, int attemptNumber, int responseSize);
+
+    [LoggerMessage(
+        EventId = 1353,
+        Level = LogLevel.Warning,
+        Message = "HTTP request failed for {Uri}, retrying in {Delay} (attempt {AttemptNumber})")]
+    public static partial void LogHttpRetryDelay(this ILogger logger, Uri uri, int attemptNumber, TimeSpan delay);
+
+    [LoggerMessage(
+        EventId = 1354,
+        Level = LogLevel.Error,
+        Message = "HTTP request failed for {Uri} after {TotalAttempts} attempts")]
+    public static partial void LogHttpRequestFailed(this ILogger logger, Uri uri, int totalAttempts);
+
+    [LoggerMessage(
+        EventId = 1355,
+        Level = LogLevel.Warning,
+        Message = "HTTP request to {Uri} timed out after {Timeout}")]
+    public static partial void LogHttpRequestTimeout(this ILogger logger, Uri uri, TimeSpan timeout);
+
+    [LoggerMessage(
+        EventId = 1356,
+        Level = LogLevel.Debug,
+        Message = "HTTP request to {Uri} was cancelled")]
+    public static partial void LogHttpRequestCancelled(this ILogger logger, Uri uri);
+
+    [LoggerMessage(
+        EventId = 1357,
+        Level = LogLevel.Warning,
+        Message = "HTTP request error for {Uri}")]
+    public static partial void LogHttpRequestError(this ILogger logger, Uri uri, Exception exception);
+
     // Target and File Events (EventId: 1400-1499)
     [LoggerMessage(
         EventId = 1401,

@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
-
+using Microsoft.Extensions.Logging;
 using TUF.Models;
+using TUF.Http;
 
 namespace TUF;
 
@@ -21,6 +22,8 @@ public class UpdaterConfig
     public bool PrefixTargetsWithHash { get; init; } = true;
     public bool DisableLocalCache { get; init; } = false;
     public required HttpClient Client { get; init; }
+    public HttpResilienceConfig HttpResilienceConfig { get; init; } = new();
+    public ILogger<Updater>? Logger { get; init; }
 
     public UpdaterConfig(byte[] initialRootBytes, Uri remoteMetadataUrl)
     {
@@ -34,16 +37,23 @@ public class Updater
 {
     private TrustedMetadata _trusted;
     private readonly UpdaterConfig _config;
+    private readonly ResilientHttpClient _resilientClient;
 
     public Updater(UpdaterConfig config)
     {
-        _config = config;
+        _config = config ?? throw new ArgumentNullException(nameof(config));
         _trusted = TrustedMetadata.CreateFromRootData(config.LocalTrustedRoot);
+        
+        // Create resilient HTTP client 
+        _resilientClient = new ResilientHttpClient(
+            config.Client, 
+            config.HttpResilienceConfig,
+            config.Logger as ILogger<ResilientHttpClient>);
     }
 
-    public async Task RefreshAsync()
+    public async Task RefreshAsync(CancellationToken cancellationToken = default)
     {
-        await OnlineRefresh();
+        await OnlineRefresh(cancellationToken);
     }
 
     public Dictionary<string, TargetFile> GetTopLevelTargets()
@@ -67,7 +77,7 @@ public class Updater
         return await PreOrderDepthFirstWalk(targetPath);
     }
 
-    public async Task<(string FilePath, byte[] Data)> DownloadTarget(TargetFile targetFile, string targetPath, string? destinationFilePath = null, Uri? baseUrl = null)
+    public async Task<(string FilePath, byte[] Data)> DownloadTarget(TargetFile targetFile, string targetPath, string? destinationFilePath = null, Uri? baseUrl = null, CancellationToken cancellationToken = default)
     {
         var localDestinationPath = destinationFilePath ?? Path.Combine(_config.LocalTargetsDir, targetPath);
         var targetBaseUrl = baseUrl ?? _config.RemoteTargetsUrl;
@@ -89,7 +99,7 @@ public class Updater
         }
 
         var downloadUri = new Uri(targetBaseUrl, targetRemotePath);
-        var data = await DownloadFile(downloadUri, (uint)targetFile.Length);
+        var data = await DownloadFile(downloadUri, (uint)targetFile.Length, cancellationToken);
         VerifyTargetFile(targetFile, data);
 
         if (!_config.DisableLocalCache)
@@ -211,15 +221,15 @@ public class Updater
         return null;
     }
 
-    private async Task OnlineRefresh()
+    private async Task OnlineRefresh(CancellationToken cancellationToken = default)
     {
-        await LoadRoot();
-        await LoadTimestamp();
-        await LoadSnapshot();
-        await LoadTargets("targets", "root");
+        await LoadRoot(cancellationToken);
+        await LoadTimestamp(cancellationToken);
+        await LoadSnapshot(cancellationToken);
+        await LoadTargets("targets", "root", cancellationToken);
     }
 
-    private async Task LoadRoot()
+    private async Task LoadRoot(CancellationToken cancellationToken = default)
     {
         var lowerBound = _trusted.Root.Signed.Version + 1;
         var upperBound = lowerBound + _config.MaxRootRotations;
@@ -228,7 +238,7 @@ public class Updater
         {
             try
             {
-                data = await DownloadMetadata("root", _config.RootMaxLength, v);
+                data = await DownloadMetadata("root", _config.RootMaxLength, v, cancellationToken);
             }
             catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
@@ -242,21 +252,21 @@ public class Updater
         }
     }
 
-    private async Task LoadTimestamp()
+    private async Task LoadTimestamp(CancellationToken cancellationToken = default)
     {
-        var data = await DownloadMetadata("timestamp", _config.TimestampMaxLength, null);
+        var data = await DownloadMetadata("timestamp", _config.TimestampMaxLength, null, cancellationToken);
         _trusted = _trusted.UpdateTimestamp(data);
         await PersistMetadata("timestamp", data);
     }
 
-    private async Task LoadSnapshot()
+    private async Task LoadSnapshot(CancellationToken cancellationToken = default)
     {
         if (_trusted is TrustedMetadataWithTimestamp rts)
         {
             var snapshotMeta = rts.Timestamp.Signed.Meta["snapshot.json"];
             var length = (uint)(snapshotMeta.Length ?? _config.SnapshotMaxLength);
             int? version = rts.Root.Signed.ConsistentSnapshot is true ? (int)snapshotMeta.Version : null;
-            var data = await DownloadMetadata("snapshot", length, version);
+            var data = await DownloadMetadata("snapshot", length, version, cancellationToken);
             _trusted = _trusted.UpdateSnapshot(data, isTrusted: false);
             await PersistMetadata("snapshot", data);
         }
@@ -266,7 +276,7 @@ public class Updater
         }
     }
 
-    private async Task LoadTargets(string roleName, string parentName)
+    private async Task LoadTargets(string roleName, string parentName, CancellationToken cancellationToken = default)
     {
         if (_trusted is TrustedMetadataWithSnapshot rts)
         {
@@ -277,7 +287,7 @@ public class Updater
 
             var length = roleFileMetadata.Length ?? _config.TargetsMaxLength;
             int? version = rts.Root.Signed.ConsistentSnapshot is true ? (int)roleFileMetadata.Version : null;
-            var data = await DownloadMetadata(roleName, (uint)length, version);
+            var data = await DownloadMetadata(roleName, (uint)length, version, cancellationToken);
             _trusted = rts.UpdateDelegatedTargets(data, roleName, parentName);
             await PersistMetadata(roleName, data);
         }
@@ -319,22 +329,15 @@ public class Updater
         }
     }
 
-    private async Task<byte[]> DownloadMetadata(string type, uint maxlength, int? version)
+    private async Task<byte[]> DownloadMetadata(string type, uint maxlength, int? version, CancellationToken cancellationToken = default)
     {
         var uri = new Uri(_config.RemoteMetadataUrl, version is int v && v != 0 ? $"{type}.{version}.json" : $"{type}.json");
-        return await DownloadFile(uri, maxlength);
+        return await DownloadFile(uri, maxlength, cancellationToken);
     }
 
-    private async Task<byte[]> DownloadFile(Uri uri, uint? maxLength)
+    private async Task<byte[]> DownloadFile(Uri uri, uint? maxLength, CancellationToken cancellationToken = default)
     {
-        var headers = await _config.Client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead);
-        var length = headers.Content.Headers.ContentLength ?? 0;
-        if (length > maxLength)
-        {
-            var filePath = uri.ToString().TrimStart(_config.RemoteTargetsUrl.ToString());
-            throw new Exception($"File {filePath} length {length} exceeds maximum allowed length {maxLength}");
-        }
-        return await headers.Content.ReadAsByteArrayAsync();
+        return await _resilientClient.DownloadFileAsync(uri, maxLength, cancellationToken);
     }
 }
 
