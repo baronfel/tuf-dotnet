@@ -23,7 +23,7 @@ public class KeyManagementTests
     public async Task TestEd25519KeyTypeConsistency()
     {
         // Arrange
-        var ed25519Signer = Ed25519Signer.Generate();
+        var ed25519Signer = SharedCryptoKeyPool.GetEd25519Signer();
 
         // Act & Assert - Ed25519 key should have consistent type and scheme per TUF spec
         await Assert.That(ed25519Signer.Key.KeyType).IsEqualTo("ed25519");
@@ -39,9 +39,9 @@ public class KeyManagementTests
     public async Task TestGeneratedSignersAreUnique()
     {
         // Arrange & Act
-        var signer1 = Ed25519Signer.Generate();
-        var signer2 = Ed25519Signer.Generate();
-        var signer3 = Ed25519Signer.Generate();
+        var signer1 = SharedCryptoKeyPool.GetEd25519Signer();
+        var signer2 = SharedCryptoKeyPool.GetEd25519Signer();
+        var signer3 = SharedCryptoKeyPool.GetEd25519Signer();
 
         // Assert - All keys should be different
         await Assert.That(signer1.Key.GetKeyId()).IsNotEqualTo(signer2.Key.GetKeyId());
@@ -61,7 +61,7 @@ public class KeyManagementTests
     public async Task TestKeyIdDeterministic()
     {
         // Arrange
-        var signer = Ed25519Signer.Generate();
+        var signer = SharedCryptoKeyPool.GetEd25519Signer();
 
         // Act - Get key ID multiple times
         var keyId1 = signer.Key.GetKeyId();

@@ -17,7 +17,7 @@ public class MultiRepositoryTests : IDisposable
     {
         _tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         Directory.CreateDirectory(_tempDir);
-        _httpClient = new HttpClient();
+        _httpClient = SharedTestHttpClientPool.GetClient();
     }
 
     [Test]
@@ -458,7 +458,8 @@ public class MultiRepositoryTests : IDisposable
 
     public void Dispose()
     {
-        _httpClient?.Dispose();
+        // Return HttpClient to pool instead of disposing
+        SharedTestHttpClientPool.ReturnClient(_httpClient);
 
         if (Directory.Exists(_tempDir))
         {
