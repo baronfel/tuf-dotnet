@@ -137,25 +137,8 @@ public class Updater
             throw new Exception($"Target file length mismatch. Expected: {targetFile.Length}, Actual: {data.Length}");
         }
 
-        // Verify at least one hash
-        bool validHash = false;
-        foreach (var hash in targetFile.Hashes)
-        {
-            var computedHash = hash.Key.ToLowerInvariant() switch
-            {
-                "sha256" => Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(data)).ToLowerInvariant(),
-                "sha512" => Convert.ToHexString(System.Security.Cryptography.SHA512.HashData(data)).ToLowerInvariant(),
-                _ => null
-            };
-
-            if (computedHash != null && computedHash == hash.Value.ToLowerInvariant())
-            {
-                validHash = true;
-                break;
-            }
-        }
-
-        if (!validHash)
+        // Verify at least one hash using optimized verification
+        if (!HashVerification.VerifyHashesOptimized(data, targetFile.Hashes))
         {
             throw new Exception("No valid hash found for target file");
         }
