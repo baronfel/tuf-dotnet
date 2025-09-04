@@ -297,29 +297,13 @@ public class TrustedMetadataWithTimestamp(Metadata<Root> root, Metadata<Timestam
             throw new Exception($"File length mismatch: expected {fileMeta.Length}, got {data.Length}");
         }
 
-        // Verify at least one hash
-        bool hashVerified = false;
+        // Verify at least one hash using optimized verification
         if (fileMeta.Hashes is null)
         {
             throw new Exception("File metadata is missing hashes");
         }
-        foreach (var (algorithm, expectedHash) in fileMeta.Hashes)
-        {
-            string? actualHash = algorithm.ToLowerInvariant() switch
-            {
-                "sha256" => Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(data)).ToLowerInvariant(),
-                "sha512" => Convert.ToHexString(System.Security.Cryptography.SHA512.HashData(data)).ToLowerInvariant(),
-                _ => null // Skip unsupported hash algorithms
-            };
 
-            if (actualHash != null && actualHash == expectedHash.ToLowerInvariant())
-            {
-                hashVerified = true;
-                break;
-            }
-        }
-
-        if (!hashVerified)
+        if (!HashVerification.VerifyHashesOptimized(data, fileMeta.Hashes))
         {
             throw new Exception("No hash verification succeeded");
         }
