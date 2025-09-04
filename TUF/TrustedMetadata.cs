@@ -59,8 +59,10 @@ public class TrustedMetadata
     {
         var refTime = DateTimeOffset.UtcNow;
 
-        // Deserialize root metadata
-        var rootMetadata = Serde.Json.JsonSerializer.Deserialize<Metadata<Root>, MetadataProxy.De<Root>>(rootData, MetadataProxy.De<Root>.Instance);
+        // Deserialize root metadata with caching
+        var rootMetadata = PerformanceCache.GetOrComputeDeserialization(
+            rootData,
+            () => Serde.Json.JsonSerializer.Deserialize<Metadata<Root>, MetadataProxy.De<Root>>(rootData, MetadataProxy.De<Root>.Instance));
         if (rootMetadata == null)
         {
             throw new Exception("Failed to deserialize root metadata");
@@ -93,7 +95,9 @@ public class TrustedMetadata
     /// </remarks>
     public virtual TrustedMetadata UpdateRoot(byte[] rootData)
     {
-        var newRoot = Serde.Json.JsonSerializer.Deserialize<Metadata<Root>, MetadataProxy.De<Root>>(rootData, MetadataProxy.De<Root>.Instance);
+        var newRoot = PerformanceCache.GetOrComputeDeserialization(
+            rootData,
+            () => Serde.Json.JsonSerializer.Deserialize<Metadata<Root>, MetadataProxy.De<Root>>(rootData, MetadataProxy.De<Root>.Instance));
         if (newRoot == null)
         {
             throw new Exception("Failed to deserialize new root metadata");
@@ -135,7 +139,9 @@ public class TrustedMetadata
             throw new Exception("Cannot update timestamp with expired root metadata");
         }
 
-        var timestamp = Serde.Json.JsonSerializer.Deserialize<Metadata<Timestamp>, MetadataProxy.De<Timestamp>>(timestampData, MetadataProxy.De<Timestamp>.Instance);
+        var timestamp = PerformanceCache.GetOrComputeDeserialization(
+            timestampData,
+            () => Serde.Json.JsonSerializer.Deserialize<Metadata<Timestamp>, MetadataProxy.De<Timestamp>>(timestampData, MetadataProxy.De<Timestamp>.Instance));
         if (timestamp == null)
         {
             throw new Exception("Failed to deserialize timestamp metadata");
@@ -208,7 +214,9 @@ public class TrustedMetadataWithTimestamp(Metadata<Root> root, Metadata<Timestam
             throw new Exception("Cannot update timestamp with expired root metadata");
         }
 
-        var newTimestamp = Serde.Json.JsonSerializer.Deserialize<Metadata<Timestamp>, MetadataProxy.De<Timestamp>>(timestampData, MetadataProxy.De<Timestamp>.Instance);
+        var newTimestamp = PerformanceCache.GetOrComputeDeserialization(
+            timestampData,
+            () => Serde.Json.JsonSerializer.Deserialize<Metadata<Timestamp>, MetadataProxy.De<Timestamp>>(timestampData, MetadataProxy.De<Timestamp>.Instance));
         if (newTimestamp == null)
         {
             throw new Exception("Failed to deserialize new timestamp metadata");
@@ -259,7 +267,9 @@ public class TrustedMetadataWithTimestamp(Metadata<Root> root, Metadata<Timestam
             VerifyFileIntegrity(snapshotData, SnapshotMeta);
         }
 
-        var snapshot = Serde.Json.JsonSerializer.Deserialize<Metadata<Snapshot>, MetadataProxy.De<Snapshot>>(snapshotData, MetadataProxy.De<Snapshot>.Instance);
+        var snapshot = PerformanceCache.GetOrComputeDeserialization(
+            snapshotData,
+            () => Serde.Json.JsonSerializer.Deserialize<Metadata<Snapshot>, MetadataProxy.De<Snapshot>>(snapshotData, MetadataProxy.De<Snapshot>.Instance));
         if (snapshot == null)
         {
             throw new Exception("Failed to deserialize snapshot metadata");
@@ -387,8 +397,10 @@ public class TrustedMetadataWithSnapshot(Metadata<Root> root, Metadata<Timestamp
         // Verify file integrity
         VerifyFileIntegrity(delegatedTargetsData, fileMeta);
 
-        // Deserialize targets metadata
-        var targets = Serde.Json.JsonSerializer.Deserialize<Metadata<Targets>, MetadataProxy.De<Targets>>(delegatedTargetsData, MetadataProxy.De<Targets>.Instance);
+        // Deserialize targets metadata with caching
+        var targets = PerformanceCache.GetOrComputeDeserialization(
+            delegatedTargetsData,
+            () => Serde.Json.JsonSerializer.Deserialize<Metadata<Targets>, MetadataProxy.De<Targets>>(delegatedTargetsData, MetadataProxy.De<Targets>.Instance));
         if (targets == null)
         {
             throw new Exception("Failed to deserialize targets metadata");
@@ -468,8 +480,10 @@ public class CompleteTrustedMetadata(
         // Verify file integrity
         VerifyFileIntegrity(delegatedTargetsData, fileMeta);
 
-        // Deserialize targets metadata
-        var targets = Serde.Json.JsonSerializer.Deserialize<Metadata<Targets>, MetadataProxy.De<Targets>>(delegatedTargetsData, MetadataProxy.De<Targets>.Instance);
+        // Deserialize targets metadata with caching
+        var targets = PerformanceCache.GetOrComputeDeserialization(
+            delegatedTargetsData,
+            () => Serde.Json.JsonSerializer.Deserialize<Metadata<Targets>, MetadataProxy.De<Targets>>(delegatedTargetsData, MetadataProxy.De<Targets>.Instance));
         if (targets == null)
         {
             throw new Exception("Failed to deserialize targets metadata");

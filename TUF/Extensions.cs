@@ -113,8 +113,11 @@ public static class SimplifiedMetadataExtensions
         /// </remarks>
         public byte[] GetSignedBytes()
         {
-            // Serialize the signed portion using canonical JSON as required by TUF spec
-            return CanonicalJson.Serializer.Serialize(sourceMetadata.Signed);
+            // Use caching to avoid repeated canonical JSON serialization for the same metadata
+            // This is a major performance optimization as GetSignedBytes() is called for every signature verification
+            return PerformanceCache.GetOrComputeSerialization(
+                sourceMetadata.Signed,
+                () => CanonicalJson.Serializer.Serialize(sourceMetadata.Signed));
         }
     }
 
@@ -261,17 +264,28 @@ public static class SimplifiedMetadataExtensions
         /// </remarks>
         public bool VerifyKeySignature(string signature, byte[] signedBytes)
         {
+            // Use caching to avoid repeated signature verification for identical inputs
+            // This is a significant performance optimization as signature verification is cryptographically expensive
+            return PerformanceCache.GetOrComputeSignatureVerification(
+                key.KeyVal.Public, 
+                signature, 
+                signedBytes,
+                () => PerformActualSignatureVerification(key, signature, signedBytes));
+        }
+
+        private static bool PerformActualSignatureVerification(Key keyParam, string signature, byte[] signedBytes)
+        {
             try
             {
                 var signatureBytes = Convert.FromHexString(signature);
 
                 // Verify signature based on key type and scheme combination (pinned types)
-                return (key.KeyType, key.Scheme) switch
+                return (keyParam.KeyType, keyParam.Scheme) switch
                 {
-                    ("ed25519", "ed25519") => VerifyEd25519Signature(key.KeyVal.Public, signatureBytes, signedBytes),
-                    ("rsa", "rsassa-pss-sha256") => VerifyRsaSignature(key.KeyVal.Public, signatureBytes, signedBytes),
-                    ("ecdsa", "ecdsa-sha2-nistp256") => VerifyEcdsaSignature(key.KeyVal.Public, signatureBytes, signedBytes),
-                    _ => throw new NotSupportedException($"Key type/scheme combination {key.KeyType}/{key.Scheme} is not supported")
+                    ("ed25519", "ed25519") => VerifyEd25519Signature(keyParam.KeyVal.Public, signatureBytes, signedBytes),
+                    ("rsa", "rsassa-pss-sha256") => VerifyRsaSignature(keyParam.KeyVal.Public, signatureBytes, signedBytes),
+                    ("ecdsa", "ecdsa-sha2-nistp256") => VerifyEcdsaSignature(keyParam.KeyVal.Public, signatureBytes, signedBytes),
+                    _ => throw new NotSupportedException($"Key type/scheme combination {keyParam.KeyType}/{keyParam.Scheme} is not supported")
                 };
             }
             catch
