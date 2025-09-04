@@ -9,5 +9,6 @@
   <Project Path="CanonicalJson.Tests/CanonicalJson.Tests.csproj" />
   <Project Path="CanonicalJson/CanonicalJson.csproj" />
   <Project Path="TUF.ConformanceTests/TUF.ConformanceTests.csproj" />
+  <Project Path="TUF.PerformanceBenchmarks/TUF.PerformanceBenchmarks.csproj" />
   <Project Path="TUF.Tests/TUF.Tests.csproj" />
 </Solution>
