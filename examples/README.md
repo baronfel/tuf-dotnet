@@ -1,8 +1,17 @@
 # TUF .NET Examples
 
-This directory contains examples demonstrating how to use the TUF .NET library for secure software updates.
+This directory contains comprehensive examples demonstrating how to use the TUF .NET library for secure software updates across different .NET application types and scenarios.
 
-## Available Examples
+## 🚀 Quick Start
+
+**New to TUF?** Follow this step-by-step guide:
+
+1. **Learn the Basics**: Start with [BasicClient](./BasicClient/) to understand core TUF concepts
+2. **See It in Action**: Run [RepositoryManager](./RepositoryManager/) to create your first TUF repository
+3. **Build Something Real**: Try [AspNetCoreIntegration](./AspNetCoreIntegration/) for web applications
+4. **Handle Production Scenarios**: Explore [ErrorHandlingDemo](./ErrorHandlingDemo/) for robust applications
+
+## 📋 Available Examples
 
 ### [BasicClient](./BasicClient/)
 A simple console application that demonstrates the fundamental TUF client workflow:
@@ -40,6 +49,35 @@ Demonstrates TUF signing capabilities and key management:
 
 **Best for**: Understanding TUF cryptographic operations and implementing signing workflows.
 
+### [AspNetCoreIntegration](./AspNetCoreIntegration/)
+A complete ASP.NET Core web application demonstrating TUF integration patterns:
+- Dependency injection setup for TUF services
+- RESTful API endpoints for secure file distribution
+- Health checks for TUF repository monitoring
+- Production-ready error handling and logging
+- Web interface for testing and demonstration
+
+**Best for**: Web applications, APIs, microservices, and any server-side .NET application requiring secure file distribution.
+
+### [ErrorHandlingDemo](./ErrorHandlingDemo/)
+Comprehensive demonstration of TUF .NET's error handling and telemetry capabilities:
+- 13 specific exception types for different error scenarios
+- High-performance structured logging with LoggerMessage source generator
+- System.Diagnostics.Activity integration for distributed tracing
+- Security event logging for SIEM integration
+- Production-ready configuration validation
+
+**Best for**: Production applications requiring robust error handling, monitoring, and observability.
+
+### [MultiRepositoryClient](./MultiRepositoryClient/)
+Advanced client demonstrating multi-repository TUF workflows:
+- Managing multiple TUF repositories simultaneously
+- Repository prioritization and fallback strategies
+- Consensus mechanisms and conflict resolution
+- Performance optimizations for multiple sources
+
+**Best for**: Applications that need to pull updates from multiple sources or require high availability through redundancy.
+
 ### [TufConformanceCli](./TufConformanceCli/)
 Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specification](https://github.com/theupdateframework/tuf-conformance/blob/main/CLIENT-CLI.md):
 - Standard `init`, `refresh`, and `download` commands
@@ -49,36 +87,105 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
 
 **Best for**: TUF conformance testing, validation against the official TUF specification, and ensuring compatibility with other TUF implementations.
 
-## Getting Started
+## 🏁 Complete Getting Started Walkthrough
 
-1. **Prerequisites**
-   - .NET 8.0 or later
-   - Access to a TUF repository (for testing, you can use the examples with placeholder data)
+### Step 1: Prerequisites
+```bash
+# Verify .NET 8.0 or later is installed
+dotnet --version
 
-2. **Build Examples**
-   ```bash
-   # From the repository root
-   dotnet build examples/BasicClient/
-   dotnet build examples/CliTool/
-   dotnet build examples/RepositoryManager/
-   dotnet build examples/SigningDemo/
-   dotnet build examples/TufConformanceCli/
-   ```
+# Clone the repository if you haven't already
+git clone https://github.com/baronfel/tuf-dotnet.git
+cd tuf-dotnet
+```
 
-3. **Run Examples**
-   ```bash
-   # Create a TUF repository first
-   cd examples/RepositoryManager
-   dotnet run ./my-tuf-repo
+### Step 2: Build All Examples
+```bash
+# Build the entire solution including all examples
+dotnet build ./TUF.slnx --configuration Release
 
-   # Basic client example
-   cd examples/BasicClient
-   dotnet run file:///path/to/my-tuf-repo/metadata hello.txt
+# Or build individual examples
+dotnet build examples/BasicClient/
+dotnet build examples/RepositoryManager/
+dotnet build examples/AspNetCoreIntegration/
+dotnet build examples/CliTool/
+dotnet build examples/SigningDemo/
+dotnet build examples/ErrorHandlingDemo/
+dotnet build examples/MultiRepositoryClient/
+```
 
-   # CLI tool example
-   cd examples/CliTool
-   dotnet run -- --help
-   ```
+### Step 3: Your First TUF Repository
+Create a test repository to experiment with:
+```bash
+cd examples/RepositoryManager
+dotnet run ./my-first-tuf-repo
+
+# This creates:
+# ./my-first-tuf-repo/metadata/  (TUF metadata files)
+# ./my-first-tuf-repo/targets/   (Target files to distribute)
+```
+
+### Step 4: Download Files Securely
+Use the basic client to download from your repository:
+```bash
+cd examples/BasicClient
+dotnet run file://$(pwd)/../RepositoryManager/my-first-tuf-repo/metadata sample-file.txt
+```
+
+### Step 5: Try the Web Integration
+Run the ASP.NET Core example for web-based scenarios:
+```bash
+cd examples/AspNetCoreIntegration
+dotnet run
+
+# Open https://localhost:5001 in your browser
+# Try the endpoints like /secure-files and /tuf-status
+```
+
+### Step 6: Explore Advanced Features
+```bash
+# See comprehensive error handling
+cd examples/ErrorHandlingDemo
+dotnet run
+
+# Try the full-featured CLI tool
+cd examples/CliTool
+dotnet run -- --help
+dotnet run -- refresh --metadata-url file://$(pwd)/../RepositoryManager/my-first-tuf-repo/metadata
+```
+
+## 🔧 Common Usage Patterns
+
+### Pattern 1: Console Application Updates
+```csharp
+var updater = new Updater(config);
+await updater.RefreshAsync();
+var appBytes = await updater.DownloadTargetAsync("myapp.exe");
+```
+
+### Pattern 2: Web API Secure Downloads  
+```csharp
+app.MapGet("/download/{file}", async (string file, ITufUpdater updater) => 
+{
+    var bytes = await updater.DownloadTargetAsync(file);
+    return Results.File(bytes, "application/octet-stream", file);
+});
+```
+
+### Pattern 3: Background Service Updates
+```csharp
+public class UpdateBackgroundService : BackgroundService
+{
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            await _updater.RefreshAsync();
+            await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
+        }
+    }
+}
+```
 
 ## Understanding TUF
 
