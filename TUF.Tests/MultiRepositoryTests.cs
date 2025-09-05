@@ -15,7 +15,7 @@ public class MultiRepositoryTests : IDisposable
 
     public MultiRepositoryTests()
     {
-        _tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        _tempDir = TestOptimizations.GetUniqueTestDirectory();
         Directory.CreateDirectory(_tempDir);
         _httpClient = new HttpClient();
     }
