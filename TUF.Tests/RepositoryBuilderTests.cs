@@ -9,10 +9,12 @@ namespace TUF.Tests;
 public class RepositoryBuilderTests
 {
     [Test]
+    [TestCategories.SmokeTest("Repository builder basic functionality")]
+    [TestCategories.FastTest("Uses cached signers for improved performance")]
     public async Task AddSigner_ValidRole_AddsSignerSuccessfully()
     {
         var builder = new RepositoryBuilder();
-        var signer = Ed25519Signer.Generate();
+        var signer = CachedTestData.GetEd25519Signer();
 
         var result = builder.AddSigner("root", signer);
 
@@ -20,11 +22,13 @@ public class RepositoryBuilderTests
     }
 
     [Test]
+    [TestCategories.SmokeTest("Multiple signers per role support")]
+    [TestCategories.FastTest("Uses cached signers for improved performance")]
     public async Task AddSigner_MultipleSignersForSameRole_SupportsMultipleSigners()
     {
         var builder = new RepositoryBuilder();
-        var signer1 = Ed25519Signer.Generate();
-        var signer2 = Ed25519Signer.Generate();
+        var signer1 = CachedTestData.GetEd25519Signer();
+        var signer2 = CachedTestData.GetEd25519Signer();
 
         builder.AddSigner("root", signer1);
         builder.AddSigner("root", signer2);
@@ -34,10 +38,12 @@ public class RepositoryBuilderTests
     }
 
     [Test]
+    [TestCategories.SmokeTest("Custom signer ID functionality")]
+    [TestCategories.FastTest("Uses cached signers for improved performance")]
     public async Task AddSigner_WithCustomSignerId_UsesProvidedId()
     {
         var builder = new RepositoryBuilder();
-        var signer = Ed25519Signer.Generate();
+        var signer = CachedTestData.GetEd25519Signer();
         const string customId = "custom-signer-id";
 
         var result = builder.AddSigner("root", signer, customId);
