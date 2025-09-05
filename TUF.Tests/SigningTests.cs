@@ -8,10 +8,12 @@ namespace TUF.Tests;
 public class SigningTests
 {
     [Test]
+    [TestCategories.SmokeTest("Basic Ed25519 signing functionality")]
+    [TestCategories.FastTest("Uses cached signers for improved performance")]
     public async Task Ed25519Signer_ShouldCreateValidSignature()
     {
-        // Arrange
-        var signer = Ed25519Signer.Generate();
+        // Arrange - Use cached signer for better performance
+        var signer = CachedTestData.GetEd25519Signer();
         var testData = "Hello, TUF!"u8.ToArray();
 
         // Act
@@ -33,10 +35,12 @@ public class SigningTests
     }
 
     [Test]
+    [TestCategories.SmokeTest("Basic RSA signing functionality")]
+    [TestCategories.FastTest("Uses cached signers for improved performance")]
     public async Task RsaSigner_ShouldCreateValidSignature()
     {
-        // Arrange
-        var signer = RsaSigner.Generate(2048); // Use minimum key size for faster test
+        // Arrange - Use cached signer for better performance
+        var signer = CachedTestData.GetRsaSigner();
         var testData = "Hello, TUF!"u8.ToArray();
 
         // Act
@@ -55,10 +59,12 @@ public class SigningTests
     }
 
     [Test]
+    [TestCategories.SmokeTest("Basic ECDSA signing functionality")]
+    [TestCategories.FastTest("Uses cached signers for improved performance")]
     public async Task EcdsaSigner_ShouldCreateValidSignature()
     {
-        // Arrange
-        var signer = EcdsaSigner.Generate();
+        // Arrange - Use cached signer for better performance
+        var signer = CachedTestData.GetEcdsaSigner();
         var testData = "Hello, TUF!"u8.ToArray();
 
         // Act
@@ -77,10 +83,12 @@ public class SigningTests
     }
 
     [Test]
+    [TestCategories.SmokeTest("Key ID consistency check")]
+    [TestCategories.FastTest("Uses cached signers for improved performance")]
     public async Task Key_GetKeyId_ShouldBeConsistent()
     {
-        // Arrange
-        var signer = Ed25519Signer.Generate();
+        // Arrange - Use cached signer for better performance
+        var signer = CachedTestData.GetEd25519Signer();
 
         // Act
         var keyId1 = signer.Key.GetKeyId();
@@ -96,21 +104,24 @@ public class SigningTests
     }
 
     [Test]
+    [TestCategories.SmokeTest("RSA key size validation")]
     public async Task RsaSigner_ShouldRejectSmallKeySize()
     {
-        // Act & Assert
+        // Act & Assert - This test needs to generate a new signer to test validation
         await Assert.That(() => RsaSigner.Generate(1024))
             .Throws<ArgumentException>()
             .WithMessage("RSA key size must be at least 2048 bits (Parameter 'keySize')");
     }
 
     [Test]
+    [TestCategories.SmokeTest("Type/scheme combinations validation")]
+    [TestCategories.FastTest("Uses cached signers for improved performance")]
     public async Task TypeScheme_Combinations_AreProperlyPinned()
     {
-        // Arrange & Act
-        var ed25519Signer = Ed25519Signer.Generate();
-        var rsaSigner = RsaSigner.Generate(2048);
-        var ecdsaSigner = EcdsaSigner.Generate();
+        // Arrange & Act - Use cached signers for better performance
+        var ed25519Signer = CachedTestData.GetEd25519Signer();
+        var rsaSigner = CachedTestData.GetRsaSigner();
+        var ecdsaSigner = CachedTestData.GetEcdsaSigner();
 
         // Assert - Verify each signer has the correct pinned type/scheme combination
         // Ed25519: type=ed25519, scheme=ed25519

@@ -20,10 +20,12 @@ public class KeyManagementTests
     /// This is important for TUF specification compliance.
     /// </summary>
     [Test]
+    [TestCategories.SmokeTest("Ed25519 key type validation")]
+    [TestCategories.FastTest("Uses cached signers for improved performance")]
     public async Task TestEd25519KeyTypeConsistency()
     {
-        // Arrange
-        var ed25519Signer = Ed25519Signer.Generate();
+        // Arrange - Use cached signer for better performance
+        var ed25519Signer = CachedTestData.GetEd25519Signer();
 
         // Act & Assert - Ed25519 key should have consistent type and scheme per TUF spec
         await Assert.That(ed25519Signer.Key.KeyType).IsEqualTo("ed25519");
@@ -36,9 +38,10 @@ public class KeyManagementTests
     /// Important for security - no key reuse.
     /// </summary>
     [Test]
+    [TestCategories.ComprehensiveTest("Security validation for unique key generation")]
     public async Task TestGeneratedSignersAreUnique()
     {
-        // Arrange & Act
+        // Arrange & Act - This test needs fresh generation to verify uniqueness
         var signer1 = Ed25519Signer.Generate();
         var signer2 = Ed25519Signer.Generate();
         var signer3 = Ed25519Signer.Generate();
@@ -58,10 +61,12 @@ public class KeyManagementTests
     /// Important for signature verification - KeyId must be deterministic.
     /// </summary>
     [Test]
+    [TestCategories.SmokeTest("Key ID determinism validation")]
+    [TestCategories.FastTest("Uses cached signers for improved performance")]
     public async Task TestKeyIdDeterministic()
     {
-        // Arrange
-        var signer = Ed25519Signer.Generate();
+        // Arrange - Use cached signer for better performance
+        var signer = CachedTestData.GetEd25519Signer();
 
         // Act - Get key ID multiple times
         var keyId1 = signer.Key.GetKeyId();
