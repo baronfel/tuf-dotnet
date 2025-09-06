@@ -10,4 +10,5 @@
   <Project Path="CanonicalJson/CanonicalJson.csproj" />
   <Project Path="TUF.ConformanceTests/TUF.ConformanceTests.csproj" />
   <Project Path="TUF.Tests/TUF.Tests.csproj" />
+  <Project Path="TUF.Documentation/TUF.Documentation.csproj" />
 </Solution>

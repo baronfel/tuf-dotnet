@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsPublishable>false</IsPublishable>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <!-- DocFX documentation generation tool - install globally: dotnet tool install -g docfx -->
+  <!-- Run: docfx docfx.json to generate documentation -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\TUF\TUF.csproj" />
+    <ProjectReference Include="..\CanonicalJson\CanonicalJson.csproj" />
+  </ItemGroup>
+
+</Project>

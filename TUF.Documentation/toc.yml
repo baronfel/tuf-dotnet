@@ -1,0 +1,11 @@
+- name: Home
+  href: index.md
+- name: API Reference
+  href: api/
+  homepage: api/index.md
+- name: Developer Guides
+  href: articles/
+- name: Examples
+  href: https://github.com/baronfel/tuf-dotnet/tree/main/examples
+- name: GitHub
+  href: https://github.com/baronfel/tuf-dotnet
