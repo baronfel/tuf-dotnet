@@ -1,0 +1,6 @@
+- name: From Python TUF
+  href: from-python-tuf.md
+- name: From Go TUF  
+  href: from-go-tuf.md
+- name: From JavaScript TUF
+  href: from-javascript-tuf.md
