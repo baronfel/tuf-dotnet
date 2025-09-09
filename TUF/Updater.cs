@@ -1,6 +1,9 @@
 using System.Runtime.InteropServices;
-
+using Microsoft.Extensions.Logging;
+using TUF.Caching;
+using TUF.Exceptions;
 using TUF.Models;
+using TUF.Resilience;
 
 namespace TUF;
 
@@ -22,11 +25,97 @@ public class UpdaterConfig
     public bool DisableLocalCache { get; init; } = false;
     public required HttpClient Client { get; init; }
 
+    /// <summary>
+    /// Cache implementation for metadata and targets (default: InMemoryTufCache)
+    /// </summary>
+    public ITufCache Cache { get; init; } = new InMemoryTufCache();
+
+    /// <summary>
+    /// Retry policy for handling transient failures (default: ExponentialBackoffRetryPolicy)
+    /// </summary>
+    public IRetryPolicy RetryPolicy { get; init; } = new ExponentialBackoffRetryPolicy();
+
+    /// <summary>
+    /// Logger for TUF operations (optional)
+    /// </summary>
+    public ILogger? Logger { get; init; }
+
+    /// <summary>
+    /// Whether to validate configuration on construction (default: true)
+    /// </summary>
+    public bool ValidateConfiguration { get; init; } = true;
+
     public UpdaterConfig(byte[] initialRootBytes, Uri remoteMetadataUrl)
     {
         LocalTrustedRoot = initialRootBytes ?? throw new ArgumentNullException(nameof(initialRootBytes));
         RemoteMetadataUrl = remoteMetadataUrl ?? throw new ArgumentNullException(nameof(remoteMetadataUrl));
         RemoteTargetsUrl = new Uri(remoteMetadataUrl, "targets");
+        
+        if (ValidateConfiguration)
+        {
+            ValidateConfigurationInternal();
+        }
+    }
+
+    /// <summary>
+    /// Validate configuration properties and throw descriptive exceptions for invalid settings
+    /// </summary>
+    private void ValidateConfigurationInternal()
+    {
+        if (LocalTrustedRoot.Length == 0)
+        {
+            throw new TufConfigurationException("LocalTrustedRoot cannot be empty", nameof(LocalTrustedRoot));
+        }
+
+        if (string.IsNullOrWhiteSpace(LocalMetadataDir))
+        {
+            throw new TufConfigurationException("LocalMetadataDir cannot be null or empty", nameof(LocalMetadataDir));
+        }
+
+        if (string.IsNullOrWhiteSpace(LocalTargetsDir))
+        {
+            throw new TufConfigurationException("LocalTargetsDir cannot be null or empty", nameof(LocalTargetsDir));
+        }
+
+        if (!RemoteMetadataUrl.IsAbsoluteUri)
+        {
+            throw new TufConfigurationException("RemoteMetadataUrl must be an absolute URI", nameof(RemoteMetadataUrl));
+        }
+
+        if (!RemoteTargetsUrl.IsAbsoluteUri)
+        {
+            throw new TufConfigurationException("RemoteTargetsUrl must be an absolute URI", nameof(RemoteTargetsUrl));
+        }
+
+        if (MaxRootRotations == 0)
+        {
+            throw new TufConfigurationException("MaxRootRotations must be greater than 0", nameof(MaxRootRotations));
+        }
+
+        if (MaxDelegations == 0)
+        {
+            throw new TufConfigurationException("MaxDelegations must be greater than 0", nameof(MaxDelegations));
+        }
+
+        if (RootMaxLength == 0)
+        {
+            throw new TufConfigurationException("RootMaxLength must be greater than 0", nameof(RootMaxLength));
+        }
+
+        if (TimestampMaxLength == 0)
+        {
+            throw new TufConfigurationException("TimestampMaxLength must be greater than 0", nameof(TimestampMaxLength));
+        }
+
+        if (SnapshotMaxLength <= 0)
+        {
+            throw new TufConfigurationException("SnapshotMaxLength must be greater than 0", nameof(SnapshotMaxLength));
+        }
+
+        if (TargetsMaxLength <= 0)
+        {
+            throw new TufConfigurationException("TargetsMaxLength must be greater than 0", nameof(TargetsMaxLength));
+        }
     }
 }
 
@@ -39,6 +128,12 @@ public class Updater
     {
         _config = config;
         _trusted = TrustedMetadata.CreateFromRootData(config.LocalTrustedRoot);
+        
+        // Log configuration warning if caching is disabled but cache is configured
+        if (_config.DisableLocalCache && _config.Cache is not NullTufCache)
+        {
+            _config.Logger?.LogWarning("Local caching is disabled but cache is configured. Consider using NullTufCache.Instance for better performance.");
+        }
     }
 
     public async Task RefreshAsync()
@@ -72,6 +167,17 @@ public class Updater
         var localDestinationPath = destinationFilePath ?? Path.Combine(_config.LocalTargetsDir, targetPath);
         var targetBaseUrl = baseUrl ?? _config.RemoteTargetsUrl;
         var targetRemotePath = targetPath;
+        var expectedHash = targetFile.Hashes.FirstOrDefault().Value;
+
+        _config.Logger?.LogTargetResolution(targetPath);
+
+        // Try cache first
+        var cachedData = await _config.Cache.GetTargetAsync(targetPath, expectedHash);
+        if (cachedData != null)
+        {
+            _config.Logger?.LogDebug("Target cache hit for {TargetPath}", targetPath);
+            return (localDestinationPath, cachedData);
+        }
 
         if (_trusted.Root.Signed.ConsistentSnapshot == true && _config.PrefixTargetsWithHash)
         {
@@ -92,6 +198,11 @@ public class Updater
         var data = await DownloadFile(downloadUri, (uint)targetFile.Length);
         VerifyTargetFile(targetFile, data);
 
+        // Cache the downloaded target
+        await _config.Cache.SetTargetAsync(targetPath, data, expectedHash);
+        _config.Logger?.LogTargetDownloadSuccess(targetPath, data.Length);
+
+        // Also save to local file cache if enabled
         if (!_config.DisableLocalCache)
         {
             await File.WriteAllBytesAsync(localDestinationPath, data);
@@ -327,14 +438,52 @@ public class Updater
 
     private async Task<byte[]> DownloadFile(Uri uri, uint? maxLength)
     {
-        var headers = await _config.Client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead);
-        var length = headers.Content.Headers.ContentLength ?? 0;
-        if (length > maxLength)
+        return await _config.RetryPolicy.ExecuteAsync(async cancellationToken =>
         {
-            var filePath = uri.ToString().TrimStart(_config.RemoteTargetsUrl.ToString());
-            throw new Exception($"File {filePath} length {length} exceeds maximum allowed length {maxLength}");
-        }
-        return await headers.Content.ReadAsByteArrayAsync();
+            _config.Logger?.LogHttpRequest(uri.Host, "GET", uri.PathAndQuery);
+
+            HttpResponseMessage? response = null;
+            try
+            {
+                response = await _config.Client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = $"HTTP {(int)response.StatusCode} {response.StatusCode}";
+                    _config.Logger?.LogRepositoryNetworkError(uri, (int)response.StatusCode, error, new HttpRequestException(error));
+                    throw new RepositoryNetworkException(error, uri, response.StatusCode);
+                }
+
+                var length = response.Content.Headers.ContentLength ?? 0;
+                if (maxLength.HasValue && length > maxLength.Value)
+                {
+                    var filePath = uri.ToString().Replace(_config.RemoteTargetsUrl.ToString(), "", StringComparison.OrdinalIgnoreCase);
+                    var message = $"File {filePath} length {length} exceeds maximum allowed length {maxLength.Value}";
+                    _config.Logger?.LogFileSizeExceeded(filePath, length, maxLength.Value);
+                    throw new FileSizeException(filePath, length, maxLength.Value);
+                }
+
+                var data = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                _config.Logger?.LogDebug("Downloaded file from {Uri} ({Size} bytes)", uri, data.Length);
+                return data;
+            }
+            catch (HttpRequestException ex)
+            {
+                var message = $"HTTP request failed for {uri}: {ex.Message}";
+                _config.Logger?.LogRepositoryNetworkError(uri, null, message, ex);
+                throw new RepositoryNetworkException(message, uri, innerException: ex);
+            }
+            catch (TaskCanceledException ex) when (ex.InnerException is not OperationCanceledException)
+            {
+                var message = $"HTTP request timed out for {uri}";
+                _config.Logger?.LogRepositoryTimeout(uri, (int)TimeSpan.FromSeconds(30).TotalMilliseconds);
+                throw new RepositoryNetworkException(message, uri, innerException: ex);
+            }
+            finally
+            {
+                response?.Dispose();
+            }
+        });
     }
 }
 
