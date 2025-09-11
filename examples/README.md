@@ -40,6 +40,16 @@ Demonstrates TUF signing capabilities and key management:
 
 **Best for**: Understanding TUF cryptographic operations and implementing signing workflows.
 
+### [DockerIntegration](./DockerIntegration/)
+Production-ready containerized TUF integration demonstrating:
+- Container-optimized TUF client with dependency injection
+- Docker and Kubernetes deployment patterns
+- Environment-based configuration and secrets management
+- Health checks and container orchestration integration
+- Security hardening and production best practices
+
+**Best for**: Deploying TUF-enabled applications in containerized environments, understanding production deployment patterns, and integrating TUF with container orchestration platforms.
+
 ### [TufConformanceCli](./TufConformanceCli/)
 Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specification](https://github.com/theupdateframework/tuf-conformance/blob/main/CLIENT-CLI.md):
 - Standard `init`, `refresh`, and `download` commands
