@@ -1,0 +1,39 @@
+# .NET build artifacts
+**/bin/
+**/obj/
+**/.vs/
+**/.vscode/
+
+# Git and version control
+.git/
+.gitignore
+.gitattributes
+
+# Documentation and non-essential files
+**/README.md
+**/*.md
+.editorconfig
+
+# Test files and scenarios (not needed in container)
+**/scenarios/
+**/test-data/
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Docker files (except the ones we need)
+**/Dockerfile*
+**/docker-compose*
+**/.dockerignore
+
+# Temporary and cache files
+**/tmp/
+**/temp/
+**/.tmp/
+
+# Logs
+**/logs/
+**/*.log

@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  # TUF client container demonstrating secure software updates
+  tuf-client:
+    build:
+      context: ../..
+      dockerfile: examples/DockerIntegration/Dockerfile
+    container_name: tuf-client-demo
+    environment:
+      # Configure TUF repository URL
+      - TUF_MetadataUrl=https://your-tuf-repository.example.com/metadata
+      # Container-specific paths
+      - TUF_RootKeyPath=/app/trusted/root.json
+      - TUF_DownloadsDir=/app/downloads
+      - TUF_MetadataDir=/app/metadata
+      # Size limits for security
+      - TUF_MaxMetadataBytes=2097152  # 2MB
+      - TUF_MaxTargetBytes=1073741824  # 1GB
+      # Logging configuration
+      - DOTNET_LOGGING__CONSOLE__FORMATTERNAME=simple
+      - DOTNET_LOGGING__LOGLEVEL__DEFAULT=Information
+    volumes:
+      # Mount trusted root metadata (required)
+      - ./trusted-root.json:/app/trusted/root.json:ro
+      # Mount downloads directory for persistence
+      - tuf-downloads:/app/downloads
+      # Mount metadata cache for performance
+      - tuf-metadata:/app/metadata
+    networks:
+      - tuf-network
+    restart: unless-stopped
+    # Health check configuration
+    healthcheck:
+      test: ["CMD", "dotnet", "DockerIntegration.dll", "health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    # Security settings
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=100m
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+
+  # Example HTTP server for testing TUF repository
+  # In production, this would be replaced with your actual TUF repository
+  mock-tuf-repo:
+    image: nginx:alpine
+    container_name: mock-tuf-repo
+    ports:
+      - "8080:80"
+    volumes:
+      - ./mock-repo:/usr/share/nginx/html:ro
+    networks:
+      - tuf-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/timestamp.json"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  tuf-downloads:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: "size=1g,uid=1000,gid=1000"
+  
+  tuf-metadata:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
+      o: "size=100m,uid=1000,gid=1000"
+
+networks:
+  tuf-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
