@@ -12,5 +12,7 @@
     <PackageVersion Include="Serde" Version="0.8.0" />
     <PackageVersion Include="System.CommandLine" Version="2.0.0-beta7.25380.108" />
     <PackageVersion Include="TUnit" Version="0.57.24" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.0-preview.7.25380.108" />
   </ItemGroup>
 </Project>
