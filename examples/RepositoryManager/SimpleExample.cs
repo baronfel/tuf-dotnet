@@ -1,5 +1,5 @@
 using TUF.Repository;
-using TUF.Signing;
+using TUF.Models;
 
 namespace RepositoryManager;
 
