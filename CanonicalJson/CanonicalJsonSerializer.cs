@@ -13,6 +13,7 @@ public sealed class CanonicalJsonSerializer : ISerializer, ITypeSerializer, IDis
     public readonly System.Text.Json.Utf8JsonWriter _writer;
     private readonly Stream _stream;
     private readonly System.Text.UTF8Encoding _utf8 = new(encoderShouldEmitUTF8Identifier: false);
+    private readonly char[] _hexBuffer = new char[1024]; // Reusable buffer for hex conversion
     private bool _disposed;
 
     public CanonicalJsonSerializer(Stream memoryStream)
@@ -72,7 +73,20 @@ public sealed class CanonicalJsonSerializer : ISerializer, ITypeSerializer, IDis
         return new ReorderingSerializer(this);
     }
 
-    public void WriteRaw(string value) => _writer.WriteRawValue(_utf8.GetBytes(value));
+    public void WriteRaw(string value)
+    {
+        // Optimize for memory by using stackalloc for small strings, heap buffer for large
+        if (value.Length <= 256)
+        {
+            Span<byte> buffer = stackalloc byte[value.Length * 3]; // UTF-8 worst case
+            var bytesWritten = _utf8.GetBytes(value.AsSpan(), buffer);
+            _writer.WriteRawValue(buffer.Slice(0, bytesWritten));
+        }
+        else
+        {
+            _writer.WriteRawValue(_utf8.GetBytes(value));
+        }
+    }
 
     public void WriteObjectStart() => _writer.WriteStartObject();
     public void WriteObjectEnd() => _writer.WriteEndObject();
@@ -608,9 +622,10 @@ public sealed class CanonicalJsonEncoder : JavaScriptEncoder
                     buffer[1] = 'u';
                     buffer[2] = '0';
                     buffer[3] = '0';
-                    var hex = ((ushort)unicodeScalar).ToString("x2");
-                    buffer[4] = hex[0];
-                    buffer[5] = hex[1];
+                    // Optimize hex formatting to avoid string allocation
+                    var value = (ushort)unicodeScalar;
+                    buffer[4] = GetHexChar((value >> 4) & 0xF);
+                    buffer[5] = GetHexChar(value & 0xF);
                     numberOfCharactersWritten = 6;
                     return true;
                 }
@@ -622,4 +637,6 @@ public sealed class CanonicalJsonEncoder : JavaScriptEncoder
     }
 
     public override int MaxOutputCharactersPerInputCharacter => 6; // For \uXXXX Unicode escapes
+
+    private static char GetHexChar(int value) => (char)(value < 10 ? '0' + value : 'a' + (value - 10));
 }

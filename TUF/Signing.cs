@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using NSec.Cryptography;
 
 using Serde;
+using TUF.Performance;
 
 namespace TUF.Models;
 
@@ -72,7 +73,7 @@ public sealed class Ed25519Signer : ISigner
 
         // Get the public key bytes and create the TUF Key with pinned types
         var publicKeyBytes = privateKey.PublicKey.Export(KeyBlobFormat.RawPublicKey);
-        var hexString = Convert.ToHexString(publicKeyBytes).ToLowerInvariant();
+        var hexString = HexUtilities.ToHexString(publicKeyBytes);
 
         // Create Key with strictly pinned type and scheme for Ed25519
         Key = new Key
@@ -113,7 +114,7 @@ public sealed class Ed25519Signer : ISigner
     public SignatureObject SignBytes(ReadOnlySpan<byte> data)
     {
         var signatureBytes = SignatureAlgorithm.Ed25519.Sign(_privateKey, data);
-        var signatureHex = Convert.ToHexString(signatureBytes).ToLowerInvariant();
+        var signatureHex = HexUtilities.ToHexString(signatureBytes);
 
         return new SignatureObject
         {
@@ -209,12 +210,14 @@ public sealed class RsaSigner : ISigner, IDisposable
     /// <returns>TUF signature object with key ID and hex-encoded signature</returns>
     public SignatureObject SignBytes(ReadOnlySpan<byte> data)
     {
-        // Hash the data with SHA-256 as required by rsassa-pss-sha256 scheme
-        var hash = SHA256.HashData(data);
+        // Optimize hash computation to avoid intermediate byte array allocation
+        Span<byte> hashBuffer = stackalloc byte[32]; // SHA-256 produces 32 bytes
+        if (!SHA256.TryHashData(data, hashBuffer, out var bytesWritten) || bytesWritten != 32)
+            throw new InvalidOperationException("Failed to compute SHA-256 hash");
 
         // Sign the hash using RSA-PSS padding with SHA-256
-        var signatureBytes = _rsa.SignHash(hash, HashAlgorithmName.SHA256, RSASignaturePadding.Pss);
-        var signatureHex = Convert.ToHexString(signatureBytes).ToLowerInvariant();
+        var signatureBytes = _rsa.SignHash(hashBuffer, HashAlgorithmName.SHA256, RSASignaturePadding.Pss);
+        var signatureHex = HexUtilities.ToHexString(signatureBytes);
 
         return new SignatureObject
         {
@@ -324,9 +327,9 @@ public sealed class EcdsaSigner : ISigner, IDisposable
     /// </remarks>
     public SignatureObject SignBytes(ReadOnlySpan<byte> data)
     {
-        // Sign the hash using ECDSA
+        // Sign the data using ECDSA with optimized signature format
         var signatureBytes = _ecdsa.SignData(data, HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation);
-        var signatureHex = Convert.ToHexString(signatureBytes).ToLowerInvariant();
+        var signatureHex = HexUtilities.ToHexString(signatureBytes);
 
         return new SignatureObject
         {
