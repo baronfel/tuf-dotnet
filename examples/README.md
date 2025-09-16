@@ -40,6 +40,15 @@ Demonstrates TUF signing capabilities and key management:
 
 **Best for**: Understanding TUF cryptographic operations and implementing signing workflows.
 
+### [AzureKeyVaultDemo](./AzureKeyVaultDemo/)
+Demonstrates enterprise-grade Azure Key Vault integration for secure key management:
+- Azure Key Vault authentication methods (CLI, managed identity, default credential)
+- HSM-backed key storage and signing operations
+- TUF compliance with cloud-based key management
+- Production deployment patterns for Azure environments
+
+**Best for**: Enterprise scenarios requiring centralized key management, HSM-backed security, and Azure cloud integration.
+
 ### [TufConformanceCli](./TufConformanceCli/)
 Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specification](https://github.com/theupdateframework/tuf-conformance/blob/main/CLIENT-CLI.md):
 - Standard `init`, `refresh`, and `download` commands
@@ -62,6 +71,7 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
    dotnet build examples/CliTool/
    dotnet build examples/RepositoryManager/
    dotnet build examples/SigningDemo/
+   dotnet build examples/AzureKeyVaultDemo/
    dotnet build examples/TufConformanceCli/
    ```
 
