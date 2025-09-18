@@ -4,6 +4,15 @@ This directory contains examples demonstrating how to use the TUF .NET library f
 
 ## Available Examples
 
+### [AzureKeyVaultIntegration](./AzureKeyVaultIntegration/)
+Enterprise-grade cloud integration demonstrating TUF with Azure Key Vault:
+- HSM-backed signing with Azure Key Vault cryptographic operations
+- Production-ready authentication using DefaultAzureCredential
+- Complete TUF workflow with cloud-native key management
+- Enterprise security features (audit logging, key rotation, RBAC)
+
+**Best for**: Enterprise deployments requiring HSM-backed security and cloud integration.
+
 ### [BasicClient](./BasicClient/)
 A simple console application that demonstrates the fundamental TUF client workflow:
 - Initializing a TUF updater
@@ -58,6 +67,7 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
 2. **Build Examples**
    ```bash
    # From the repository root
+   dotnet build examples/AzureKeyVaultIntegration/
    dotnet build examples/BasicClient/
    dotnet build examples/CliTool/
    dotnet build examples/RepositoryManager/
