@@ -4,6 +4,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageVersion Include="AWSSDK.KeyManagementService" Version="3.7.500" />
+    <PackageVersion Include="AWSSDK.S3" Version="3.7.410" />
+    <PackageVersion Include="AWSSDK.SimpleSystemsManagement" Version="3.7.500" />
     <PackageVersion Include="Microsoft.Extensions.FileSystemGlobbing" Version="10.0.0-preview.7.25380.108" />
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.0-preview.7.25380.108" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0-preview.7.25380.108" />

@@ -4,6 +4,15 @@ This directory contains examples demonstrating how to use the TUF .NET library f
 
 ## Available Examples
 
+### [AwsIntegration](./AwsIntegration/)
+A comprehensive AWS cloud integration example demonstrating enterprise-grade TUF deployment:
+- AWS KMS integration for hardware-backed signing with HSM-level security
+- Amazon S3 repository backend for scalable, durable TUF metadata storage
+- AWS Systems Manager Parameter Store for centralized configuration management
+- Production-ready architecture with complete CI/CD and Infrastructure-as-Code examples
+
+**Best for**: Enterprise cloud deployments, AWS integration patterns, production TUF infrastructure.
+
 ### [BasicClient](./BasicClient/)
 A simple console application that demonstrates the fundamental TUF client workflow:
 - Initializing a TUF updater
