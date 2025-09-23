@@ -40,6 +40,16 @@ Demonstrates TUF signing capabilities and key management:
 
 **Best for**: Understanding TUF cryptographic operations and implementing signing workflows.
 
+### [StreamingDownload](./StreamingDownload/)
+**NEW** - Memory-efficient streaming downloads for large files:
+- Streaming downloads without loading entire files into memory
+- Real-time progress reporting with throughput metrics
+- Continuous hash verification during download for security
+- Cancellation support for long-running operations
+- Cross-platform compatibility (Windows, macOS, Linux)
+
+**Best for**: Handling large files efficiently, production scenarios with memory constraints, and understanding performance-optimized TUF implementations. **Addresses key parity gap** with other mature TUF implementations.
+
 ### [TufConformanceCli](./TufConformanceCli/)
 Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specification](https://github.com/theupdateframework/tuf-conformance/blob/main/CLIENT-CLI.md):
 - Standard `init`, `refresh`, and `download` commands

@@ -69,6 +69,33 @@ public class Updater
 
     public async Task<(string FilePath, byte[] Data)> DownloadTarget(TargetFile targetFile, string targetPath, string? destinationFilePath = null, Uri? baseUrl = null)
     {
+        // Use streaming download but maintain backward compatibility by returning byte array
+        using var memoryStream = new MemoryStream();
+        var filePath = await DownloadTargetToStream(targetFile, targetPath, memoryStream, destinationFilePath, baseUrl);
+        return (filePath, memoryStream.ToArray());
+    }
+
+    /// <summary>
+    /// Downloads a target file using streaming to minimize memory usage for large files.
+    /// This addresses parity gap for handling large files efficiently.
+    /// </summary>
+    /// <param name="targetFile">Target file metadata</param>
+    /// <param name="targetPath">Path to target file in repository</param>
+    /// <param name="destinationStream">Stream to write downloaded data to</param>
+    /// <param name="destinationFilePath">Optional local file path for caching</param>
+    /// <param name="baseUrl">Optional base URL override</param>
+    /// <param name="progress">Optional progress reporter for download progress</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Local file path where file was cached (if caching enabled)</returns>
+    public async Task<string> DownloadTargetToStream(
+        TargetFile targetFile, 
+        string targetPath, 
+        Stream destinationStream, 
+        string? destinationFilePath = null, 
+        Uri? baseUrl = null,
+        IProgress<(long bytesDownloaded, long totalBytes)>? progress = null,
+        CancellationToken cancellationToken = default)
+    {
         var localDestinationPath = destinationFilePath ?? Path.Combine(_config.LocalTargetsDir, targetPath);
         var targetBaseUrl = baseUrl ?? _config.RemoteTargetsUrl;
         var targetRemotePath = targetPath;
@@ -89,18 +116,43 @@ public class Updater
         }
 
         var downloadUri = new Uri(targetBaseUrl, targetRemotePath);
-        var data = await DownloadFile(downloadUri, (uint)targetFile.Length);
-        VerifyTargetFile(targetFile, data);
+        
+        // Use streaming download with hash verification
+        await StreamingUtils.DownloadToStreamAsync(
+            _config.Client,
+            downloadUri,
+            targetFile,
+            destinationStream,
+            progress,
+            cancellationToken: cancellationToken);
 
+        // Cache to local file if caching enabled
         if (!_config.DisableLocalCache)
         {
-            await File.WriteAllBytesAsync(localDestinationPath, data);
+            // Ensure directory exists
+            var directory = Path.GetDirectoryName(localDestinationPath);
+            if (directory != null && !Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            // Reset stream position if seekable
+            if (destinationStream.CanSeek)
+            {
+                destinationStream.Position = 0;
+            }
+
+            // Write to local cache file
+            using var fileStream = File.Create(localDestinationPath);
+            await destinationStream.CopyToAsync(fileStream, cancellationToken);
+            
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 File.SetUnixFileMode(localDestinationPath, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.GroupRead | UnixFileMode.OtherRead);
             }
         }
-        return (localDestinationPath, data);
+
+        return localDestinationPath;
     }
 
     public async Task<(string FilePath, byte[] Data)?> FindCachedTarget(TargetFile targetFile, string targetPath, string? filePath)
