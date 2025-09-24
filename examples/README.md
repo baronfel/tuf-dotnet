@@ -40,6 +40,16 @@ Demonstrates TUF signing capabilities and key management:
 
 **Best for**: Understanding TUF cryptographic operations and implementing signing workflows.
 
+### [NuGetIntegration](./NuGetIntegration/)
+A comprehensive example demonstrating TUF integration with NuGet for secure package management:
+- Package integrity verification using TUF metadata
+- Supply chain attack protection for .NET packages
+- Command-line interface for package validation
+- Interactive demo explaining security benefits
+- Production-ready patterns for enterprise integration
+
+**Best for**: Understanding how to integrate TUF with existing .NET package management workflows and protecting against supply chain attacks.
+
 ### [TufConformanceCli](./TufConformanceCli/)
 Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specification](https://github.com/theupdateframework/tuf-conformance/blob/main/CLIENT-CLI.md):
 - Standard `init`, `refresh`, and `download` commands
@@ -60,6 +70,7 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
    # From the repository root
    dotnet build examples/BasicClient/
    dotnet build examples/CliTool/
+   dotnet build examples/NuGetIntegration/
    dotnet build examples/RepositoryManager/
    dotnet build examples/SigningDemo/
    dotnet build examples/TufConformanceCli/
@@ -74,6 +85,10 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
    # Basic client example
    cd examples/BasicClient
    dotnet run file:///path/to/my-tuf-repo/metadata hello.txt
+
+   # NuGet integration demo
+   cd examples/NuGetIntegration
+   dotnet run demo
 
    # CLI tool example
    cd examples/CliTool
