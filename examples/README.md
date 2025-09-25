@@ -4,6 +4,16 @@ This directory contains examples demonstrating how to use the TUF .NET library f
 
 ## Available Examples
 
+### [AspNetCoreIntegration](./AspNetCoreIntegration/)
+An ASP.NET Core web application demonstrating TUF integration via middleware:
+- Custom middleware for TUF validation
+- Path-based validation configuration
+- Integration with dependency injection
+- Production-ready error handling and logging
+- Example API endpoints with TUF protection
+
+**Best for**: Integrating TUF validation into web applications and APIs.
+
 ### [BasicClient](./BasicClient/)
 A simple console application that demonstrates the fundamental TUF client workflow:
 - Initializing a TUF updater
