@@ -1,0 +1,21 @@
+# TUF .NET Conformance Test Expected Failures
+#
+# This file lists test cases that are expected to fail for the .NET TUF implementation
+# as part of the official TUF conformance test suite.
+#
+# Format: One test identifier per line, comments starting with #
+#
+# As features are implemented and bugs are fixed, tests should be removed from this list.
+# An empty file indicates full conformance with the TUF specification test suite.
+#
+# Note: Based on our analysis, the .NET TUF implementation appears to support:
+# - All major signature algorithms (Ed25519, RSA-PSS, ECDSA P-256)  
+# - Hash algorithms (SHA-256, SHA-512)
+# - Complete TUF client workflow
+# - Proper error handling and validation
+# - Consistent snapshot support
+# - Delegation handling
+#
+# This file starts empty based on our comprehensive test suite passing.
+# If the conformance test suite reveals missing features, they will be added here
+# and addressed in subsequent updates.
