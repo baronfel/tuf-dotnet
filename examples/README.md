@@ -4,6 +4,15 @@ This directory contains examples demonstrating how to use the TUF .NET library f
 
 ## Available Examples
 
+### [AzureIntegration](./AzureIntegration/)
+A comprehensive example demonstrating enterprise-grade TUF integration with Microsoft Azure cloud services:
+- Azure Key Vault integration for HSM-backed cryptographic signing
+- Azure Blob Storage backend for globally distributed repository hosting
+- Production-ready configuration with Infrastructure as Code examples
+- Complete documentation for enterprise deployment scenarios
+
+**Best for**: Enterprise .NET deployments requiring cloud-native security and global distribution.
+
 ### [BasicClient](./BasicClient/)
 A simple console application that demonstrates the fundamental TUF client workflow:
 - Initializing a TUF updater
