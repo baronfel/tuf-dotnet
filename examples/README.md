@@ -49,6 +49,16 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
 
 **Best for**: TUF conformance testing, validation against the official TUF specification, and ensuring compatibility with other TUF implementations.
 
+### [HsmIntegration](./HsmIntegration/)
+Enterprise Hardware Security Module (HSM) integration for production TUF deployments:
+- Azure Key Vault HSM support with FIPS 140-2 Level 3 certification
+- PKCS#11 standard HSM interface demonstration and guidance
+- Hardware-backed private key operations (keys never leave HSM)
+- Production security patterns and comprehensive audit logging
+- Support for RSA-PSS and ECDSA signing with enterprise-grade security
+
+**Best for**: Enterprise production deployments requiring hardware-backed cryptographic security, compliance requirements (FIPS, Common Criteria), and high-security TUF signing operations.
+
 ## Getting Started
 
 1. **Prerequisites**
@@ -60,6 +70,7 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
    # From the repository root
    dotnet build examples/BasicClient/
    dotnet build examples/CliTool/
+   dotnet build examples/HsmIntegration/
    dotnet build examples/RepositoryManager/
    dotnet build examples/SigningDemo/
    dotnet build examples/TufConformanceCli/
@@ -77,6 +88,10 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
 
    # CLI tool example
    cd examples/CliTool
+   dotnet run -- --help
+   
+   # HSM integration example
+   cd examples/HsmIntegration
    dotnet run -- --help
    ```
 
