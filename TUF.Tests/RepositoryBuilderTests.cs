@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 
+using TUF.Exceptions;
 using TUF.Models;
 using TUF.Repository;
 
@@ -94,7 +95,7 @@ public class RepositoryBuilderTests
     {
         var builder = new RepositoryBuilder();
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => builder.Build()));
+        var exception = await Assert.ThrowsAsync<TufConfigurationException>(() => Task.Run(() => builder.Build()));
         await Assert.That(exception!.Message).Contains("No signers configured for root role");
     }
 
@@ -106,7 +107,7 @@ public class RepositoryBuilderTests
             .AddSigner("snapshot", Ed25519Signer.Generate())
             .AddSigner("targets", Ed25519Signer.Generate());
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => builder.Build()));
+        var exception = await Assert.ThrowsAsync<TufConfigurationException>(() => Task.Run(() => builder.Build()));
         await Assert.That(exception!.Message).Contains("No signers configured for timestamp role");
     }
 
@@ -118,7 +119,7 @@ public class RepositoryBuilderTests
             .AddSigner("timestamp", Ed25519Signer.Generate())
             .AddSigner("targets", Ed25519Signer.Generate());
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => builder.Build()));
+        var exception = await Assert.ThrowsAsync<TufConfigurationException>(() => Task.Run(() => builder.Build()));
         await Assert.That(exception!.Message).Contains("No signers configured for snapshot role");
     }
 
@@ -130,7 +131,7 @@ public class RepositoryBuilderTests
             .AddSigner("timestamp", Ed25519Signer.Generate())
             .AddSigner("snapshot", Ed25519Signer.Generate());
 
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Task.Run(() => builder.Build()));
+        var exception = await Assert.ThrowsAsync<TufConfigurationException>(() => Task.Run(() => builder.Build()));
         await Assert.That(exception!.Message).Contains("No signers configured for targets role");
     }
 

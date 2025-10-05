@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using TUF.Exceptions;
 using TUF.Models;
 using TUF.MultiRepository;
 
@@ -209,7 +210,7 @@ public class MultiRepositoryTests : IDisposable
 
         // Act & Assert
         await Assert.That(async () => await client.GetTargetInfoAsync("test.txt"))
-            .ThrowsExactly<InvalidOperationException>()
+            .ThrowsExactly<TufConfigurationException>()
             .WithMessage("Client not initialized. Call InitializeAsync() first.");
     }
 
@@ -227,7 +228,7 @@ public class MultiRepositoryTests : IDisposable
 
         // Act & Assert
         await Assert.That(async () => await client.RefreshAsync())
-            .ThrowsExactly<InvalidOperationException>()
+            .ThrowsExactly<TufConfigurationException>()
             .WithMessage("Client not initialized. Call InitializeAsync() first.");
     }
 

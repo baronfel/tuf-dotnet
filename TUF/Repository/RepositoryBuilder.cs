@@ -3,6 +3,7 @@ using System.Text.Json.Nodes;
 
 using Serde;
 
+using TUF.Exceptions;
 using TUF.Models;
 
 namespace TUF.Repository;
@@ -159,14 +160,14 @@ public class RepositoryBuilder
         foreach (var role in requiredRoles)
         {
             if (!_roleSigners.ContainsKey(role) || _roleSigners[role].Count == 0)
-                throw new InvalidOperationException($"No signers configured for {role} role");
+                throw new TufConfigurationException($"No signers configured for {role} role", configurationProperty: "signers");
         }
     }
 
     private RoleConfiguration CreateKeysForRole(string role)
     {
         if (!_roleSigners.TryGetValue(role, out var signerIds))
-            throw new InvalidOperationException($"No signers configured for {role}");
+            throw new TufConfigurationException($"No signers configured for {role}", configurationProperty: "signers");
 
         var keys = new Dictionary<string, Key>();
         var keyIds = new List<string>();
@@ -256,7 +257,7 @@ public class RepositoryBuilder
         where T : ISerializeProvider<T>, IDeserializeProvider<T>
     {
         if (!_roleSigners.TryGetValue(role, out var signerIds))
-            throw new InvalidOperationException($"No signers configured for {role}");
+            throw new TufConfigurationException($"No signers configured for {role}", configurationProperty: "signers");
 
         metadata.Signatures.Clear();
 
