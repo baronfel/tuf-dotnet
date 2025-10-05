@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using Serde.Json;
 
+using TUF.Exceptions;
 using TUF.Models;
 using TUF.MultiRepository;
 
@@ -76,7 +77,7 @@ public class MultiRepositoryClient
     {
         if (_map == default)
         {
-            throw new InvalidOperationException("Client not initialized. Call InitializeAsync() first.");
+            throw new TufConfigurationException("Client not initialized. Call InitializeAsync() first.", configurationProperty: "client_initialization");
         }
 
         var refreshTasks = _repositoryClients.Values.Select(client => client.RefreshAsync());
@@ -92,7 +93,7 @@ public class MultiRepositoryClient
     {
         if (_map == default)
         {
-            throw new InvalidOperationException("Client not initialized. Call InitializeAsync() first.");
+            throw new TufConfigurationException("Client not initialized. Call InitializeAsync() first.", configurationProperty: "client_initialization");
         }
 
         // Implement TAP 4 search algorithm

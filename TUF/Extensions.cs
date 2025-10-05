@@ -4,6 +4,8 @@ using CanonicalJson;
 
 using Serde;
 
+using TUF.Exceptions;
+
 namespace TUF.Models;
 
 /// <summary>
@@ -36,7 +38,9 @@ public static class SimplifiedMetadataExtensions
         /// <param name="allKeys">Dictionary of all available keys (key ID -> Key)</param>
         /// <param name="roleKeys">Role configuration specifying authorized keys and threshold</param>
         /// <param name="otherMetadata">The metadata whose signatures should be validated</param>
-        /// <exception cref="Exception">Thrown when validation fails for any reason</exception>
+        /// <exception cref="DelegationException">Thrown when no delegation is found or invalid threshold</exception>
+        /// <exception cref="SignatureVerificationException">Thrown when key is missing or signature verification fails</exception>
+        /// <exception cref="InsufficientSignaturesException">Thrown when insufficient valid signatures are present</exception>
         /// <remarks>
         /// This method implements the core TUF signature verification algorithm:
         /// 1. Checks that the role has authorized keys and a valid threshold
@@ -52,12 +56,12 @@ public static class SimplifiedMetadataExtensions
         {
             if (roleKeys.KeyIds.Count == 0)
             {
-                throw new Exception("No delegation found");
+                throw new DelegationException("No delegation found");
             }
 
             if (roleKeys.Threshold < 1)
             {
-                throw new Exception("Invalid threshold");
+                throw new DelegationException("Invalid threshold");
             }
 
             var verifiedSignatures = 0;
@@ -67,14 +71,14 @@ public static class SimplifiedMetadataExtensions
             {
                 if (!allKeys.TryGetValue(keyId, out var key))
                 {
-                    throw new Exception($"Key {keyId} not found in keys");
+                    throw new SignatureVerificationException($"Key {keyId} not found in keys", keyId: keyId);
                 }
 
                 // try to find matching signature in other metadata
                 var matchingSignature = otherMetadata.Signatures.FirstOrDefault(s => s.KeyId == keyId);
                 if (matchingSignature == null)
                 {
-                    throw new Exception($"No signature found for key {keyId}");
+                    throw new SignatureVerificationException($"No signature found for key {keyId}", keyId: keyId);
                 }
 
                 if (VerifyKeySignature(key, matchingSignature.Sig, signedBytes))
@@ -83,13 +87,13 @@ public static class SimplifiedMetadataExtensions
                 }
                 else
                 {
-                    throw new Exception($"Signature verification failed for key {keyId}");
+                    throw new SignatureVerificationException($"Signature verification failed for key {keyId}", keyId: keyId);
                 }
             }
 
             if (verifiedSignatures < roleKeys.Threshold)
             {
-                throw new Exception($"Insufficient valid signatures: {verifiedSignatures} of {roleKeys.Threshold} required");
+                throw new InsufficientSignaturesException(roleKeys.Threshold, verifiedSignatures);
             }
         }
 
@@ -127,7 +131,9 @@ public static class SimplifiedMetadataExtensions
         /// <typeparam name="TOther">Type of the metadata being verified</typeparam>
         /// <param name="roleType">Name of the role to verify ("root", "timestamp", "snapshot", "targets", "mirrors")</param>
         /// <param name="otherMetadata">The metadata to verify against root's key assignments</param>
-        /// <exception cref="Exception">Thrown when role is not found or validation fails</exception>
+        /// <exception cref="DelegationException">Thrown when role delegation is not found</exception>
+        /// <exception cref="SignatureVerificationException">Thrown when signature verification fails</exception>
+        /// <exception cref="InsufficientSignaturesException">Thrown when insufficient valid signatures are present</exception>
         /// <remarks>
         /// This method implements root-based trust delegation as specified in the TUF specification.
         /// Root metadata contains the authoritative key assignments for all repository roles.
@@ -157,7 +163,7 @@ public static class SimplifiedMetadataExtensions
 
             if (roleKeys is null)
             {
-                throw new Exception($"No delegation found for {roleType}");
+                throw new DelegationException($"No delegation found for {roleType}", roleName: roleType);
             }
 
             rootMetadata.ValidateKeys(rootMetadata.Signed.Keys, roleKeys, otherMetadata);
@@ -172,7 +178,9 @@ public static class SimplifiedMetadataExtensions
         /// </summary>
         /// <param name="roleType">Name of the delegated role to verify</param>
         /// <param name="otherMetadata">The delegated targets metadata to verify</param>
-        /// <exception cref="Exception">Thrown when delegation is not found or validation fails</exception>
+        /// <exception cref="DelegationException">Thrown when delegation is not found or not configured</exception>
+        /// <exception cref="SignatureVerificationException">Thrown when signature verification fails</exception>
+        /// <exception cref="InsufficientSignaturesException">Thrown when insufficient valid signatures are present</exception>
         /// <remarks>
         /// This method implements targets delegation verification as specified in TUF specification section 5.6.
         /// Targets metadata can delegate signing authority for specific paths to other roles.
@@ -190,13 +198,13 @@ public static class SimplifiedMetadataExtensions
         {
             if (targetsMetadata.Signed.Delegations is null || targetsMetadata.Signed.Delegations.Roles.Count == 0)
             {
-                throw new Exception("No delegations defined in targets metadata");
+                throw new DelegationException("No delegations defined in targets metadata");
             }
 
             var delegation = targetsMetadata.Signed.Delegations.Roles.FirstOrDefault(r => r.Name == roleType);
             if (delegation == null)
             {
-                throw new Exception($"No delegation found for {roleType}");
+                throw new DelegationException($"No delegation found for {roleType}", roleName: roleType);
             }
 
             var roleKeys = new RoleKeys

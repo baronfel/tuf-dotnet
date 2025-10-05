@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 
+using TUF.Exceptions;
 using TUF.Models;
 
 namespace TUF;
@@ -50,7 +51,7 @@ public class Updater
     {
         if (_trusted is not CompleteTrustedMetadata c)
         {
-            throw new InvalidOperationException("Trusted metadata not loaded");
+            throw new TufConfigurationException("Trusted metadata not loaded", configurationProperty: "metadata_state");
         }
         return c.TopLevelTargets.Signed.TargetMap;
     }
@@ -134,7 +135,7 @@ public class Updater
         // Verify length
         if (data.Length != targetFile.Length)
         {
-            throw new Exception($"Target file length mismatch. Expected: {targetFile.Length}, Actual: {data.Length}");
+            throw new TargetIntegrityException($"Target file length mismatch. Expected: {targetFile.Length}, Actual: {data.Length}");
         }
 
         // Verify at least one hash
@@ -157,7 +158,7 @@ public class Updater
 
         if (!validHash)
         {
-            throw new Exception("No valid hash found for target file");
+            throw new TargetIntegrityException("No valid hash found for target file");
         }
     }
 
@@ -165,7 +166,7 @@ public class Updater
     {
         if (_trusted is not CompleteTrustedMetadata complete)
         {
-            throw new Exception("Complete trusted metadata not loaded");
+            throw new TufConfigurationException("Complete trusted metadata not loaded", configurationProperty: "metadata_state");
         }
 
         Stack<(string Role, string Parent)> toVisit = new();
@@ -179,7 +180,7 @@ public class Updater
                 continue;
             }
             await LoadTargets(role, parent);
-            CompleteTrustedMetadata rtts = _trusted as CompleteTrustedMetadata ?? throw new Exception("trusted metadata not loaded");
+            CompleteTrustedMetadata rtts = _trusted as CompleteTrustedMetadata ?? throw new TufConfigurationException("trusted metadata not loaded", configurationProperty: "metadata_state");
             var targets = rtts.Targets[role];
             if (targets is not null && targets.Signed.TargetMap.TryGetValue(targetFilePath, out var targetMeta))
             {
@@ -205,7 +206,7 @@ public class Updater
         if (toVisit.Count > 0)
         {
             // we terminated due to length
-            throw new Exception("Maximum delegation depth reached");
+            throw new MaxDelegationDepthExceededException((int)_config.MaxDelegations, toVisit.Count);
         }
         // otherwise didn't find target
         return null;
@@ -262,7 +263,7 @@ public class Updater
         }
         else
         {
-            throw new Exception("trusted timestamp not loaded");
+            throw new TufConfigurationException("trusted timestamp not loaded", configurationProperty: "metadata_state");
         }
     }
 
@@ -272,7 +273,7 @@ public class Updater
         {
             if (!rts.Snapshot.Signed.Meta.TryGetValue($"{roleName}.json", out var roleFileMetadata))
             {
-                throw new Exception($"Role file metadata for {roleName} not found");
+                throw new TargetNotFoundException($"Role file metadata for {roleName} not found", targetPath: $"{roleName}.json");
             }
 
             var length = roleFileMetadata.Length ?? _config.TargetsMaxLength;
@@ -283,7 +284,7 @@ public class Updater
         }
         else
         {
-            throw new Exception("trusted snapshot not loaded");
+            throw new TufConfigurationException("trusted snapshot not loaded", configurationProperty: "metadata_state");
         }
     }
 
@@ -315,7 +316,7 @@ public class Updater
         File.Move(tempFile, finalFile, true);
         if (!(await File.ReadAllBytesAsync(finalFile)).SequenceEqual(data))
         {
-            throw new Exception("File contents do not match");
+            throw new TargetIntegrityException("File contents do not match");
         }
     }
 
@@ -331,8 +332,10 @@ public class Updater
         var length = headers.Content.Headers.ContentLength ?? 0;
         if (length > maxLength)
         {
-            var filePath = uri.ToString().TrimStart(_config.RemoteTargetsUrl.ToString());
-            throw new Exception($"File {filePath} length {length} exceeds maximum allowed length {maxLength}");
+            var uriString = uri.ToString();
+            var baseString = _config.RemoteTargetsUrl.ToString();
+            var filePath = uriString.StartsWith(baseString) ? uriString.Substring(baseString.Length) : uriString;
+            throw new FileSizeException(filePath, length, (long)maxLength!);
         }
         return await headers.Content.ReadAsByteArrayAsync();
     }
