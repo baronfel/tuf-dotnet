@@ -258,19 +258,18 @@ public partial class CanonicalSerializerTests
     }
 
 
-    // TODO: Implement deserialization tests once Serde.NET deserialization API is working
-    //[Test]
-    //public async Task VerifyGoldenData_Deserialization_StringEscaping()
-    //{
-    //    // Golden data from cjson: 22201ed8d05c5260e2b9a873347ff6419e5f27cff74bbe948aaed31ca5709817.json
-    //    var goldenJson = "{\"BoolStr\":\"true\",\"IntStr\":\"42\",\"StrStr\":\"\\\"xzbit\\\"\"}";
-    //    
-    //    var result = CanonicalJsonSerializer.Deserialize<TestStringContainer>(goldenJson);
-    //    
-    //    await Assert.That(result.BoolStr).IsEqualTo("true");
-    //    await Assert.That(result.IntStr).IsEqualTo("42");
-    //    await Assert.That(result.StrStr).IsEqualTo("\"xzbit\"");
-    //}
+    [Test]
+    public async Task VerifyGoldenData_Deserialization_StringEscaping()
+    {
+        // Golden data from cjson: 22201ed8d05c5260e2b9a873347ff6419e5f27cff74bbe948aaed31ca5709817.json
+        var goldenJson = "{\"BoolStr\":\"true\",\"IntStr\":\"42\",\"StrStr\":\"\\\"xzbit\\\"\"}";
+        
+        var result = Serializer.Deserialize<TestStringContainer>(goldenJson);
+        
+        await Assert.That(result.BoolStr).IsEqualTo("true");
+        await Assert.That(result.IntStr).IsEqualTo("42");
+        await Assert.That(result.StrStr).IsEqualTo("\"xzbit\"");
+    }
 
     [Test]
     public async Task VerifyGoldenData_Serialization_StringEscaping()
@@ -287,6 +286,17 @@ public partial class CanonicalSerializerTests
     }
 
     [Test]
+    public async Task VerifyGoldenData_Deserialization_UnicodeCharacter()
+    {
+        // Golden data from cjson: 50ecf5a6d95fecca7fb4259d7d30bcee688ea089329e9d8925e7cb4a4fcde52d.json
+        var goldenJson = "{\"a\":\"日\"}";
+        
+        var result = Serializer.Deserialize<TestUnicodeContainer>(goldenJson);
+        
+        await Assert.That(result.a).IsEqualTo("日");
+    }
+
+    [Test]
     public async Task VerifyGoldenData_Serialization_UnicodeCharacter()
     {
         // Test serialization produces the canonical form from golden data
@@ -298,6 +308,18 @@ public partial class CanonicalSerializerTests
         // Expected golden data from cjson: 50ecf5a6d95fecca7fb4259d7d30bcee688ea089329e9d8925e7cb4a4fcde52d.json
         var expectedJson = "{\"a\":\"日\"}";
         await Assert.That(serializedString).IsEqualTo(expectedJson);
+    }
+
+    [Test]
+    public async Task VerifyGoldenData_Deserialization_SimpleKeyValue()
+    {
+        // Golden data from cjson: 64b198dfda3dbd1c4a8c83f2ce8e9d4474b51e785b61bdb13c219a3e7fd7609c.json
+        var goldenJson = "{\"one\":1,\"two\":\"Two\"}";
+        
+        var result = Serializer.Deserialize<TestKeyValueContainer>(goldenJson);
+        
+        await Assert.That(result.one).IsEqualTo(1);
+        await Assert.That(result.two).IsEqualTo("Two");
     }
 
     [Test]
@@ -607,6 +629,20 @@ public partial class CanonicalSerializerTests
         await Assert.That(result.DeepNested["level1"]["level2a"][0].two).IsEqualTo("one");
         await Assert.That(result.DeepNested["level1"]["level2b"]).HasCount().EqualTo(1);
         await Assert.That(result.DeepNested["level1"]["level2b"][0].one).IsEqualTo(3);
+    }
+
+    [Test]
+    public async Task VerifyRoundTrip_Serialization_Then_Deserialization()
+    {
+        // Test that serialization followed by deserialization produces the original object
+        var original = new TestStringContainer("true", "42", "\"xzbit\"");
+        
+        var serialized = Serializer.Serialize(original);
+        var deserialized = Serializer.Deserialize<TestStringContainer>(Encoding.UTF8.GetString(serialized));
+        
+        await Assert.That(deserialized.BoolStr).IsEqualTo(original.BoolStr);
+        await Assert.That(deserialized.IntStr).IsEqualTo(original.IntStr);
+        await Assert.That(deserialized.StrStr).IsEqualTo(original.StrStr);
     }
 
     // Roundtrip Tests (Serialize then Deserialize)
