@@ -347,4 +347,50 @@ public class TrustedMetadataTests
 
         TrustedMetadataWithTimestamp.VerifyFileIntegrity(testData, fileMeta);
     }
+
+    [Test]
+    public void FileIntegrityVerification_WithBlake2b256_ShouldWorkCorrectly()
+    {
+        // Test BLAKE2b-256 hash verification in trusted metadata
+        var testData = "Hello, TUF BLAKE2b!"u8.ToArray();
+        var blake2bHash = NSec.Cryptography.HashAlgorithm.Blake2b_256.Hash(testData);
+        var blake2bHashString = Convert.ToHexString(blake2bHash).ToLowerInvariant();
+
+        var fileMeta = new FileMetadata
+        {
+            Version = 1,
+            Length = testData.Length,
+            Hashes = new Dictionary<string, string>
+            {
+                ["blake2b-256"] = blake2bHashString
+            }
+        };
+
+        // Should not throw
+        TrustedMetadataWithTimestamp.VerifyFileIntegrity(testData, fileMeta);
+    }
+
+    [Test]
+    public void FileIntegrityVerification_WithMixedHashesIncludingBlake2b_ShouldWorkCorrectly()
+    {
+        // Test mixed hash algorithms including BLAKE2b-256
+        var testData = "Mixed hashes test"u8.ToArray();
+        var sha256Hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(testData)).ToLowerInvariant();
+        var blake2bHash = NSec.Cryptography.HashAlgorithm.Blake2b_256.Hash(testData);
+        var blake2bHashString = Convert.ToHexString(blake2bHash).ToLowerInvariant();
+
+        var fileMeta = new FileMetadata
+        {
+            Version = 1,
+            Length = testData.Length,
+            Hashes = new Dictionary<string, string>
+            {
+                ["sha256"] = sha256Hash,
+                ["blake2b-256"] = blake2bHashString
+            }
+        };
+
+        // Should not throw when both hashes are valid
+        TrustedMetadataWithTimestamp.VerifyFileIntegrity(testData, fileMeta);
+    }
 }
