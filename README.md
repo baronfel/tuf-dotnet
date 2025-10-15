@@ -14,7 +14,7 @@ TUF .NET brings enterprise-grade security to software distribution in the .NET e
 - 🔐 **Complete TUF specification implementation** with full security guarantees
 - 🚀 **High-performance** canonical JSON handling optimized for .NET
 - 🛠️ **Production-ready** with comprehensive error handling and logging
-- 🔑 **Multi-algorithm support** (Ed25519, RSA-PSS, ECDSA)
+- 🔑 **Multi-algorithm support** (Ed25519, RSA-PSS, ECDSA) with BLAKE2b, SHA-256, SHA-512 hashing
 - 🌐 **Multi-repository support** (TAP 4) for enhanced security
 - ⚡ **AOT compatible** for minimal startup overhead
 - 🧪 **Conformance tested** against official TUF specification

@@ -1,5 +1,7 @@
 using System.Runtime.InteropServices;
 
+using NSec.Cryptography;
+
 using TUF.Models;
 
 namespace TUF;
@@ -145,6 +147,7 @@ public class Updater
             {
                 "sha256" => Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(data)).ToLowerInvariant(),
                 "sha512" => Convert.ToHexString(System.Security.Cryptography.SHA512.HashData(data)).ToLowerInvariant(),
+                "blake2b-256" => Convert.ToHexString(HashAlgorithm.Blake2b_256.Hash(data)).ToLowerInvariant(),
                 _ => null
             };
 

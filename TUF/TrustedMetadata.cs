@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using NSec.Cryptography;
 using Serde;
 
 namespace TUF.Models;
@@ -309,6 +310,7 @@ public class TrustedMetadataWithTimestamp(Metadata<Root> root, Metadata<Timestam
             {
                 "sha256" => Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(data)).ToLowerInvariant(),
                 "sha512" => Convert.ToHexString(System.Security.Cryptography.SHA512.HashData(data)).ToLowerInvariant(),
+                "blake2b-256" => Convert.ToHexString(HashAlgorithm.Blake2b_256.Hash(data)).ToLowerInvariant(),
                 _ => null // Skip unsupported hash algorithms
             };
 
