@@ -5,9 +5,10 @@ This example demonstrates a complete command-line interface for TUF operations u
 ## What This Example Shows
 
 - How to build a comprehensive CLI tool using `System.CommandLine`
-- Three main TUF operations: refresh, download, and info
+- Four main TUF operations: refresh, download, info, and inspect
 - Proper command-line argument handling and validation
 - Error handling and user-friendly output
+- Advanced metadata inspection and validation capabilities
 
 ## Prerequisites
 
@@ -63,6 +64,32 @@ dotnet run -- info \
   --target-file file.txt
 ```
 
+### Inspect Metadata Files
+
+Analyzes and validates TUF metadata files locally (offline inspection):
+
+```bash
+# Basic metadata inspection
+dotnet run -- inspect \
+  --metadata-file ./metadata/root.json
+
+# Detailed inspection with verbose output
+dotnet run -- inspect \
+  --metadata-file ./metadata/targets.json \
+  --verbose
+
+# Validate signatures (for root metadata, self-validation)
+dotnet run -- inspect \
+  --metadata-file ./metadata/root.json \
+  --validate-signatures
+
+# Validate signatures for non-root metadata (requires trusted root)
+dotnet run -- inspect \
+  --metadata-file ./metadata/timestamp.json \
+  --validate-signatures \
+  --trusted-root ./metadata/root.json
+```
+
 ## Features Demonstrated
 
 ### Command-Line Interface
@@ -75,6 +102,7 @@ dotnet run -- info \
 - **Metadata refresh**: Downloads and verifies all metadata files
 - **Target download**: Securely downloads target files with verification
 - **Repository inspection**: Shows repository and target information
+- **Metadata inspection**: Offline analysis and validation of metadata files
 - **Local caching**: Uses local directories for metadata and target storage
 
 ### Error Handling
@@ -101,6 +129,8 @@ This CLI tool can serve as:
 2. **CI/CD integration**: For automating secure downloads in build pipelines
 3. **Template**: As a starting point for building your own TUF-enabled applications
 4. **Troubleshooting**: For debugging TUF repository issues
+5. **Security auditing**: For validating metadata files and signatures offline
+6. **Metadata analysis**: For inspecting repository structure and metadata integrity
 
 ## Security Considerations
 
