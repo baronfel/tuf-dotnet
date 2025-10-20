@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsAotCompatible>true</IsAotCompatible>
+    <StartupObject>TufSecurityAuditor.SimpleTufAuditor</StartupObject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../TUF/TUF.csproj" />
+    <ProjectReference Include="../../CanonicalJson/CanonicalJson.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Program.cs" />
+    <Compile Remove="Models.cs" />
+    <Compile Remove="TufRepositoryAuditor.cs" />
+    <Compile Remove="AuditChecks.cs" />
+  </ItemGroup>
+
+</Project>

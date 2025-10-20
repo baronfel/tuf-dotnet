@@ -5,6 +5,7 @@
     <Project Path="examples/CliTool/CliTool.csproj" />
     <Project Path="examples/SigningDemo/SigningDemo.csproj" />
     <Project Path="examples/TufConformanceCli/TufConformanceCli.csproj" />
+    <Project Path="examples/TufSecurityAuditor/TufSecurityAuditor.csproj" />
   </Folder>
   <Project Path="CanonicalJson.Tests/CanonicalJson.Tests.csproj" />
   <Project Path="CanonicalJson/CanonicalJson.csproj" />
