@@ -1,0 +1,205 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://theupdateframework.io/schemas/targets.schema.json",
+  "title": "TUF Targets Metadata Schema",
+  "description": "JSON Schema for TUF targets metadata files that list available target files and their cryptographic metadata",
+  "type": "object",
+  "required": [
+    "_type",
+    "spec_version",
+    "version",
+    "expires",
+    "targets"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "_type": {
+      "type": "string",
+      "const": "targets",
+      "description": "The metadata type identifier. Always 'targets' for targets metadata."
+    },
+    "spec_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "The version of the TUF specification this metadata conforms to. Should follow semantic versioning."
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Version number of this targets metadata instance. Must be incremented for each new version."
+    },
+    "expires": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Expiration timestamp in ISO 8601 format. Clients must reject metadata after this time."
+    },
+    "targets": {
+      "type": "object",
+      "description": "Dictionary of target files managed by this metadata.",
+      "additionalProperties": {
+        "$ref": "#/definitions/TargetFile"
+      }
+    },
+    "delegations": {
+      "$ref": "#/definitions/Delegations",
+      "description": "Optional delegation configuration for distributing signing authority."
+    }
+  },
+  "definitions": {
+    "TargetFile": {
+      "type": "object",
+      "required": [
+        "length",
+        "hashes"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "length": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Length of the target file in bytes. Clients MUST verify downloaded files match this length exactly."
+        },
+        "hashes": {
+          "type": "object",
+          "description": "Dictionary of cryptographic hashes for integrity verification.",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]+$"
+          },
+          "properties": {
+            "sha256": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{64}$",
+              "description": "SHA-256 hash in hexadecimal format."
+            },
+            "sha512": {
+              "type": "string", 
+              "pattern": "^[a-fA-F0-9]{128}$",
+              "description": "SHA-512 hash in hexadecimal format."
+            },
+            "blake2b-256": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{64}$",
+              "description": "BLAKE2b-256 hash in hexadecimal format."
+            }
+          }
+        },
+        "custom": {
+          "type": "object",
+          "description": "Optional custom metadata for application-specific use."
+        }
+      }
+    },
+    "DelegatedRole": {
+      "type": "object",
+      "required": [
+        "name",
+        "keyids",
+        "threshold"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]+$",
+          "description": "Name of the delegated role. Must be unique within the delegation scope."
+        },
+        "keyids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "List of key identifiers authorized to sign for this delegated role."
+        },
+        "threshold": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Minimum number of signatures required from the authorized keys."
+        },
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Optional list of path patterns this role is responsible for."
+        },
+        "path_hash_prefixes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]+$"
+          },
+          "description": "Optional list of path hash prefixes this role is responsible for."
+        },
+        "terminating": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this role terminates the delegation search."
+        }
+      },
+      "oneOf": [
+        {"required": ["paths"]},
+        {"required": ["path_hash_prefixes"]}
+      ]
+    },
+    "Key": {
+      "type": "object",
+      "required": [
+        "keytype",
+        "scheme",
+        "keyval"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "keytype": {
+          "type": "string",
+          "enum": ["ed25519", "rsa", "ecdsa", "ecdsa-sha2-nistp256", "rsa-pss-sha256"],
+          "description": "The cryptographic key type."
+        },
+        "scheme": {
+          "type": "string",
+          "enum": ["ed25519", "rsa-pss-sha256", "ecdsa-sha2-nistp256", "rsassa-pss-sha256"],
+          "description": "The signature scheme used with this key."
+        },
+        "keyval": {
+          "type": "object",
+          "description": "The key value containing the public key material.",
+          "properties": {
+            "public": {
+              "type": "string",
+              "description": "The public key value, typically hex or base64 encoded."
+            }
+          },
+          "required": ["public"],
+          "additionalProperties": true
+        }
+      }
+    },
+    "Delegations": {
+      "type": "object",
+      "required": [
+        "keys",
+        "roles"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "keys": {
+          "type": "object",
+          "description": "Dictionary of keys available to delegated roles.",
+          "additionalProperties": {
+            "$ref": "#/definitions/Key"
+          }
+        },
+        "roles": {
+          "type": "array",
+          "description": "List of delegated role definitions in priority order.",
+          "items": {
+            "$ref": "#/definitions/DelegatedRole"
+          }
+        }
+      }
+    }
+  }
+}
