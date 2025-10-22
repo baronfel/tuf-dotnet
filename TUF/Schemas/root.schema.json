@@ -1,0 +1,141 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://theupdateframework.io/schemas/root.schema.json",
+  "title": "TUF Root Metadata Schema",
+  "description": "JSON Schema for TUF root metadata files that establish trust relationships and key assignments for all other roles",
+  "type": "object",
+  "required": [
+    "_type",
+    "spec_version", 
+    "version",
+    "expires",
+    "keys",
+    "roles"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "_type": {
+      "type": "string",
+      "const": "root",
+      "description": "The metadata type identifier. Always 'root' for root metadata."
+    },
+    "spec_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "The version of the TUF specification this metadata conforms to. Should follow semantic versioning."
+    },
+    "consistent_snapshot": {
+      "type": "boolean",
+      "description": "Indicates whether the repository uses consistent snapshots."
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Version number of this root metadata instance. Must be incremented for each new version."
+    },
+    "expires": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Expiration timestamp in ISO 8601 format. Clients must reject metadata after this time."
+    },
+    "keys": {
+      "type": "object",
+      "description": "Dictionary of all keys used by any role in this TUF repository.",
+      "additionalProperties": {
+        "$ref": "#/definitions/Key"
+      }
+    },
+    "roles": {
+      "$ref": "#/definitions/Roles",
+      "description": "Role assignments that delegate specific keys to each TUF role."
+    }
+  },
+  "definitions": {
+    "Key": {
+      "type": "object",
+      "required": [
+        "keytype",
+        "scheme", 
+        "keyval"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "keytype": {
+          "type": "string",
+          "enum": ["ed25519", "rsa", "ecdsa", "ecdsa-sha2-nistp256", "rsa-pss-sha256"],
+          "description": "The cryptographic key type."
+        },
+        "scheme": {
+          "type": "string",
+          "enum": ["ed25519", "rsa-pss-sha256", "ecdsa-sha2-nistp256", "rsassa-pss-sha256"],
+          "description": "The signature scheme used with this key."
+        },
+        "keyval": {
+          "type": "object",
+          "description": "The key value containing the public key material.",
+          "properties": {
+            "public": {
+              "type": "string",
+              "description": "The public key value, typically hex or base64 encoded."
+            }
+          },
+          "required": ["public"],
+          "additionalProperties": true
+        }
+      }
+    },
+    "Role": {
+      "type": "object",
+      "required": [
+        "keyids",
+        "threshold"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "keyids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "description": "List of key identifiers authorized to sign for this role."
+        },
+        "threshold": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Minimum number of signatures required from the authorized keys."
+        }
+      }
+    },
+    "Roles": {
+      "type": "object",
+      "required": [
+        "root",
+        "timestamp",
+        "snapshot", 
+        "targets"
+      ],
+      "additionalProperties": {
+        "$ref": "#/definitions/Role"
+      },
+      "properties": {
+        "root": {
+          "$ref": "#/definitions/Role",
+          "description": "The root role configuration."
+        },
+        "timestamp": {
+          "$ref": "#/definitions/Role",
+          "description": "The timestamp role configuration."
+        },
+        "snapshot": {
+          "$ref": "#/definitions/Role",
+          "description": "The snapshot role configuration."
+        },
+        "targets": {
+          "$ref": "#/definitions/Role",
+          "description": "The targets role configuration."
+        }
+      }
+    }
+  }
+}

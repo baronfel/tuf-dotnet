@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://theupdateframework.io/schemas/timestamp.schema.json",
+  "title": "TUF Timestamp Metadata Schema",
+  "description": "JSON Schema for TUF timestamp metadata files that list the hashes and size of the snapshot metadata file",
+  "type": "object",
+  "required": [
+    "_type",
+    "spec_version",
+    "version",
+    "expires",
+    "meta"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "_type": {
+      "type": "string",
+      "const": "timestamp",
+      "description": "The metadata type identifier. Always 'timestamp' for timestamp metadata."
+    },
+    "spec_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "The version of the TUF specification this metadata conforms to. Should follow semantic versioning."
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Version number of this timestamp metadata instance. Must be incremented for each new version."
+    },
+    "expires": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Expiration timestamp in ISO 8601 format. Clients must reject metadata after this time."
+    },
+    "meta": {
+      "type": "object",
+      "description": "Dictionary containing metadata about the snapshot file.",
+      "required": ["snapshot.json"],
+      "additionalProperties": false,
+      "properties": {
+        "snapshot.json": {
+          "$ref": "#/definitions/MetaFile",
+          "description": "Metadata information about the snapshot.json file."
+        }
+      }
+    }
+  },
+  "definitions": {
+    "MetaFile": {
+      "type": "object",
+      "required": [
+        "version"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Version number of the referenced metadata file."
+        },
+        "length": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Length of the metadata file in bytes."
+        },
+        "hashes": {
+          "type": "object",
+          "description": "Dictionary of cryptographic hashes for the metadata file.",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]+$"
+          },
+          "properties": {
+            "sha256": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{64}$",
+              "description": "SHA-256 hash in hexadecimal format."
+            },
+            "sha512": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{128}$",
+              "description": "SHA-512 hash in hexadecimal format."
+            },
+            "blake2b-256": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{64}$",
+              "description": "BLAKE2b-256 hash in hexadecimal format."
+            }
+          }
+        }
+      }
+    }
+  }
+}

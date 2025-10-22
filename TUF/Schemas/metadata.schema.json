@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://theupdateframework.io/schemas/metadata.schema.json",
+  "title": "TUF Metadata Container Schema",
+  "description": "JSON Schema for TUF metadata files with signatures wrapper (root.json, targets.json, snapshot.json, timestamp.json)",
+  "type": "object",
+  "required": [
+    "signed",
+    "signatures"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "signed": {
+      "type": "object",
+      "description": "The signed portion of the metadata that is cryptographically signed.",
+      "oneOf": [
+        {"$ref": "root.schema.json"},
+        {"$ref": "targets.schema.json"}, 
+        {"$ref": "snapshot.schema.json"},
+        {"$ref": "timestamp.schema.json"}
+      ]
+    },
+    "signatures": {
+      "type": "array",
+      "description": "List of cryptographic signatures over the 'signed' portion.",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/Signature"
+      }
+    }
+  },
+  "definitions": {
+    "Signature": {
+      "type": "object",
+      "required": [
+        "keyid",
+        "signature"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "keyid": {
+          "type": "string",
+          "description": "Identifier of the key used to generate this signature. Must match a key defined in the root metadata."
+        },
+        "signature": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]+$",
+          "description": "The cryptographic signature over the canonical JSON representation of the 'signed' object, encoded as hexadecimal."
+        }
+      }
+    }
+  }
+}
