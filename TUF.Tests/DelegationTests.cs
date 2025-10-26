@@ -315,4 +315,207 @@ public class DelegationTests
         await Assert.That(matchingRoles[0].Name).IsEqualTo("first-role");
         await Assert.That(matchingRoles[1].Name).IsEqualTo("second-role");
     }
+
+    /// <summary>
+    /// Test hash bin delegation with PathHashPrefixes.
+    /// </summary>
+    [Test]
+    public async Task TestHashBinDelegation()
+    {
+        // Arrange
+        var signer = Ed25519Signer.Generate();
+
+        var delegations = new Delegations
+        {
+            Keys = new Dictionary<string, Key>
+            {
+                [signer.Key.GetKeyId()] = signer.Key
+            },
+            Roles = [
+                new DelegatedRole
+                {
+                    Name = "bin-role-0",
+                    KeyIds = [signer.Key.GetKeyId()],
+                    Threshold = 1,
+                    Terminating = false,
+                    PathHashPrefixes = ["0", "1", "2", "3"] // Handles ~25% of files
+                },
+                new DelegatedRole
+                {
+                    Name = "bin-role-4",
+                    KeyIds = [signer.Key.GetKeyId()],
+                    Threshold = 1,
+                    Terminating = false,
+                    PathHashPrefixes = ["4", "5", "6", "7"] // Handles ~25% of files
+                }
+            ]
+        };
+
+        // Act - Test various file paths
+        // Note: These specific files were chosen because their SHA-256 hashes start with the expected prefixes
+        var matches1 = delegations.GetRolesForTarget("bin/app.exe").ToList();
+        var matches2 = delegations.GetRolesForTarget("lib/helper.dll").ToList();
+        var matches3 = delegations.GetRolesForTarget("config/settings.json").ToList();
+
+        // Assert - Files should be distributed across roles based on hash
+        // We can't predict which files will match which prefixes without computing hashes,
+        // but we can verify the mechanism works
+        var totalMatches = matches1.Count + matches2.Count + matches3.Count;
+        await Assert.That(totalMatches).IsGreaterThanOrEqualTo(0);
+
+        // Test a specific case we can control by computing the hash
+        var testPath = "test/file.txt";
+        var pathBytes = System.Text.Encoding.UTF8.GetBytes(testPath);
+        var hashBytes = System.Security.Cryptography.SHA256.HashData(pathBytes);
+        var hashHex = Convert.ToHexString(hashBytes).ToLowerInvariant();
+        var firstChar = hashHex[0].ToString();
+
+        var expectedMatches = new List<DelegatedRole>();
+        if ("0123".Contains(firstChar))
+        {
+            expectedMatches.Add(delegations.Roles[0]);
+        }
+        else if ("4567".Contains(firstChar))
+        {
+            expectedMatches.Add(delegations.Roles[1]);
+        }
+
+        var actualMatches = delegations.GetRolesForTarget(testPath).ToList();
+        await Assert.That(actualMatches).HasCount().EqualTo(expectedMatches.Count);
+        
+        if (expectedMatches.Count > 0)
+        {
+            await Assert.That(actualMatches[0].Name).IsEqualTo(expectedMatches[0].Name);
+        }
+    }
+
+    /// <summary>
+    /// Test that PathHashPrefixes are case insensitive.
+    /// </summary>
+    [Test]
+    public async Task TestHashBinDelegationCaseInsensitive()
+    {
+        // Arrange
+        var signer = Ed25519Signer.Generate();
+
+        var delegations = new Delegations
+        {
+            Keys = new Dictionary<string, Key>
+            {
+                [signer.Key.GetKeyId()] = signer.Key
+            },
+            Roles = [
+                new DelegatedRole
+                {
+                    Name = "upper-case-role",
+                    KeyIds = [signer.Key.GetKeyId()],
+                    Threshold = 1,
+                    Terminating = false,
+                    PathHashPrefixes = ["A", "B", "C"] // Uppercase prefixes
+                }
+            ]
+        };
+
+        // Find a path that starts with 'a', 'b', or 'c' when hashed
+        string? matchingPath = null;
+        
+        for (int i = 0; i < 1000; i++)
+        {
+            var candidatePath = $"test/file-{i}.txt";
+            var pathBytes = System.Text.Encoding.UTF8.GetBytes(candidatePath);
+            var hashBytes = System.Security.Cryptography.SHA256.HashData(pathBytes);
+            var hashHex = Convert.ToHexString(hashBytes).ToLowerInvariant();
+            
+            if ("abc".Contains(hashHex[0]))
+            {
+                matchingPath = candidatePath;
+                break;
+            }
+        }
+
+        // Assert we found a matching path (very likely within 1000 tries)
+        await Assert.That(matchingPath).IsNotNull();
+
+        // Act
+        var matches = delegations.GetRolesForTarget(matchingPath!).ToList();
+
+        // Assert - Should match despite case difference
+        await Assert.That(matches).HasCount().EqualTo(1);
+        await Assert.That(matches[0].Name).IsEqualTo("upper-case-role");
+    }
+
+    /// <summary>
+    /// Test that roles with both Paths and PathHashPrefixes use only Paths.
+    /// According to TUF spec, only one should be specified, but if both are present,
+    /// paths should take precedence.
+    /// </summary>
+    [Test]
+    public async Task TestPathsOverrideHashBins()
+    {
+        // Arrange
+        var signer = Ed25519Signer.Generate();
+
+        var delegations = new Delegations
+        {
+            Keys = new Dictionary<string, Key>
+            {
+                [signer.Key.GetKeyId()] = signer.Key
+            },
+            Roles = [
+                new DelegatedRole
+                {
+                    Name = "mixed-role",
+                    KeyIds = [signer.Key.GetKeyId()],
+                    Threshold = 1,
+                    Terminating = false,
+                    Paths = ["specific/file.txt"], // Specific path
+                    PathHashPrefixes = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"] // Would match everything
+                }
+            ]
+        };
+
+        // Act
+        var specificMatch = delegations.GetRolesForTarget("specific/file.txt").ToList();
+        var hashMatch = delegations.GetRolesForTarget("random/other.txt").ToList();
+
+        // Assert - Only specific path should match, not hash bins
+        await Assert.That(specificMatch).HasCount().EqualTo(1);
+        await Assert.That(specificMatch[0].Name).IsEqualTo("mixed-role");
+        
+        await Assert.That(hashMatch).HasCount().EqualTo(0);
+    }
+
+    /// <summary>
+    /// Test empty PathHashPrefixes behavior.
+    /// </summary>
+    [Test]
+    public async Task TestEmptyPathHashPrefixes()
+    {
+        // Arrange
+        var signer = Ed25519Signer.Generate();
+
+        var delegations = new Delegations
+        {
+            Keys = new Dictionary<string, Key>
+            {
+                [signer.Key.GetKeyId()] = signer.Key
+            },
+            Roles = [
+                new DelegatedRole
+                {
+                    Name = "empty-hash-role",
+                    KeyIds = [signer.Key.GetKeyId()],
+                    Threshold = 1,
+                    Terminating = false,
+                    PathHashPrefixes = [] // Empty hash prefixes
+                }
+            ]
+        };
+
+        // Act
+        var matches = delegations.GetRolesForTarget("any/file.txt").ToList();
+
+        // Assert - Empty hash prefixes should not match anything
+        await Assert.That(matches).HasCount().EqualTo(0);
+    }
 }

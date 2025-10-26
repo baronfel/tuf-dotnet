@@ -157,17 +157,44 @@ public partial record DelegatedRole
 
     public bool IsDelegatedPath(string targetFile)
     {
-        if (Paths is null || Paths.Count == 0)
+        // Check path-based delegation first
+        if (Paths is not null && Paths.Count > 0)
         {
-            return false;
+            return Paths.Any(p => PathIsMatch(p, targetFile));
         }
-        return Paths.Any(p => PathIsMatch(p, targetFile));
+
+        // Check hash bin delegation if paths not specified
+        if (PathHashPrefixes is not null && PathHashPrefixes.Count > 0)
+        {
+            return IsHashBinMatch(PathHashPrefixes, targetFile);
+        }
+
+        return false;
     }
 
     public static bool PathIsMatch(string pathPattern, string targetFile)
     {
         var matcher = new Matcher(StringComparison.Ordinal).AddInclude(pathPattern);
         return matcher.Match(targetFile).HasMatches;
+    }
+
+    /// <summary>
+    /// Checks if a target file path matches any of the hash bin prefixes.
+    /// Uses SHA-256 hash of the target path for consistent distribution.
+    /// </summary>
+    /// <param name="pathHashPrefixes">List of hex prefixes to match against</param>
+    /// <param name="targetFile">Target file path to check</param>
+    /// <returns>True if the hash of the target path starts with any prefix</returns>
+    public static bool IsHashBinMatch(List<string> pathHashPrefixes, string targetFile)
+    {
+        // Compute SHA-256 hash of the target file path
+        var pathBytes = System.Text.Encoding.UTF8.GetBytes(targetFile);
+        var hashBytes = System.Security.Cryptography.SHA256.HashData(pathBytes);
+        var hashHex = Convert.ToHexString(hashBytes).ToLowerInvariant();
+        
+        // Check if hash starts with any of the prefixes
+        return pathHashPrefixes.Any(prefix => 
+            hashHex.StartsWith(prefix.ToLowerInvariant(), StringComparison.Ordinal));
     }
 }
 
@@ -211,25 +238,30 @@ public partial record Delegations
 
     public List<DelegatedRole> Roles { get; init; } = new();
 
-    public List<(string Name, bool Terminating)> GetRolesForTarget(string targetFile)
+    /// <summary>
+    /// Gets all delegated roles that match the given target file path.
+    /// Returns the full role objects for detailed access.
+    /// </summary>
+    /// <param name="targetFile">Target file path to match against</param>
+    /// <returns>List of matching delegated roles in priority order</returns>
+    public IEnumerable<DelegatedRole> GetRolesForTarget(string targetFile)
     {
         if (Roles is null)
         {
-            return [];
+            yield break;
         }
-        var roles = new List<(string Name, bool Terminating)>(Roles.Count);
+
         foreach (var role in Roles)
         {
             if (role.IsDelegatedPath(targetFile))
             {
-                roles.Add((role.Name, role.Terminating));
+                yield return role;
             }
             if (role.Terminating)
             {
-                break;
+                yield break;
             }
         }
-        return roles;
     }
 }
 
