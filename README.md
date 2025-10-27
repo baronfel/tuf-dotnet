@@ -21,6 +21,14 @@ TUF .NET brings enterprise-grade security to software distribution in the .NET e
 
 ## Quick Start
 
+### 🚀 **Fastest Start: Hello World Tutorial**
+For a complete working example that requires zero setup:
+```bash
+git clone https://github.com/baronfel/tuf-dotnet.git
+cd tuf-dotnet/examples/HelloWorldTutorial
+dotnet run
+```
+
 ### Installation
 ```shell
 dotnet add package TUF
@@ -56,6 +64,7 @@ if (targetInfo.HasValue)
 ## Documentation
 
 ### 📚 **Getting Started**
+- **[Hello World Tutorial](docs/guides/hello-world-tutorial.md)** ⭐ - Complete self-contained TUF tutorial (5 minutes)
 - **[Quick Start Guide](docs/guides/quick-start.md)** - Get up and running in 5 minutes
 - **[What is TUF?](docs/guides/what-is-tuf.md)** - Understanding the security framework
 - **[Core Concepts](docs/guides/core-concepts.md)** - Essential TUF concepts for .NET developers
@@ -86,6 +95,7 @@ Root solution: `TUF.slnx` (requires .NET 10 SDK, libraries target .NET 8+)
 - **`CanonicalJson/`** — High-performance canonical JSON serialization
 
 ### Examples & Tools
+- **`examples/HelloWorldTutorial/`** ⭐ — Complete self-contained tutorial (start here!)
 - **`examples/BasicClient/`** — Simple TUF client demonstration
 - **`examples/RepositoryManager/`** — Create and manage TUF repositories
 - **`examples/MultiRepositoryClient/`** — Multi-repository consensus example
