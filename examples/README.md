@@ -4,6 +4,15 @@ This directory contains examples demonstrating how to use the TUF .NET library f
 
 ## Available Examples
 
+### [HelloWorldTutorial](./HelloWorldTutorial/) ⭐ **START HERE**
+A complete, self-contained tutorial that works without any external setup:
+- Creates a TUF repository from scratch with generated keys
+- Demonstrates secure file downloads with full verification
+- Shows the complete TUF workflow in a single example
+- Perfect first introduction to TUF concepts
+
+**Best for**: Complete beginners who want to understand TUF in 5 minutes with a working example.
+
 ### [BasicClient](./BasicClient/)
 A simple console application that demonstrates the fundamental TUF client workflow:
 - Initializing a TUF updater
@@ -51,13 +60,23 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
 
 ## Getting Started
 
+### 🚀 **Quick Start (Recommended)**
+If you're new to TUF, start with the HelloWorldTutorial:
+```bash
+cd examples/HelloWorldTutorial
+dotnet run
+```
+This complete example works immediately without any setup!
+
+### 📚 **For Learning**
 1. **Prerequisites**
    - .NET 8.0 or later
-   - Access to a TUF repository (for testing, you can use the examples with placeholder data)
+   - No external repositories needed (HelloWorldTutorial creates everything)
 
 2. **Build Examples**
    ```bash
    # From the repository root
+   dotnet build examples/HelloWorldTutorial/
    dotnet build examples/BasicClient/
    dotnet build examples/CliTool/
    dotnet build examples/RepositoryManager/
@@ -67,7 +86,11 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
 
 3. **Run Examples**
    ```bash
-   # Create a TUF repository first
+   # Start here - complete self-contained tutorial
+   cd examples/HelloWorldTutorial
+   dotnet run
+
+   # Or create a TUF repository first for other examples
    cd examples/RepositoryManager
    dotnet run ./my-tuf-repo
 
