@@ -21,6 +21,18 @@ public class UpdaterConfig
     public bool PrefixTargetsWithHash { get; init; } = true;
     public bool DisableLocalCache { get; init; } = false;
     public required HttpClient Client { get; init; }
+    
+    /// <summary>
+    /// Network resilience configuration for production-ready error handling.
+    /// Provides retry policies, circuit breakers, and mirror failover capabilities.
+    /// </summary>
+    public NetworkResilienceConfig NetworkResilience { get; init; } = new();
+    
+    /// <summary>
+    /// Optional list of mirror URLs for failover when primary server fails.
+    /// Used in conjunction with NetworkResilience.EnableMirrorFailover.
+    /// </summary>
+    public List<string>? MirrorUrls { get; init; }
 
     public UpdaterConfig(byte[] initialRootBytes, Uri remoteMetadataUrl)
     {
@@ -34,10 +46,12 @@ public class Updater
 {
     private TrustedMetadata _trusted;
     private readonly UpdaterConfig _config;
+    private readonly NetworkResilience _networkResilience;
 
     public Updater(UpdaterConfig config)
     {
         _config = config;
+        _networkResilience = new NetworkResilience(config.NetworkResilience);
         _trusted = TrustedMetadata.CreateFromRootData(config.LocalTrustedRoot);
     }
 
@@ -327,14 +341,21 @@ public class Updater
 
     private async Task<byte[]> DownloadFile(Uri uri, uint? maxLength)
     {
-        var headers = await _config.Client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead);
-        var length = headers.Content.Headers.ContentLength ?? 0;
-        if (length > maxLength)
-        {
-            var filePath = uri.ToString().TrimStart(_config.RemoteTargetsUrl.ToString());
-            throw new Exception($"File {filePath} length {length} exceeds maximum allowed length {maxLength}");
-        }
-        return await headers.Content.ReadAsByteArrayAsync();
+        return await _networkResilience.ExecuteWithResilienceAsync(
+            async (client, cancellationToken) =>
+            {
+                var headers = await client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                var length = headers.Content.Headers.ContentLength ?? 0;
+                if (length > maxLength)
+                {
+                    var filePath = uri.ToString().TrimStart(_config.RemoteTargetsUrl.ToString());
+                    throw new Exception($"File {filePath} length {length} exceeds maximum allowed length {maxLength}");
+                }
+                return await headers.Content.ReadAsByteArrayAsync(cancellationToken);
+            },
+            _config.Client,
+            $"DownloadFile:{uri}",
+            _config.MirrorUrls);
     }
 }
 
