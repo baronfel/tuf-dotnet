@@ -17,6 +17,7 @@ public class RepositoryBuilder
     private readonly List<TargetFileInfo> _targets = new();
     private DateTimeOffset _defaultExpiry = DateTimeOffset.UtcNow.AddYears(1);
     private bool _consistentSnapshots = true;
+    private readonly List<string> _hashAlgorithms = new() { "sha256" }; // Default to SHA-256
 
     /// <summary>
     /// Add a signer for a specific role
@@ -48,6 +49,32 @@ public class RepositoryBuilder
     public RepositoryBuilder SetConsistentSnapshots(bool enabled)
     {
         _consistentSnapshots = enabled;
+        return this;
+    }
+
+    /// <summary>
+    /// Configure which hash algorithms to use for metadata and target files.
+    /// Supported algorithms: "sha256", "sha512"
+    /// </summary>
+    /// <param name="algorithms">Hash algorithms to use (defaults to ["sha256"])</param>
+    /// <returns>The RepositoryBuilder for method chaining</returns>
+    /// <exception cref="ArgumentException">Thrown if unsupported hash algorithm specified</exception>
+    public RepositoryBuilder SetHashAlgorithms(params string[] algorithms)
+    {
+        if (algorithms == null || algorithms.Length == 0)
+            throw new ArgumentException("At least one hash algorithm must be specified", nameof(algorithms));
+
+        var supportedAlgorithms = new HashSet<string> { "sha256", "sha512" };
+        
+        foreach (var algorithm in algorithms)
+        {
+            var normalizedAlg = algorithm.ToLowerInvariant();
+            if (!supportedAlgorithms.Contains(normalizedAlg))
+                throw new ArgumentException($"Unsupported hash algorithm: {algorithm}. Supported: sha256, sha512", nameof(algorithms));
+        }
+
+        _hashAlgorithms.Clear();
+        _hashAlgorithms.AddRange(algorithms.Select(a => a.ToLowerInvariant()));
         return this;
     }
 
@@ -191,11 +218,7 @@ public class RepositoryBuilder
 
         foreach (var target in _targets)
         {
-            var sha256Hash = System.Security.Cryptography.SHA256.HashData(target.Content);
-            var hashes = new Dictionary<string, string>
-            {
-                ["sha256"] = Convert.ToHexString(sha256Hash).ToLowerInvariant()
-            };
+            var hashes = ComputeHashes(target.Content);
 
             var metadata = new TargetFile
             {
@@ -214,11 +237,7 @@ public class RepositoryBuilder
     {
         var targetsBytes = System.Text.Encoding.UTF8.GetBytes(Serde.Json.JsonSerializer.Serialize<Metadata<Targets>, MetadataProxy.Ser<Targets>>(targetsMetadata));
 
-        var sha256Hash = System.Security.Cryptography.SHA256.HashData(targetsBytes);
-        var hashes = new Dictionary<string, string>
-        {
-            ["sha256"] = Convert.ToHexString(sha256Hash).ToLowerInvariant()
-        };
+        var hashes = ComputeHashes(targetsBytes);
 
         return new Dictionary<string, FileMetadata>
         {
@@ -235,11 +254,7 @@ public class RepositoryBuilder
     {
         var snapshotBytes = System.Text.Encoding.UTF8.GetBytes(Serde.Json.JsonSerializer.Serialize<Metadata<Snapshot>, MetadataProxy.Ser<Snapshot>>(snapshotMetadata));
 
-        var sha256Hash = System.Security.Cryptography.SHA256.HashData(snapshotBytes);
-        var hashes = new Dictionary<string, string>
-        {
-            ["sha256"] = Convert.ToHexString(sha256Hash).ToLowerInvariant()
-        };
+        var hashes = ComputeHashes(snapshotBytes);
 
         return new Dictionary<string, FileMetadata>
         {
@@ -270,6 +285,30 @@ public class RepositoryBuilder
 
             metadata.Signatures.Add(signature);
         }
+    }
+
+    /// <summary>
+    /// Computes hashes for the given data using all configured hash algorithms.
+    /// </summary>
+    /// <param name="data">The data to hash</param>
+    /// <returns>Dictionary of algorithm name to hex-encoded hash</returns>
+    private Dictionary<string, string> ComputeHashes(ReadOnlySpan<byte> data)
+    {
+        var hashes = new Dictionary<string, string>();
+
+        foreach (var algorithm in _hashAlgorithms)
+        {
+            var hashBytes = algorithm switch
+            {
+                "sha256" => System.Security.Cryptography.SHA256.HashData(data),
+                "sha512" => System.Security.Cryptography.SHA512.HashData(data),
+                _ => throw new InvalidOperationException($"Unsupported hash algorithm: {algorithm}")
+            };
+
+            hashes[algorithm] = Convert.ToHexString(hashBytes).ToLowerInvariant();
+        }
+
+        return hashes;
     }
 }
 
