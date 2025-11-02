@@ -1,0 +1,11 @@
+{
+  "message": "This is sample data protected by TUF",
+  "timestamp": "2025-11-02T09:14:17Z",
+  "security": "TUF provides integrity and authenticity guarantees",
+  "features": [
+    "Tamper detection",
+    "Signature verification", 
+    "Rollback protection",
+    "Multi-signature support"
+  ]
+}
