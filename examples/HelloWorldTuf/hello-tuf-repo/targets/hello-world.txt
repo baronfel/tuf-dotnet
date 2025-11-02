@@ -1,0 +1,4 @@
+Hello, TUF World! 🌟
+
+This file is protected by The Update Framework.
+TUF ensures it hasn't been tampered with! 🛡️
