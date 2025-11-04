@@ -21,7 +21,20 @@ TUF .NET brings enterprise-grade security to software distribution in the .NET e
 
 ## Quick Start
 
-### Installation
+### 🚀 Try TUF in 30 Seconds
+```bash
+# Clone and run the Hello World example - no setup needed!
+git clone https://github.com/baronfel/tuf-dotnet.git
+cd tuf-dotnet/examples/HelloWorld
+dotnet run
+```
+
+See a complete secure update workflow with explanations of exactly what security you get.
+
+### 📚 Learn TUF in 5 Minutes  
+Follow our **[step-by-step tutorial](./docs/HelloWorld.md)** to build your own TUF client from scratch.
+
+### 🛠️ Production Installation
 ```shell
 dotnet add package TUF
 ```
