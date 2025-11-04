@@ -4,6 +4,15 @@ This directory contains examples demonstrating how to use the TUF .NET library f
 
 ## Available Examples
 
+### [HelloWorld](./HelloWorld/) 🌟 **START HERE**
+The simplest possible TUF client - demonstrates core security features in under 5 minutes:
+- Self-contained demo that works without external dependencies
+- Complete secure update workflow with explanations
+- Visual feedback showing exactly what security guarantees you get
+- Perfect introduction to TUF concepts
+
+**Best for**: First-time TUF users who want to see results immediately.
+
 ### [BasicClient](./BasicClient/)
 A simple console application that demonstrates the fundamental TUF client workflow:
 - Initializing a TUF updater
@@ -51,6 +60,18 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
 
 ## Getting Started
 
+### 🚀 Quickest Start (30 seconds)
+```bash
+# Run the Hello World example - works immediately, no setup needed
+cd examples/HelloWorld
+dotnet run
+```
+
+### 📚 Complete Tutorial (5 minutes) 
+Follow the **[TUF in 5 Minutes Tutorial](../docs/HelloWorld.md)** to build your own TUF client from scratch.
+
+### 🛠️ All Examples
+
 1. **Prerequisites**
    - .NET 8.0 or later
    - Access to a TUF repository (for testing, you can use the examples with placeholder data)
@@ -58,6 +79,7 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
 2. **Build Examples**
    ```bash
    # From the repository root
+   dotnet build examples/HelloWorld/         # 🌟 Start here
    dotnet build examples/BasicClient/
    dotnet build examples/CliTool/
    dotnet build examples/RepositoryManager/
