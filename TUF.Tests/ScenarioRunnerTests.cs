@@ -126,7 +126,7 @@ public class ScenarioRunnerTests
 
         // Create mock HTTP client that serves files from refresh-1/
         var mockHandler = new MockHttpMessageHandler(scenarioPath);
-        using var httpClient = new HttpClient(mockHandler);
+        using var httpClient = SharedTestHttpClientPool.GetClientWithHandler(mockHandler);
 
         // Configure updater with scenario data
         var config = new UpdaterConfig(initialRootBytes, new Uri("https://example.com/metadata/"))

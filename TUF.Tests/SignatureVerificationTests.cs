@@ -24,7 +24,7 @@ public class SignatureVerificationTests
     public async Task TestEd25519SignatureVerification()
     {
         // Arrange
-        var signer = Ed25519Signer.Generate();
+        var signer = SharedCryptoKeyPool.GetEd25519Signer();
         var testData = "test message for signing"u8.ToArray();
 
         // Act
@@ -42,7 +42,7 @@ public class SignatureVerificationTests
     public async Task TestCanonicalJsonSignatureVerification()
     {
         // Arrange
-        var signer = Ed25519Signer.Generate();
+        var signer = SharedCryptoKeyPool.GetEd25519Signer();
 
         // Create a simple metadata object
         var metadata = new Root
@@ -111,7 +111,7 @@ public class SignatureVerificationTests
     public async Task TestDifferentDataProducesDifferentSignatures()
     {
         // Arrange
-        var signer = Ed25519Signer.Generate();
+        var signer = SharedCryptoKeyPool.GetEd25519Signer();
         var data1 = "first test message"u8.ToArray();
         var data2 = "second test message"u8.ToArray();
 
@@ -131,7 +131,7 @@ public class SignatureVerificationTests
     public async Task TestSignatureHexEncoding()
     {
         // Arrange
-        var signer = Ed25519Signer.Generate();
+        var signer = SharedCryptoKeyPool.GetEd25519Signer();
         var testData = "test hex encoding"u8.ToArray();
 
         // Act
