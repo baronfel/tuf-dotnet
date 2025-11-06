@@ -118,6 +118,24 @@ cd examples/BasicClient
 dotnet build
 ```
 
+### TUF Conformance Testing
+
+Validate specification compliance with the official TUF conformance test suite:
+
+```shell
+# Run all conformance tests  
+python3 scripts/run-conformance-tests.py
+
+# Setup environment only
+python3 scripts/run-conformance-tests.py --setup-only
+
+# Test conformance CLI directly
+cd examples/TufConformanceCli
+dotnet run -- --help
+```
+
+See [docs/testing/conformance-testing.md](docs/testing/conformance-testing.md) for detailed information.
+
 ### Examples
 ```shell
 # Create a TUF repository
