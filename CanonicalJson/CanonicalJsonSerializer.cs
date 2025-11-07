@@ -72,7 +72,21 @@ public sealed class CanonicalJsonSerializer : ISerializer, ITypeSerializer, IDis
         return new ReorderingSerializer(this);
     }
 
-    public void WriteRaw(string value) => _writer.WriteRawValue(_utf8.GetBytes(value));
+    public void WriteRaw(string value)
+    {
+        // Use stackalloc for small strings to avoid heap allocation
+        if (value.Length <= 256)
+        {
+            Span<byte> utf8Bytes = stackalloc byte[_utf8.GetMaxByteCount(value.Length)];
+            var bytesWritten = _utf8.GetBytes(value, utf8Bytes);
+            _writer.WriteRawValue(utf8Bytes[..bytesWritten]);
+        }
+        else
+        {
+            // Fall back to heap allocation for large strings
+            _writer.WriteRawValue(_utf8.GetBytes(value));
+        }
+    }
 
     public void WriteObjectStart() => _writer.WriteStartObject();
     public void WriteObjectEnd() => _writer.WriteEndObject();
@@ -608,9 +622,10 @@ public sealed class CanonicalJsonEncoder : JavaScriptEncoder
                     buffer[1] = 'u';
                     buffer[2] = '0';
                     buffer[3] = '0';
-                    var hex = ((ushort)unicodeScalar).ToString("x2");
-                    buffer[4] = hex[0];
-                    buffer[5] = hex[1];
+                    // Use direct hex conversion to avoid string allocation
+                    var value = (ushort)unicodeScalar;
+                    buffer[4] = GetHexChar((value >> 4) & 0xF);
+                    buffer[5] = GetHexChar(value & 0xF);
                     numberOfCharactersWritten = 6;
                     return true;
                 }
@@ -622,4 +637,10 @@ public sealed class CanonicalJsonEncoder : JavaScriptEncoder
     }
 
     public override int MaxOutputCharactersPerInputCharacter => 6; // For \uXXXX Unicode escapes
+
+    /// <summary>
+    /// Converts a nibble (0-15) to its lowercase hex character representation.
+    /// Optimized for performance to avoid string allocations.
+    /// </summary>
+    private static char GetHexChar(int nibble) => nibble < 10 ? (char)('0' + nibble) : (char)('a' + nibble - 10);
 }
