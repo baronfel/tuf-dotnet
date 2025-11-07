@@ -72,7 +72,8 @@ public sealed class Ed25519Signer : ISigner
 
         // Get the public key bytes and create the TUF Key with pinned types
         var publicKeyBytes = privateKey.PublicKey.Export(KeyBlobFormat.RawPublicKey);
-        var hexString = Convert.ToHexString(publicKeyBytes).ToLowerInvariant();
+        // Use optimized hex conversion to avoid unnecessary string allocations
+        var hexString = ConvertToLowerHex(publicKeyBytes);
 
         // Create Key with strictly pinned type and scheme for Ed25519
         Key = new Key
@@ -113,7 +114,8 @@ public sealed class Ed25519Signer : ISigner
     public SignatureObject SignBytes(ReadOnlySpan<byte> data)
     {
         var signatureBytes = SignatureAlgorithm.Ed25519.Sign(_privateKey, data);
-        var signatureHex = Convert.ToHexString(signatureBytes).ToLowerInvariant();
+        // Use optimized hex conversion to avoid unnecessary string allocations
+        var signatureHex = ConvertToLowerHex(signatureBytes);
 
         return new SignatureObject
         {
@@ -121,6 +123,30 @@ public sealed class Ed25519Signer : ISigner
             Sig = signatureHex
         };
     }
+
+    /// <summary>
+    /// Converts bytes to lowercase hex string using efficient span-based operations.
+    /// Optimized for performance to minimize memory allocations.
+    /// </summary>
+    private static string ConvertToLowerHex(ReadOnlySpan<byte> bytes)
+    {
+        // Allocate exact space needed: 2 chars per byte
+        var result = new char[bytes.Length * 2];
+        
+        for (int i = 0; i < bytes.Length; i++)
+        {
+            var b = bytes[i];
+            result[i * 2] = GetHexChar(b >> 4);
+            result[i * 2 + 1] = GetHexChar(b & 0xF);
+        }
+        
+        return new string(result);
+    }
+
+    /// <summary>
+    /// Converts a nibble (0-15) to its lowercase hex character representation.
+    /// </summary>
+    private static char GetHexChar(int nibble) => nibble < 10 ? (char)('0' + nibble) : (char)('a' + nibble - 10);
 }
 
 /// <summary>
@@ -214,7 +240,8 @@ public sealed class RsaSigner : ISigner, IDisposable
 
         // Sign the hash using RSA-PSS padding with SHA-256
         var signatureBytes = _rsa.SignHash(hash, HashAlgorithmName.SHA256, RSASignaturePadding.Pss);
-        var signatureHex = Convert.ToHexString(signatureBytes).ToLowerInvariant();
+        // Use optimized hex conversion to avoid unnecessary string allocations
+        var signatureHex = ConvertToLowerHex(signatureBytes);
 
         return new SignatureObject
         {
@@ -222,6 +249,30 @@ public sealed class RsaSigner : ISigner, IDisposable
             Sig = signatureHex
         };
     }
+
+    /// <summary>
+    /// Converts bytes to lowercase hex string using efficient span-based operations.
+    /// Optimized for performance to minimize memory allocations.
+    /// </summary>
+    private static string ConvertToLowerHex(ReadOnlySpan<byte> bytes)
+    {
+        // Allocate exact space needed: 2 chars per byte
+        var result = new char[bytes.Length * 2];
+        
+        for (int i = 0; i < bytes.Length; i++)
+        {
+            var b = bytes[i];
+            result[i * 2] = GetHexChar(b >> 4);
+            result[i * 2 + 1] = GetHexChar(b & 0xF);
+        }
+        
+        return new string(result);
+    }
+
+    /// <summary>
+    /// Converts a nibble (0-15) to its lowercase hex character representation.
+    /// </summary>
+    private static char GetHexChar(int nibble) => nibble < 10 ? (char)('0' + nibble) : (char)('a' + nibble - 10);
 
     /// <summary>
     /// Disposes the underlying RSA instance.
@@ -326,7 +377,8 @@ public sealed class EcdsaSigner : ISigner, IDisposable
     {
         // Sign the hash using ECDSA
         var signatureBytes = _ecdsa.SignData(data, HashAlgorithmName.SHA256, DSASignatureFormat.IeeeP1363FixedFieldConcatenation);
-        var signatureHex = Convert.ToHexString(signatureBytes).ToLowerInvariant();
+        // Use optimized hex conversion to avoid unnecessary string allocations
+        var signatureHex = ConvertToLowerHex(signatureBytes);
 
         return new SignatureObject
         {
@@ -334,6 +386,30 @@ public sealed class EcdsaSigner : ISigner, IDisposable
             Sig = signatureHex
         };
     }
+
+    /// <summary>
+    /// Converts bytes to lowercase hex string using efficient span-based operations.
+    /// Optimized for performance to minimize memory allocations.
+    /// </summary>
+    private static string ConvertToLowerHex(ReadOnlySpan<byte> bytes)
+    {
+        // Allocate exact space needed: 2 chars per byte
+        var result = new char[bytes.Length * 2];
+        
+        for (int i = 0; i < bytes.Length; i++)
+        {
+            var b = bytes[i];
+            result[i * 2] = GetHexChar(b >> 4);
+            result[i * 2 + 1] = GetHexChar(b & 0xF);
+        }
+        
+        return new string(result);
+    }
+
+    /// <summary>
+    /// Converts a nibble (0-15) to its lowercase hex character representation.
+    /// </summary>
+    private static char GetHexChar(int nibble) => nibble < 10 ? (char)('0' + nibble) : (char)('a' + nibble - 10);
 
     /// <summary>
     /// Disposes the underlying ECDsa instance.
