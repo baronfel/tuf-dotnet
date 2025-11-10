@@ -4,24 +4,113 @@ using TUF.Models;
 
 namespace TUF;
 
+/// <summary>
+/// Configuration for TUF client operations including repository URLs, local directories, and security parameters.
+/// </summary>
+/// <remarks>
+/// The UpdaterConfig class controls all aspects of TUF client behavior including:
+/// - Security limits (root rotations, delegation depth, file sizes)
+/// - Network configuration (repository URLs, HTTP client)
+/// - Local storage (metadata and targets directories)
+/// - Behavior options (consistent snapshots, caching)
+/// 
+/// All security limits have safe defaults based on TUF specification recommendations.
+/// </remarks>
 public class UpdaterConfig
 {
+    /// <summary>
+    /// Maximum number of root metadata rotations allowed during a single update.
+    /// Prevents infinite root key rotation attacks.
+    /// </summary>
+    /// <value>Default: 256</value>
     public uint MaxRootRotations { get; init; } = 256;
+    /// <summary>
+    /// Maximum depth of delegation tree traversal during target search.
+    /// Prevents denial-of-service attacks via deep delegation chains.
+    /// </summary>
+    /// <value>Default: 32</value>
     public uint MaxDelegations { get; init; } = 32;
+    /// <summary>
+    /// Maximum size in bytes for root metadata files.
+    /// Prevents resource exhaustion attacks via oversized metadata.
+    /// </summary>
+    /// <value>Default: 512,000 bytes (500KB)</value>
     public uint RootMaxLength { get; init; } = 512000;
+    /// <summary>
+    /// Maximum size in bytes for timestamp metadata files.
+    /// Prevents resource exhaustion attacks via oversized metadata.
+    /// </summary>
+    /// <value>Default: 16,384 bytes (16KB)</value>
     public uint TimestampMaxLength { get; init; } = 16384;
+    /// <summary>
+    /// Maximum size in bytes for snapshot metadata files.
+    /// Prevents resource exhaustion attacks via oversized metadata.
+    /// </summary>
+    /// <value>Default: 2,000,000 bytes (2MB)</value>
     public int SnapshotMaxLength { get; init; } = 2000000;
+    /// <summary>
+    /// Maximum size in bytes for targets metadata files.
+    /// Prevents resource exhaustion attacks via oversized metadata.
+    /// </summary>
+    /// <value>Default: 5,000,000 bytes (5MB)</value>
     public int TargetsMaxLength { get; init; } = 5000000;
 
+    /// <summary>
+    /// Initial trusted root metadata bytes that establish the foundation of trust.
+    /// This must be obtained through a secure, out-of-band mechanism.
+    /// </summary>
+    /// <remarks>
+    /// The trusted root is the foundation of all TUF security. It must be distributed
+    /// and updated through secure channels independent of the TUF repository itself.
+    /// </remarks>
     public byte[] LocalTrustedRoot { get; init; }
+    /// <summary>
+    /// Local directory path where TUF metadata files are cached.
+    /// Directory will be created if it doesn't exist.
+    /// </summary>
     public required string LocalMetadataDir { get; init; }
+    /// <summary>
+    /// Local directory path where downloaded target files are stored.
+    /// Directory will be created if it doesn't exist.
+    /// </summary>
     public required string LocalTargetsDir { get; init; }
+    /// <summary>
+    /// Base URL for the remote TUF metadata repository.
+    /// Should point to the directory containing root.json, timestamp.json, etc.
+    /// </summary>
     public Uri RemoteMetadataUrl { get; init; }
+    /// <summary>
+    /// Base URL for the remote TUF targets repository.
+    /// Should point to the directory containing the actual downloadable files.
+    /// </summary>
     public Uri RemoteTargetsUrl { get; init; }
+    /// <summary>
+    /// When true and consistent snapshots are enabled, target files are prefixed with their hash.
+    /// This improves CDN caching and enables atomic updates.
+    /// </summary>
+    /// <value>Default: true</value>
     public bool PrefixTargetsWithHash { get; init; } = true;
+    /// <summary>
+    /// When true, disables local file caching for both metadata and targets.
+    /// Useful for testing or when persistent storage is not desired.
+    /// </summary>
+    /// <value>Default: false</value>
     public bool DisableLocalCache { get; init; } = false;
+    /// <summary>
+    /// HTTP client instance used for all network operations.
+    /// Should be configured with appropriate timeouts and retry policies.
+    /// </summary>
     public required HttpClient Client { get; init; }
 
+    /// <summary>
+    /// Creates a new UpdaterConfig with the minimum required parameters.
+    /// </summary>
+    /// <param name="initialRootBytes">Initial trusted root metadata bytes</param>
+    /// <param name="remoteMetadataUrl">Base URL for metadata repository</param>
+    /// <remarks>
+    /// This constructor automatically sets RemoteTargetsUrl to {remoteMetadataUrl}/targets.
+    /// You'll still need to set LocalMetadataDir, LocalTargetsDir, and Client properties.
+    /// </remarks>
     public UpdaterConfig(byte[] initialRootBytes, Uri remoteMetadataUrl)
     {
         LocalTrustedRoot = initialRootBytes ?? throw new ArgumentNullException(nameof(initialRootBytes));
@@ -30,22 +119,78 @@ public class UpdaterConfig
     }
 }
 
+/// <summary>
+/// The primary TUF client for performing secure software updates.
+/// Implements the complete TUF client workflow including metadata refresh, target discovery, and secure download verification.
+/// </summary>
+/// <remarks>
+/// The Updater class is the main entry point for TUF client operations. It provides:
+/// - Secure metadata refresh following TUF specification security rules
+/// - Target file discovery through delegation tree traversal
+/// - Cryptographically verified file downloads
+/// - Local caching for improved performance
+/// 
+/// Usage pattern:
+/// 1. Create UpdaterConfig with repository URLs and trusted root
+/// 2. Instantiate Updater with config
+/// 3. Call RefreshAsync() to update metadata
+/// 4. Use GetTargetInfo() to find files
+/// 5. Use DownloadTarget() to securely download files
+/// </remarks>
 public class Updater
 {
     private TrustedMetadata _trusted;
     private readonly UpdaterConfig _config;
 
+    /// <summary>
+    /// Creates a new TUF updater client with the specified configuration.
+    /// </summary>
+    /// <param name="config">Configuration containing repository URLs, directories, and security parameters</param>
+    /// <exception cref="ArgumentNullException">Thrown when config is null</exception>
+    /// <exception cref="TUF.Exceptions.TufConfigurationException">Thrown when configuration validation fails</exception>
     public Updater(UpdaterConfig config)
     {
         _config = config;
         _trusted = TrustedMetadata.CreateFromRootData(config.LocalTrustedRoot);
     }
 
+    /// <summary>
+    /// Performs a complete TUF metadata refresh workflow, updating all metadata from the remote repository.
+    /// </summary>
+    /// <returns>A task that completes when metadata refresh is successful</returns>
+    /// <remarks>
+    /// This method implements the TUF specification's secure metadata update workflow:
+    /// 1. Updates root metadata (following root rotation rules)
+    /// 2. Updates timestamp metadata (for freshness)
+    /// 3. Updates snapshot metadata (for consistency)
+    /// 4. Updates targets metadata (for file catalog)
+    /// 
+    /// All metadata updates include:
+    /// - Signature verification against trusted keys
+    /// - Version checking to prevent rollback attacks
+    /// - Expiration time validation
+    /// - File size limits to prevent resource exhaustion
+    /// </remarks>
+    /// <exception cref="TUF.Exceptions.RepositoryNetworkException">Network or HTTP transport errors</exception>
+    /// <exception cref="TUF.Exceptions.SignatureVerificationException">Signature verification failures</exception>
+    /// <exception cref="TUF.Exceptions.RollbackAttackException">Rollback attack detection</exception>
+    /// <exception cref="TUF.Exceptions.ExpiredMetadataException">Expired metadata detected</exception>
+    /// <exception cref="TUF.Exceptions.InsufficientSignaturesException">Insufficient signatures for role threshold</exception>
     public async Task RefreshAsync()
     {
         await OnlineRefresh();
     }
 
+    /// <summary>
+    /// Returns all top-level targets (non-delegated) from the current trusted targets metadata.
+    /// </summary>
+    /// <returns>Dictionary mapping target paths to target file information</returns>
+    /// <exception cref="InvalidOperationException">Thrown if trusted metadata is not fully loaded (call RefreshAsync() first)</exception>
+    /// <remarks>
+    /// This method only returns targets directly listed in the main targets.json file,
+    /// not targets that are managed by delegated roles. For comprehensive target search
+    /// including delegations, use GetTargetInfo() instead.
+    /// </remarks>
     public Dictionary<string, TargetFile> GetTopLevelTargets()
     {
         if (_trusted is not CompleteTrustedMetadata c)
@@ -55,8 +200,34 @@ public class Updater
         return c.TopLevelTargets.Signed.TargetMap;
     }
 
+    /// <summary>
+    /// Returns the current trusted metadata set for inspection or advanced operations.
+    /// </summary>
+    /// <returns>The current trusted metadata state</returns>
+    /// <remarks>
+    /// Use cases include:
+    /// - Custom delegation tree traversal
+    /// - Metadata inspection and debugging
+    /// - Advanced security policy implementation
+    /// - Integration with external validation tools
+    /// </remarks>
     public TrustedMetadata GetTrustedMetadataSet() => _trusted;
 
+    /// <summary>
+    /// Finds target information through the complete delegation tree, following TUF delegation rules.
+    /// </summary>
+    /// <param name="targetPath">The target file path to search for</param>
+    /// <returns>Target information (remote path and metadata) if found, null if not found</returns>
+    /// <remarks>
+    /// This method:
+    /// - Automatically calls RefreshAsync() if metadata is not loaded
+    /// - Performs depth-first delegation tree traversal
+    /// - Respects delegation termination rules
+    /// - Handles path pattern matching and hash bin delegations
+    /// - Enforces maximum delegation depth for security
+    /// </remarks>
+    /// <exception cref="TUF.Exceptions.MaxDelegationDepthExceededException">Maximum delegation depth exceeded</exception>
+    /// <exception cref="TUF.Exceptions.TufException">Other TUF-related errors during metadata loading</exception>
     public async Task<(string RemotePath, TargetFile File)?> GetTargetInfo(string targetPath)
     {
         if (_trusted is not CompleteTrustedMetadata c)
@@ -67,6 +238,25 @@ public class Updater
         return await PreOrderDepthFirstWalk(targetPath);
     }
 
+    /// <summary>
+    /// Downloads and verifies a target file with full TUF security validation.
+    /// </summary>
+    /// <param name="targetFile">Target file metadata (typically from GetTargetInfo())</param>
+    /// <param name="targetPath">Target path in repository</param>
+    /// <param name="destinationFilePath">Optional local destination path (defaults to LocalTargetsDir + targetPath)</param>
+    /// <param name="baseUrl">Optional base URL override (defaults to RemoteTargetsUrl)</param>
+    /// <returns>A tuple containing the local file path and downloaded data</returns>
+    /// <remarks>
+    /// Security features:
+    /// - Verifies file length matches metadata exactly
+    /// - Validates all cryptographic hashes in target metadata
+    /// - Supports consistent snapshot URL transformation
+    /// - Prevents download and storage of tampered files
+    /// - Atomic file operations to prevent partial writes
+    /// </remarks>
+    /// <exception cref="TUF.Exceptions.RepositoryNetworkException">Download network errors</exception>
+    /// <exception cref="TUF.Exceptions.TargetIntegrityException">Hash or length verification failures</exception>
+    /// <exception cref="TUF.Exceptions.TargetNotFoundException">Target file not found on server</exception>
     public async Task<(string FilePath, byte[] Data)> DownloadTarget(TargetFile targetFile, string targetPath, string? destinationFilePath = null, Uri? baseUrl = null)
     {
         var localDestinationPath = destinationFilePath ?? Path.Combine(_config.LocalTargetsDir, targetPath);
@@ -103,6 +293,18 @@ public class Updater
         return (localDestinationPath, data);
     }
 
+    /// <summary>
+    /// Attempts to find and verify a cached copy of the target file locally.
+    /// </summary>
+    /// <param name="targetFile">Target file metadata for verification</param>
+    /// <param name="targetPath">Target path in repository</param>
+    /// <param name="filePath">Optional specific file path to check (defaults to LocalTargetsDir + targetPath)</param>
+    /// <returns>Cached file information if found and verified, null otherwise</returns>
+    /// <remarks>
+    /// This method performs the same security verification as DownloadTarget() on cached files.
+    /// If verification fails, the cached file is considered invalid and null is returned.
+    /// Caching can be disabled via DisableLocalCache configuration option.
+    /// </remarks>
     public async Task<(string FilePath, byte[] Data)?> FindCachedTarget(TargetFile targetFile, string targetPath, string? filePath)
     {
         if (_config.DisableLocalCache)
