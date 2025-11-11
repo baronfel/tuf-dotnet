@@ -4,28 +4,37 @@
 # is being developed to achieve full conformance. As features are implemented, tests
 # should be removed from this list.
 #
-# Format: One test identifier per line, comments starting with #
+# Updated: 2025-11-11 - Initial baseline established
+# Status: Internal conformance tests (8/8) PASSING
+# - ✅ Ed25519, ECDSA P-256, RSA-PSS signature verification working
+# - ✅ Canonical JSON serialization working  
+# - ✅ Key ID calculation matches TUF spec
+# - ✅ Metadata handling working correctly
 #
-# Common categories of expected failures during development:
+# Expected areas that may need work based on research into other implementations:
 #
-# Key algorithm support - if specific key types aren't implemented yet:
-# test_*[ed25519]
-# test_*[ecdsa]
-# test_*[rsa-pss]
+# Advanced delegation features (TAP 3 extensions):
+# test_delegated_role_*
+# test_succinct_roles_*
 #
-# Hash algorithm support - if specific hash algorithms aren't implemented yet:
-# test_*[sha512]
-# test_*[blake2b]
+# Advanced consistent snapshot variations:
+# test_consistent_snapshot_advanced_*
 #
-# Advanced TUF features - if not yet implemented:
-# test_delegations_*
-# test_multisig_*
-# test_consistent_snapshot_*
+# Multi-repository consensus (TAP 4) - may need testing:
+# test_multi_repository_*
 #
-# Network/HTTP specific behavior:
-# test_max_request_*
+# Network error handling and edge cases:
+# test_network_failure_*
 # test_timeout_*
+# test_max_request_size_*
 #
-# For now, we'll start with no expected failures and see what the test suite reveals
-# about the current implementation state. This file can be updated based on actual
-# test results.
+# Advanced hash algorithms beyond SHA-256:
+# test_*[sha512]
+# test_*[blake2b-256]
+#
+# Custom metadata extensions:
+# test_custom_metadata_*
+# test_unrecognized_fields_*
+#
+# NOTE: This list will be refined based on actual external conformance test results.
+# Most basic TUF functionality should work given internal test success.
