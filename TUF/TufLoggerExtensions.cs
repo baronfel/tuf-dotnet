@@ -90,6 +90,24 @@ internal static partial class TufLoggerExtensions
         Message = "Successfully verified signature for {MetadataType} with key {KeyId}")]
     public static partial void LogSignatureVerificationSuccess(this ILogger logger, string? metadataType, string? keyId);
 
+    /// <summary>
+    /// Log and record metrics for signature verification with timing
+    /// </summary>
+    public static void LogSignatureVerificationWithMetrics(this ILogger logger, string? metadataType, string? keyId, 
+        string keyType, string algorithm, bool success, double verificationTimeMs)
+    {
+        if (success)
+        {
+            logger.LogSignatureVerificationSuccess(metadataType, keyId);
+        }
+        else
+        {
+            logger.LogSignatureVerificationFailed(metadataType, keyId, "Signature verification failed");
+        }
+        
+        TufMetricsRecorder.RecordSignatureVerification(keyType, algorithm, success, verificationTimeMs);
+    }
+
     // Network and Repository Events (EventId: 1300-1399)
     [LoggerMessage(
         EventId = 1301,
@@ -102,6 +120,22 @@ internal static partial class TufLoggerExtensions
         Level = LogLevel.Error,
         Message = "Repository network error for {RepositoryUrl}: {StatusCode} {Error}")]
     public static partial void LogRepositoryNetworkError(this ILogger logger, Uri? repositoryUrl, int? statusCode, string error, Exception exception);
+
+    /// <summary>
+    /// Log and record metrics for network requests
+    /// </summary>
+    public static void LogNetworkRequestWithMetrics(this ILogger logger, string repositoryUrl, string method, string path, 
+        int statusCode, long responseBytes, double durationMs, Exception? exception = null)
+    {
+        logger.LogHttpRequest(repositoryUrl, method, path);
+        
+        if (exception != null || statusCode >= 400)
+        {
+            logger.LogRepositoryNetworkError(new Uri(repositoryUrl), statusCode, exception?.Message ?? "Network error", exception ?? new Exception("Network error"));
+        }
+        
+        TufMetricsRecorder.RecordNetworkRequest(method, path, statusCode, responseBytes, durationMs);
+    }
 
     [LoggerMessage(
         EventId = 1303,
@@ -171,15 +205,37 @@ internal static partial class TufLoggerExtensions
         Level = LogLevel.Debug,
         Message = "Cache statistics: {CacheHits} hits, {CacheMisses} misses, {CacheSize} items")]
     public static partial void LogCacheStatistics(this ILogger logger, int cacheHits, int cacheMisses, int cacheSize);
+
+    /// <summary>
+    /// Log and record metrics for metadata operations with timing
+    /// </summary>
+    public static void LogMetadataOperationWithMetrics(this ILogger logger, string metadataType, string operation, 
+        bool success, double processingTimeMs, int? version = null)
+    {
+        switch (operation.ToLowerInvariant())
+        {
+            case "load" when success:
+                logger.LogMetadataLoaded(metadataType, version ?? 0);
+                break;
+            case "fetch" when success:
+                logger.LogFetchingMetadataFromRepository(metadataType);
+                break;
+            case "cache":
+                logger.LogLoadingMetadataFromCache(metadataType);
+                break;
+        }
+        
+        TufMetricsRecorder.RecordMetadataOperation(metadataType, operation, success ? "success" : "failure", processingTimeMs);
+    }
 }
 
 /// <summary>
-/// Helper methods for logging TUF exceptions with proper context
+/// Helper methods for logging TUF exceptions with proper context and metrics
 /// </summary>
 public static class TufExceptionLoggingExtensions
 {
     /// <summary>
-    /// Log TUF exceptions with appropriate severity and context
+    /// Log TUF exceptions with appropriate severity, context, and record metrics
     /// </summary>
     public static void LogTufException(this ILogger logger, TufException exception)
     {
@@ -187,14 +243,19 @@ public static class TufExceptionLoggingExtensions
         {
             case RollbackAttackException rollbackEx:
                 logger.LogRollbackAttackDetected(rollbackEx.MetadataType, rollbackEx.ExpectedVersion, rollbackEx.ActualVersion);
+                TufMetricsRecorder.RecordSecurityEvent("rollback_attack", "critical", rollbackEx.MetadataType ?? "unknown");
+                TufMetricsRecorder.RecordError("RollbackAttackException", "security", "metadata_validation");
                 break;
 
             case TargetIntegrityException integrityEx:
                 logger.LogTargetIntegrityFailure(integrityEx.TargetPath, integrityEx.ExpectedHash, integrityEx.ActualHash);
+                TufMetricsRecorder.RecordSecurityEvent("integrity_failure", "critical", "target");
+                TufMetricsRecorder.RecordError("TargetIntegrityException", "security", "target_verification");
                 break;
 
             case SignatureVerificationException sigEx:
                 logger.LogSignatureVerificationFailed(sigEx.MetadataType, sigEx.KeyId, sigEx.Message);
+                TufMetricsRecorder.RecordError("SignatureVerificationException", "security", "signature_verification");
                 break;
 
             case InsufficientSignaturesException signaturesEx:
