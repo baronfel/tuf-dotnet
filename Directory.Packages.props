@@ -2,8 +2,15 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
-
   <ItemGroup>
+    <PackageVersion Include="coverlet.collector" Version="6.0.4">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageVersion>
+    <PackageVersion Include="coverlet.msbuild" Version="6.0.4">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageVersion>
     <PackageVersion Include="Microsoft.Extensions.FileSystemGlobbing" Version="10.0.0-preview.7.25380.108" />
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.0-preview.7.25380.108" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0-preview.7.25380.108" />
