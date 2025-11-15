@@ -5,6 +5,7 @@ This directory contains comprehensive guides for understanding and implementing 
 ## Getting Started
 
 - **[What is TUF?](./what-is-tuf.md)** - Introduction to The Update Framework and its security benefits
+- **[Hello TUF](./hello-tuf.md)** - Your first 5 minutes with TUF .NET (absolute beginner friendly)
 - **[Quick Start Guide](./quick-start.md)** - Get up and running with TUF .NET in minutes
 - **[Core Concepts](./core-concepts.md)** - Essential TUF concepts every developer should understand
 

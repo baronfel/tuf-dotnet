@@ -49,6 +49,18 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
 
 **Best for**: TUF conformance testing, validation against the official TUF specification, and ensuring compatibility with other TUF implementations.
 
+### [AspNetCoreIntegration](./AspNetCoreIntegration/)
+Production-ready ASP.NET Core web application demonstrating TUF integration:
+- Dependency injection and scoped service configuration
+- REST API endpoints for secure file downloads
+- Configuration management via appsettings.json
+- Comprehensive logging and error handling
+- Health check and status monitoring endpoints
+- AOT compilation support for optimal performance
+
+**Best for**: Web applications, microservices, and production deployments requiring secure file distribution.
+
+
 ## Getting Started
 
 1. **Prerequisites**
@@ -63,6 +75,7 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
    dotnet build examples/RepositoryManager/
    dotnet build examples/SigningDemo/
    dotnet build examples/TufConformanceCli/
+   dotnet build examples/AspNetCoreIntegration/
    ```
 
 3. **Run Examples**
