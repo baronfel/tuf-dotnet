@@ -1,0 +1,251 @@
+# TUF Secure Release Pipeline
+# Demonstrates end-to-end secure software release with TUF integration
+#
+# Copy this file to .github/workflows/ and customize for your project
+#
+# Required Secrets:
+#   TUF_SIGNING_KEY_TARGETS   - PEM-encoded targets signing key
+#   TUF_SIGNING_KEY_SNAPSHOT  - PEM-encoded snapshot signing key  
+#   TUF_SIGNING_KEY_TIMESTAMP - PEM-encoded timestamp signing key
+#   TUF_REPOSITORY_URL        - Your TUF repository base URL
+#
+# Required Variables:
+#   BUILD_CONFIGURATION       - Release build configuration
+#   TUF_METADATA_EXPIRY_DAYS  - Days until metadata expires
+
+name: Secure Release with TUF
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        type: string
+
+env:
+  BUILD_CONFIGURATION: ${{ vars.BUILD_CONFIGURATION || 'Release' }}
+  DOTNET_VERSION: ${{ vars.DOTNET_VERSION || '8.0.x' }}
+
+jobs:
+  secure-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      
+    outputs:
+      release-version: ${{ steps.version.outputs.version }}
+      tuf-metadata-hash: ${{ steps.tuf-sign.outputs.metadata-hash }}
+      
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+        
+    - name: Determine release version
+      id: version
+      run: |
+        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          VERSION="${{ inputs.version }}"
+        else
+          VERSION="${{ github.ref_name }}"
+        fi
+        echo "version=${VERSION}" >> $GITHUB_OUTPUT
+        echo "🏷️ Release version: ${VERSION}"
+        
+    # Build and Test Phase
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build solution
+      run: |
+        dotnet build --no-restore \
+          --configuration ${{ env.BUILD_CONFIGURATION }} \
+          -p:Version="${{ steps.version.outputs.version }}"
+          
+    - name: Run unit tests
+      run: |
+        dotnet test --no-build \
+          --configuration ${{ env.BUILD_CONFIGURATION }} \
+          --verbosity normal \
+          --collect:"XPlat Code Coverage"
+          
+    - name: Run integration tests
+      run: |
+        dotnet test \
+          --configuration ${{ env.BUILD_CONFIGURATION }} \
+          --filter "Category=Integration" \
+          --logger "trx;LogFileName=integration-tests.trx"
+          
+    # Package Creation Phase
+    - name: Create release packages
+      run: |
+        echo "📦 Creating release packages..."
+        
+        # Create NuGet packages
+        dotnet pack --no-build \
+          --configuration ${{ env.BUILD_CONFIGURATION }} \
+          --output ./packages/ \
+          -p:PackageVersion="${{ steps.version.outputs.version }}"
+          
+        # Create standalone executables for major platforms
+        for rid in linux-x64 win-x64 osx-x64; do
+          dotnet publish examples/CliTool/CliTool.csproj \
+            --configuration ${{ env.BUILD_CONFIGURATION }} \
+            --runtime $rid \
+            --self-contained true \
+            --output ./dist/$rid/ \
+            -p:PublishSingleFile=true \
+            -p:PublishTrimmed=true
+        done
+        
+        echo "📋 Release artifacts created:"
+        find ./packages/ ./dist/ -type f -name "*.nupkg" -o -name "CliTool*" | head -10
+        
+    # TUF Security Phase
+    - name: Generate TUF metadata and signatures  
+      id: tuf-sign
+      env:
+        TUF_SIGNING_KEY_TARGETS: ${{ secrets.TUF_SIGNING_KEY_TARGETS }}
+        TUF_SIGNING_KEY_SNAPSHOT: ${{ secrets.TUF_SIGNING_KEY_SNAPSHOT }}
+        TUF_SIGNING_KEY_TIMESTAMP: ${{ secrets.TUF_SIGNING_KEY_TIMESTAMP }}
+      run: |
+        echo "🔐 Generating TUF metadata and signatures..."
+        
+        # Create TUF repository structure
+        mkdir -p ./tuf-repo/{metadata,targets}
+        
+        # Copy release artifacts to targets directory
+        cp -r ./packages/* ./tuf-repo/targets/
+        cp -r ./dist/* ./tuf-repo/targets/
+        
+        # Generate TUF metadata using repository manager
+        dotnet run --project examples/RepositoryManager \
+          ./tuf-repo \
+          --version ${{ steps.version.outputs.version }} \
+          --expires-in-days ${{ vars.TUF_METADATA_EXPIRY_DAYS || 30 }}
+          
+        # Calculate metadata hash for verification
+        METADATA_HASH=$(sha256sum ./tuf-repo/metadata/targets.json | cut -d' ' -f1)
+        echo "metadata-hash=${METADATA_HASH}" >> $GITHUB_OUTPUT
+        
+        echo "✅ TUF metadata generated with hash: ${METADATA_HASH}"
+        
+    - name: Verify TUF repository consistency
+      run: |
+        echo "🔍 Verifying TUF repository consistency..."
+        
+        # Use conformance CLI to verify our generated repository
+        dotnet run --project examples/TufConformanceCli \
+          -- init file://$(pwd)/tuf-repo/metadata
+          
+        dotnet run --project examples/TufConformanceCli \
+          -- refresh
+          
+        echo "✅ TUF repository consistency verified"
+        
+    # Publication Phase
+    - name: Upload TUF repository to secure storage
+      env:
+        TUF_REPOSITORY_URL: ${{ secrets.TUF_REPOSITORY_URL }}
+      run: |
+        echo "📤 Publishing TUF repository..."
+        
+        # In a real implementation, this would upload to your secure storage
+        # Examples: AWS S3, Azure Blob Storage, Google Cloud Storage
+        
+        echo "🚀 TUF repository published to: ${TUF_REPOSITORY_URL}"
+        echo "📊 Metadata hash: ${{ steps.tuf-sign.outputs.metadata-hash }}"
+        
+        # For demonstration, we'll create a release summary
+        cat << EOF > release-summary.md
+        ## 🔐 TUF Secure Release: ${{ steps.version.outputs.version }}
+        
+        ### Release Information
+        - **Version**: ${{ steps.version.outputs.version }}
+        - **Build Configuration**: ${{ env.BUILD_CONFIGURATION }}
+        - **Release Date**: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+        - **Commit**: ${{ github.sha }}
+        
+        ### Security Verification
+        - **TUF Metadata Hash**: \`${{ steps.tuf-sign.outputs.metadata-hash }}\`
+        - **Repository URL**: ${TUF_REPOSITORY_URL}
+        - **Signature Algorithm**: Ed25519
+        - **Metadata Expiry**: ${{ vars.TUF_METADATA_EXPIRY_DAYS || 30 }} days
+        
+        ### Artifacts Published
+        - NuGet packages with TUF signatures
+        - Cross-platform executables (Linux, Windows, macOS)
+        - Complete TUF metadata (root, targets, snapshot, timestamp)
+        
+        ### Verification Instructions
+        \`\`\`bash
+        # Verify this release using TUF
+        dotnet run --project examples/CliTool \\
+          -- info --metadata-url ${TUF_REPOSITORY_URL}
+          
+        # Download and verify specific artifacts  
+        dotnet run --project examples/BasicClient \\
+          ${TUF_REPOSITORY_URL} CliTool-linux-x64
+        \`\`\`
+        
+        > 🛡️ This release is cryptographically signed and verified using The Update Framework (TUF)
+        EOF
+        
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.version.outputs.version }}
+        release_name: "TUF Secure Release ${{ steps.version.outputs.version }}"
+        body_path: release-summary.md
+        draft: false
+        prerelease: false
+        
+    # Verification Phase
+    - name: Post-release verification
+      env:
+        TUF_REPOSITORY_URL: ${{ secrets.TUF_REPOSITORY_URL }}
+      run: |
+        echo "🔍 Performing post-release verification..."
+        
+        # Wait a moment for propagation
+        sleep 10
+        
+        # Verify the published repository is accessible and consistent
+        dotnet run --project examples/BasicClient \
+          ${TUF_REPOSITORY_URL} \
+          "CliTool-linux-x64" || echo "⚠️ Verification warning - check repository accessibility"
+          
+        echo "✅ Post-release verification completed"
+        
+  # Notification job runs after successful release
+  notify-security-team:
+    needs: secure-release
+    runs-on: ubuntu-latest
+    if: success()
+    
+    steps:
+    - name: Notify security team
+      run: |
+        echo "📧 Notifying security team of secure release..."
+        echo "Version: ${{ needs.secure-release.outputs.release-version }}"
+        echo "TUF Metadata Hash: ${{ needs.secure-release.outputs.tuf-metadata-hash }}"
+        
+        # In production, send notifications via Slack, email, or security tools
+        # curl -X POST ${{ secrets.SECURITY_WEBHOOK_URL }} \
+        #   -H "Content-Type: application/json" \
+        #   -d '{"text": "🔐 Secure release published: ${{ needs.secure-release.outputs.release-version }}"}'

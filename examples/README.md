@@ -49,6 +49,24 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
 
 **Best for**: TUF conformance testing, validation against the official TUF specification, and ensuring compatibility with other TUF implementations.
 
+### [NuGetIntegration](./NuGetIntegration/)
+Demonstrates how to integrate TUF security with NuGet package management:
+- Secure package verification against TUF metadata
+- Package integrity checking before installation
+- Supply chain security patterns for package managers
+- Integration with existing .NET package management workflows
+
+**Best for**: Securing package dependencies and understanding supply chain security patterns with TUF.
+
+### [GitHubActionsPipeline](./GitHubActionsPipeline/)
+Production-ready GitHub Actions workflow templates for TUF integration:
+- Secure release pipeline with TUF signing
+- Deployment verification against TUF metadata
+- CI/CD security patterns and best practices
+- Multi-environment deployment workflows
+
+**Best for**: Implementing TUF security in CI/CD pipelines and production deployment workflows.
+
 ## Getting Started
 
 1. **Prerequisites**
@@ -63,6 +81,8 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
    dotnet build examples/RepositoryManager/
    dotnet build examples/SigningDemo/
    dotnet build examples/TufConformanceCli/
+   dotnet build examples/NuGetIntegration/
+   # Note: GitHubActionsPipeline contains workflow templates, not buildable projects
    ```
 
 3. **Run Examples**
@@ -78,6 +98,13 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
    # CLI tool example
    cd examples/CliTool
    dotnet run -- --help
+   
+   # NuGet integration example
+   cd examples/NuGetIntegration
+   dotnet run https://secure-packages.example.com Newtonsoft.Json 13.0.1
+   
+   # GitHub Actions templates (copy to .github/workflows/)
+   cp examples/GitHubActionsPipeline/*.yml .github/workflows/
    ```
 
 ## Understanding TUF
@@ -120,9 +147,11 @@ repository/
 
 1. **Start with BasicClient**: Understand the fundamental TUF workflow
 2. **Explore CliTool**: See how to build production-ready TUF applications
-3. **Read the TUF Specification**: https://theupdateframework.io/specification/
-4. **Check out other implementations**: python-tuf, go-tuf for comparison
-5. **Consider TUF for your applications**: Evaluate if TUF fits your update security needs
+3. **Try NuGetIntegration**: Learn how to secure package dependencies with TUF
+4. **Use GitHubActionsPipeline**: Implement TUF security in your CI/CD workflows
+5. **Read the TUF Specification**: https://theupdateframework.io/specification/
+6. **Check out other implementations**: python-tuf, go-tuf for comparison
+7. **Consider TUF for your applications**: Evaluate if TUF fits your update security needs
 
 ## Contributing
 

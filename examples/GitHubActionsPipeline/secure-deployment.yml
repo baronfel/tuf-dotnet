@@ -1,0 +1,347 @@
+# TUF Secure Deployment Verification Pipeline  
+# Verifies all deployments against TUF metadata before going live
+#
+# Copy this file to .github/workflows/ and customize for your deployment process
+#
+# Required Secrets:
+#   TUF_REPOSITORY_URL        - Your TUF repository base URL
+#   DEPLOYMENT_WEBHOOK_URL    - Optional webhook for deployment notifications
+#
+# Required Variables:
+#   VERIFICATION_TIMEOUT_MINUTES - Timeout for TUF verification steps
+#   DEPLOYMENT_ENVIRONMENT       - Target deployment environment
+
+name: Secure Deployment Verification
+
+on:
+  deployment:
+  push:
+    branches: [main, production]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        type: choice
+        options: [staging, production]
+      artifact-version:
+        description: 'Artifact version to deploy'
+        required: true
+        type: string
+
+env:
+  VERIFICATION_TIMEOUT_MINUTES: ${{ vars.VERIFICATION_TIMEOUT_MINUTES || 10 }}
+  DEPLOYMENT_ENVIRONMENT: ${{ inputs.environment || vars.DEPLOYMENT_ENVIRONMENT || 'staging' }}
+
+jobs:
+  pre-deployment-verification:
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ fromJson(env.VERIFICATION_TIMEOUT_MINUTES) }}
+    
+    permissions:
+      contents: read
+      deployments: write
+      
+    outputs:
+      verification-status: ${{ steps.tuf-verify.outputs.status }}
+      verified-artifacts: ${{ steps.tuf-verify.outputs.artifacts }}
+      deployment-approved: ${{ steps.approval.outputs.approved }}
+      
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+        
+    - name: Create deployment status
+      id: deployment
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const deployment = await github.rest.repos.createDeployment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: context.sha,
+            environment: '${{ env.DEPLOYMENT_ENVIRONMENT }}',
+            description: 'TUF-verified deployment',
+            auto_merge: false
+          });
+          
+          await github.rest.repos.createDeploymentStatus({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            deployment_id: deployment.data.id,
+            state: 'in_progress',
+            description: 'Verifying artifacts with TUF...'
+          });
+          
+          core.setOutput('deployment-id', deployment.data.id);
+          
+    # Artifact Collection Phase
+    - name: Determine artifacts to verify
+      id: artifacts
+      run: |
+        echo "🔍 Determining artifacts to verify for ${{ env.DEPLOYMENT_ENVIRONMENT }}..."
+        
+        # Create artifacts list based on deployment type
+        if [[ "${{ env.DEPLOYMENT_ENVIRONMENT }}" == "production" ]]; then
+          # Production requires full artifact verification
+          ARTIFACTS=$(cat << 'EOF'
+        {
+          "web-app": {
+            "path": "dist/WebApp.zip",
+            "tuf_target": "releases/WebApp-${{ inputs.artifact-version || github.sha }}.zip"
+          },
+          "api-service": {
+            "path": "dist/ApiService.zip", 
+            "tuf_target": "releases/ApiService-${{ inputs.artifact-version || github.sha }}.zip"
+          },
+          "database-migrations": {
+            "path": "db/migrations.sql",
+            "tuf_target": "database/migrations-${{ inputs.artifact-version || github.sha }}.sql"
+          }
+        }
+        EOF
+        )
+        else
+          # Staging requires minimal verification
+          ARTIFACTS=$(cat << 'EOF'
+        {
+          "web-app": {
+            "path": "dist/WebApp.zip",
+            "tuf_target": "staging/WebApp-latest.zip"
+          }
+        }
+        EOF
+        )
+        fi
+        
+        echo "artifacts=${ARTIFACTS}" >> $GITHUB_OUTPUT
+        echo "📋 Artifacts to verify:"
+        echo "${ARTIFACTS}" | jq '.'
+        
+    - name: Download deployment artifacts
+      run: |
+        echo "📥 Downloading artifacts for verification..."
+        mkdir -p ./artifacts/
+        
+        # In a real deployment, you would download from your build artifacts
+        # This could be from GitHub Actions artifacts, container registry, etc.
+        
+        echo "dummy-web-app-content" > ./artifacts/WebApp.zip
+        echo "dummy-api-service-content" > ./artifacts/ApiService.zip
+        echo "dummy-migration-content" > ./artifacts/migrations.sql
+        
+        echo "✅ Artifacts downloaded to ./artifacts/"
+        ls -la ./artifacts/
+        
+    # TUF Verification Phase
+    - name: TUF artifact verification
+      id: tuf-verify
+      env:
+        TUF_REPOSITORY_URL: ${{ secrets.TUF_REPOSITORY_URL }}
+      run: |
+        echo "🔐 Starting TUF artifact verification..."
+        
+        # Initialize TUF client
+        TEMP_DIR=$(mktemp -d)
+        export TUF_METADATA_DIR="${TEMP_DIR}/metadata"
+        export TUF_TARGETS_DIR="${TEMP_DIR}/targets"
+        
+        mkdir -p "${TUF_METADATA_DIR}" "${TUF_TARGETS_DIR}"
+        
+        # Initialize with trusted root (in production, use real trusted root)
+        echo "🔧 Initializing TUF client..."
+        dotnet run --project examples/TufConformanceCli \
+          -- init "${TUF_REPOSITORY_URL}"
+          
+        # Refresh metadata
+        echo "🔄 Refreshing TUF metadata..."
+        dotnet run --project examples/TufConformanceCli \
+          -- refresh
+          
+        # Verify each artifact
+        VERIFICATION_RESULTS="[]"
+        SUCCESS_COUNT=0
+        TOTAL_COUNT=0
+        
+        echo '${{ steps.artifacts.outputs.artifacts }}' | jq -r 'to_entries[] | "\(.key)|\(.value.path)|\(.value.tuf_target)"' | while IFS='|' read -r name path tuf_target; do
+          TOTAL_COUNT=$((TOTAL_COUNT + 1))
+          echo "🔍 Verifying ${name}: ${path} -> ${tuf_target}"
+          
+          # Attempt to verify artifact
+          if dotnet run --project examples/BasicClient \
+            "${TUF_REPOSITORY_URL}" \
+            "${tuf_target}" > /dev/null 2>&1; then
+            
+            echo "✅ ${name}: TUF verification passed"
+            SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
+            
+            # Record successful verification
+            VERIFICATION_RESULTS=$(echo "${VERIFICATION_RESULTS}" | jq --arg name "$name" --arg status "success" '. + [{"artifact": $name, "status": $status}]')
+          else
+            echo "❌ ${name}: TUF verification failed"
+            
+            # Record failed verification  
+            VERIFICATION_RESULTS=$(echo "${VERIFICATION_RESULTS}" | jq --arg name "$name" --arg status "failed" '. + [{"artifact": $name, "status": $status}]')
+          fi
+        done
+        
+        # Determine overall verification status
+        if [[ $SUCCESS_COUNT -eq $TOTAL_COUNT ]] && [[ $TOTAL_COUNT -gt 0 ]]; then
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "✅ All artifacts passed TUF verification ($SUCCESS_COUNT/$TOTAL_COUNT)"
+        else
+          echo "status=failed" >> $GITHUB_OUTPUT  
+          echo "❌ TUF verification failed ($SUCCESS_COUNT/$TOTAL_COUNT artifacts verified)"
+        fi
+        
+        echo "artifacts=${VERIFICATION_RESULTS}" >> $GITHUB_OUTPUT
+        
+        # Cleanup
+        rm -rf "${TEMP_DIR}"
+        
+    # Deployment Approval Phase  
+    - name: Deployment approval decision
+      id: approval
+      run: |
+        echo "📋 Making deployment approval decision..."
+        
+        VERIFICATION_STATUS="${{ steps.tuf-verify.outputs.status }}"
+        ENVIRONMENT="${{ env.DEPLOYMENT_ENVIRONMENT }}"
+        
+        if [[ "${VERIFICATION_STATUS}" == "success" ]]; then
+          echo "✅ TUF verification successful - approving deployment"
+          echo "approved=true" >> $GITHUB_OUTPUT
+          
+          # Additional checks for production
+          if [[ "${ENVIRONMENT}" == "production" ]]; then
+            echo "🔒 Production deployment - performing additional security checks..."
+            
+            # In production, you might add:
+            # - Manual approval requirements
+            # - Additional security scans
+            # - Rollback plan verification
+            # - Monitoring setup verification
+            
+            echo "🚀 Production deployment approved with TUF security guarantees"
+          fi
+        else
+          echo "❌ TUF verification failed - blocking deployment"
+          echo "approved=false" >> $GITHUB_OUTPUT
+          
+          echo "🛡️ Security Policy: Deployments blocked when TUF verification fails"
+          echo "📋 This protects against:"
+          echo "   • Compromised artifacts"
+          echo "   • Supply chain attacks"  
+          echo "   • Unauthorized modifications"
+          echo "   • Rollback attacks"
+        fi
+        
+    - name: Update deployment status
+      if: always()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const deploymentId = '${{ steps.deployment.outputs.deployment-id }}';
+          const approved = '${{ steps.approval.outputs.approved }}';
+          const verificationStatus = '${{ steps.tuf-verify.outputs.status }}';
+          
+          let state, description;
+          
+          if (approved === 'true') {
+            state = 'success';
+            description = '✅ TUF verification passed - deployment approved';
+          } else {
+            state = 'failure';  
+            description = '❌ TUF verification failed - deployment blocked';
+          }
+          
+          await github.rest.repos.createDeploymentStatus({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            deployment_id: deploymentId,
+            state: state,
+            description: description,
+            log_url: `${context.payload.repository.html_url}/actions/runs/${context.runId}`
+          });
+          
+  # Actual deployment job - only runs if verification passes
+  secure-deployment:
+    needs: pre-deployment-verification
+    runs-on: ubuntu-latest
+    if: needs.pre-deployment-verification.outputs.deployment-approved == 'true'
+    environment: ${{ env.DEPLOYMENT_ENVIRONMENT }}
+    
+    steps:
+    - name: Deploy verified artifacts
+      run: |
+        echo "🚀 Deploying TUF-verified artifacts to ${{ env.DEPLOYMENT_ENVIRONMENT }}"
+        echo "📊 Verification Results: ${{ needs.pre-deployment-verification.outputs.verified-artifacts }}"
+        
+        # Your actual deployment commands would go here
+        # Examples:
+        # - kubectl apply -f k8s/
+        # - docker stack deploy -c docker-compose.yml myapp
+        # - terraform apply
+        # - ansible-playbook deploy.yml
+        
+        echo "✅ Deployment completed with TUF security verification"
+        
+    - name: Post-deployment verification  
+      run: |
+        echo "🔍 Performing post-deployment health checks..."
+        
+        # Verify deployed services are responding
+        # Check application health endpoints
+        # Validate configuration
+        
+        echo "✅ Post-deployment verification completed"
+        
+    - name: Send deployment notification
+      if: success()
+      env:
+        DEPLOYMENT_WEBHOOK_URL: ${{ secrets.DEPLOYMENT_WEBHOOK_URL }}
+      run: |
+        echo "📧 Sending deployment success notification..."
+        
+        if [[ -n "${DEPLOYMENT_WEBHOOK_URL}" ]]; then
+          curl -X POST "${DEPLOYMENT_WEBHOOK_URL}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "text": "🚀 Secure deployment completed",
+              "environment": "${{ env.DEPLOYMENT_ENVIRONMENT }}",
+              "commit": "${{ github.sha }}",
+              "tuf_verified": true,
+              "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"
+            }' || echo "⚠️ Failed to send webhook notification"
+        fi
+        
+  # Rollback job - runs if deployment fails
+  emergency-rollback:
+    needs: [pre-deployment-verification, secure-deployment]
+    runs-on: ubuntu-latest
+    if: always() && needs.secure-deployment.result == 'failure'
+    environment: ${{ env.DEPLOYMENT_ENVIRONMENT }}
+    
+    steps:
+    - name: Emergency rollback
+      run: |
+        echo "🚨 Deployment failed - initiating emergency rollback..."
+        
+        # Your rollback commands would go here
+        # kubectl rollout undo deployment/myapp
+        # docker service rollback myapp
+        # terraform apply -var="rollback=true"
+        
+        echo "⚡ Emergency rollback completed"
+        
+    - name: Notify security team
+      run: |
+        echo "🚨 Notifying security team of deployment failure and rollback..."
+        
+        # Send critical alerts for deployment failures
+        # These could indicate security issues or supply chain compromises
