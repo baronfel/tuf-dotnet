@@ -59,16 +59,29 @@ public static class Serializer
     // Compare two strings by their UTF-8 byte sequence (lexicographic order)
     public static int CompareUtf8(string a, string b)
     {
-        var ab = Encoding.UTF8.GetBytes(a);
-        var bb = Encoding.UTF8.GetBytes(b);
-        int min = Math.Min(ab.Length, bb.Length);
-        for (int i = 0; i < min; i++)
-        {
-            int ca = ab[i];
-            int cb = bb[i];
-            if (ca != cb) return ca - cb;
-        }
-        return ab.Length - bb.Length;
+        // Optimize for common small strings by using stack allocation
+        const int StackAllocThreshold = 256;
+        
+        var maxBytesA = Encoding.UTF8.GetMaxByteCount(a.Length);
+        var maxBytesB = Encoding.UTF8.GetMaxByteCount(b.Length);
+        
+        // Use stack allocation for small strings, heap allocation for large ones
+        Span<byte> bytesA = maxBytesA <= StackAllocThreshold 
+            ? stackalloc byte[maxBytesA] 
+            : new byte[maxBytesA];
+        Span<byte> bytesB = maxBytesB <= StackAllocThreshold 
+            ? stackalloc byte[maxBytesB] 
+            : new byte[maxBytesB];
+            
+        var actualBytesA = Encoding.UTF8.GetBytes(a, bytesA);
+        var actualBytesB = Encoding.UTF8.GetBytes(b, bytesB);
+        
+        // Trim spans to actual byte counts
+        bytesA = bytesA[..actualBytesA];
+        bytesB = bytesB[..actualBytesB];
+        
+        // Use SequenceCompareTo for efficient byte-by-byte comparison
+        return bytesA.SequenceCompareTo(bytesB);
     }
 }
 
