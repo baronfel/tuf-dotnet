@@ -157,17 +157,59 @@ public partial record DelegatedRole
 
     public bool IsDelegatedPath(string targetFile)
     {
-        if (Paths is null || Paths.Count == 0)
+        // Check path patterns first
+        if (Paths is not null && Paths.Count > 0)
         {
-            return false;
+            return Paths.Any(p => PathIsMatch(p, targetFile));
         }
-        return Paths.Any(p => PathIsMatch(p, targetFile));
+
+        // Check path hash prefixes if no path patterns are defined
+        if (PathHashPrefixes is not null && PathHashPrefixes.Count > 0)
+        {
+            return PathHashPrefixes.Any(prefix => PathHashPrefixMatches(prefix, targetFile));
+        }
+
+        // No paths or path hash prefixes defined - no matches
+        return false;
     }
 
     public static bool PathIsMatch(string pathPattern, string targetFile)
     {
         var matcher = new Matcher(StringComparison.Ordinal).AddInclude(pathPattern);
         return matcher.Match(targetFile).HasMatches;
+    }
+
+    /// <summary>
+    /// Determines if a target file path matches a hash prefix delegation.
+    /// Uses SHA-256 hash of the target file path for consistent distribution.
+    /// </summary>
+    /// <param name="hashPrefix">The hex-encoded hash prefix to check against</param>
+    /// <param name="targetFile">The target file path to check</param>
+    /// <returns>True if the hash of the target file path starts with the given prefix</returns>
+    /// <remarks>
+    /// Path hash prefixes provide deterministic load balancing across delegated roles.
+    /// The target file path is hashed using SHA-256, and the resulting hex string
+    /// is checked against the prefix. This enables even distribution of targets
+    /// across roles without manual path assignment.
+    /// 
+    /// This follows the TUF specification for hash bin delegations, providing
+    /// a scalable way to distribute targets across multiple delegated roles
+    /// based on cryptographic hash values rather than path patterns.
+    /// </remarks>
+    public static bool PathHashPrefixMatches(string hashPrefix, string targetFile)
+    {
+        if (string.IsNullOrEmpty(hashPrefix) || string.IsNullOrEmpty(targetFile))
+        {
+            return false;
+        }
+
+        // Compute SHA-256 hash of the target file path
+        using var sha256 = System.Security.Cryptography.SHA256.Create();
+        var hashBytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(targetFile));
+        var hashHex = Convert.ToHexString(hashBytes).ToLowerInvariant();
+
+        // Check if hash starts with the prefix (case-insensitive)
+        return hashHex.StartsWith(hashPrefix.ToLowerInvariant(), StringComparison.Ordinal);
     }
 }
 
