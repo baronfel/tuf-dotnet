@@ -49,6 +49,45 @@ public class Program
         Description = "Path to trusted root.json file"
     };
 
+    private static readonly Option<bool> VerboseOption = new("--verbose")
+    {
+        Description = "Enable verbose logging for conformance test debugging",
+        Recursive = true
+    };
+
+    private static bool _verbose = false;
+
+    private static void LogVerbose(string message)
+    {
+        if (_verbose)
+        {
+            Console.WriteLine($"[VERBOSE] {DateTime.Now:yyyy-MM-dd HH:mm:ss} - {message}");
+        }
+    }
+
+    private static void LogInfo(string message)
+    {
+        Console.WriteLine($"[INFO] {message}");
+    }
+
+    private static void LogError(string message)
+    {
+        Console.Error.WriteLine($"[ERROR] {message}");
+    }
+
+    private static void LogError(string message, Exception ex)
+    {
+        Console.Error.WriteLine($"[ERROR] {message}");
+        if (_verbose && ex != null)
+        {
+            Console.Error.WriteLine($"[DEBUG] Exception details: {ex}");
+        }
+        else if (ex != null)
+        {
+            Console.Error.WriteLine($"[DEBUG] {ex.Message}");
+        }
+    }
+
     public static async Task<int> Main(string[] args)
     {
         var rootCommand = new RootCommand("TUF .NET Conformance CLI")
@@ -61,6 +100,7 @@ public class Program
             TargetNameOption,
             TargetBaseUrlOption,
             TargetDirOption,
+            VerboseOption,
         };
 
         return await rootCommand.Parse(args).InvokeAsync();
@@ -72,22 +112,31 @@ public class Program
         command.Add(TrustedRootArg);
         command.SetAction((parseResult) =>
         {
+            // Set verbose flag from parse result
+            _verbose = parseResult.GetValue(VerboseOption);
+            
+            LogVerbose("Starting init command");
+            
             // Explicit error checking because the TUF conformance spec is a nightmare
             var metadataDir = parseResult.GetValue(MetadataDirOption);
             if (metadataDir == null)
             {
-                Console.Error.WriteLine("Error: --metadata-dir is required for init command");
+                LogError("--metadata-dir is required for init command");
                 return 1;
             }
 
             var trustedRoot = parseResult.GetValue(TrustedRootArg);
             if (trustedRoot == null)
             {
-                Console.Error.WriteLine("Error: trusted-root argument is required for init command");
+                LogError("trusted-root argument is required for init command");
                 return 1;
             }
 
+            LogVerbose($"Metadata directory: {metadataDir.FullName}");
+            LogVerbose($"Trusted root: {trustedRoot.FullName}");
+
             var exitCode = HandleInitCommand(metadataDir.FullName, trustedRoot.FullName);
+            LogVerbose($"Init command completed with exit code: {exitCode}");
             return exitCode;
         });
 
@@ -100,22 +149,31 @@ public class Program
 
         command.SetAction(async (parseResult, token) =>
         {
+            // Set verbose flag from parse result
+            _verbose = parseResult.GetValue(VerboseOption);
+            
+            LogVerbose("Starting refresh command");
+            
             // More explicit error checking because whoever designed this CLI spec hates developers
             var metadataDir = parseResult.GetValue(MetadataDirOption);
             if (metadataDir == null)
             {
-                Console.Error.WriteLine("Error: --metadata-dir is required for refresh command");
+                LogError("--metadata-dir is required for refresh command");
                 return 1;
             }
 
             var metadataUrl = parseResult.GetValue(MetadataUrlOption);
             if (string.IsNullOrEmpty(metadataUrl))
             {
-                Console.Error.WriteLine("Error: --metadata-url is required for refresh command");
+                LogError("--metadata-url is required for refresh command");
                 return 1;
             }
 
+            LogVerbose($"Metadata directory: {metadataDir.FullName}");
+            LogVerbose($"Metadata URL: {metadataUrl}");
+
             var exitCode = await HandleRefreshCommand(metadataDir.FullName, metadataUrl);
+            LogVerbose($"Refresh command completed with exit code: {exitCode}");
             return exitCode;
         });
 
@@ -128,43 +186,55 @@ public class Program
 
         command.SetAction(async (parseResult, token) =>
         {
+            // Set verbose flag from parse result
+            _verbose = parseResult.GetValue(VerboseOption);
+            
+            LogVerbose("Starting download command");
+            
             // Even more explicit error checking because the TUF conformance devs apparently love making life difficult
             var metadataDir = parseResult.GetValue(MetadataDirOption);
             if (metadataDir == null)
             {
-                Console.Error.WriteLine("Error: --metadata-dir is required for download command");
+                LogError("--metadata-dir is required for download command");
                 return 1;
             }
 
             var metadataUrl = parseResult.GetValue(MetadataUrlOption);
             if (string.IsNullOrEmpty(metadataUrl))
             {
-                Console.Error.WriteLine("Error: --metadata-url is required for download command");
+                LogError("--metadata-url is required for download command");
                 return 1;
             }
 
             var targetName = parseResult.GetValue(TargetNameOption);
             if (string.IsNullOrEmpty(targetName))
             {
-                Console.Error.WriteLine("Error: --target-name is required for download command");
+                LogError("--target-name is required for download command");
                 return 1;
             }
 
             var targetBaseUrl = parseResult.GetValue(TargetBaseUrlOption);
             if (string.IsNullOrEmpty(targetBaseUrl))
             {
-                Console.Error.WriteLine("Error: --target-base-url is required for download command");
+                LogError("--target-base-url is required for download command");
                 return 1;
             }
 
             var targetDir = parseResult.GetValue(TargetDirOption);
             if (targetDir == null)
             {
-                Console.Error.WriteLine("Error: --target-dir is required for download command");
+                LogError("--target-dir is required for download command");
                 return 1;
             }
 
+            LogVerbose($"Metadata directory: {metadataDir.FullName}");
+            LogVerbose($"Metadata URL: {metadataUrl}");
+            LogVerbose($"Target name: {targetName}");
+            LogVerbose($"Target base URL: {targetBaseUrl}");
+            LogVerbose($"Target directory: {targetDir.FullName}");
+
             var exitCode = await HandleDownloadCommand(metadataDir.FullName, metadataUrl, targetName, targetBaseUrl, targetDir.FullName);
+            LogVerbose($"Download command completed with exit code: {exitCode}");
             return exitCode;
         });
 
@@ -178,29 +248,31 @@ public class Program
     {
         try
         {
-            Console.WriteLine($"Initializing TUF client with metadata dir: {metadataDir}");
-            Console.WriteLine($"Using trusted root: {trustedRootPath}");
+            LogInfo($"Initializing TUF client with metadata dir: {metadataDir}");
+            LogInfo($"Using trusted root: {trustedRootPath}");
 
             // Ensure metadata directory exists
+            LogVerbose("Creating metadata directory if it doesn't exist");
             Directory.CreateDirectory(metadataDir);
 
             // Validate trusted root file exists
             if (!File.Exists(trustedRootPath))
             {
-                Console.Error.WriteLine($"Error: Trusted root file not found: {trustedRootPath}");
+                LogError($"Trusted root file not found: {trustedRootPath}");
                 return 1;
             }
 
             // Copy trusted root to metadata directory as root.json (non-versioned filename)
             var rootPath = Path.Combine(metadataDir, "root.json");
+            LogVerbose($"Copying trusted root to: {rootPath}");
             File.Copy(trustedRootPath, rootPath, overwrite: true);
 
-            Console.WriteLine("TUF client initialized successfully");
+            LogInfo("TUF client initialized successfully");
             return 0;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error during init: {ex.Message}");
+            LogError("Error during init", ex);
             return 1;
         }
     }
@@ -212,38 +284,44 @@ public class Program
     {
         try
         {
-            Console.WriteLine($"Refreshing metadata from: {metadataUrl}");
-            Console.WriteLine($"Metadata directory: {metadataDir}");
+            LogInfo($"Refreshing metadata from: {metadataUrl}");
+            LogInfo($"Metadata directory: {metadataDir}");
 
             // Validate metadata directory exists and has root.json
             var rootPath = Path.Combine(metadataDir, "root.json");
             if (!File.Exists(rootPath))
             {
-                Console.Error.WriteLine("Error: No root.json found. Run 'init' command first.");
+                LogError("No root.json found. Run 'init' command first.");
                 return 1;
             }
 
             // Read the trusted root
+            LogVerbose($"Reading trusted root from: {rootPath}");
             byte[] rootBytes = await File.ReadAllBytesAsync(rootPath);
+            LogVerbose($"Root metadata size: {rootBytes.Length} bytes");
 
             // Configure the updater with the metadata directory and repository URL
+            var targetsDir = Path.Combine(metadataDir, "targets");
+            LogVerbose($"Targets directory: {targetsDir}");
+            
             var config = new UpdaterConfig(rootBytes, new Uri(metadataUrl))
             {
                 LocalMetadataDir = metadataDir,
-                LocalTargetsDir = Path.Combine(metadataDir, "targets"), // Default targets directory
+                LocalTargetsDir = targetsDir,
                 Client = new HttpClient()
             };
 
             // Create and initialize the updater
+            LogVerbose("Creating TUF updater and starting refresh");
             var updater = new Updater(config);
             await updater.RefreshAsync();
 
-            Console.WriteLine("Metadata refresh completed successfully");
+            LogInfo("Metadata refresh completed successfully");
             return 0;
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error during refresh: {ex.Message}");
+            LogError("Error during refresh", ex);
             return 1;
         }
     }
@@ -256,23 +334,26 @@ public class Program
     {
         try
         {
-            Console.WriteLine($"Downloading target: {targetName}");
-            Console.WriteLine($"From: {targetBaseUrl}");
-            Console.WriteLine($"To: {targetDir}");
+            LogInfo($"Downloading target: {targetName}");
+            LogInfo($"From: {targetBaseUrl}");
+            LogInfo($"To: {targetDir}");
 
             // Validate metadata directory exists and has root.json
             var rootPath = Path.Combine(metadataDir, "root.json");
             if (!File.Exists(rootPath))
             {
-                Console.Error.WriteLine("Error: No root.json found. Run 'init' command first.");
+                LogError("No root.json found. Run 'init' command first.");
                 return 1;
             }
 
             // Ensure target directory exists
+            LogVerbose($"Creating target directory: {targetDir}");
             Directory.CreateDirectory(targetDir);
 
             // Read the trusted root
+            LogVerbose($"Reading trusted root from: {rootPath}");
             byte[] rootBytes = await File.ReadAllBytesAsync(rootPath);
+            LogVerbose($"Root metadata size: {rootBytes.Length} bytes");
 
             // Configure the updater - use targetBaseUrl as the metadata URL base for now
             // In a full implementation this might be more sophisticated
@@ -284,36 +365,43 @@ public class Program
             };
 
             // Create and initialize the updater
+            LogVerbose("Creating TUF updater");
             var updater = new Updater(config);
 
             // First ensure metadata is up-to-date
+            LogVerbose("Refreshing metadata before download");
             await updater.RefreshAsync();
 
             // Get target information and download
+            LogVerbose($"Looking up target info for: {targetName}");
             if (await updater.GetTargetInfo(targetName) is not (var targetPath, var targetInfo))
             {
                 throw new Exception($"Target '{targetName}' not found in repository.");
             }
-            Console.WriteLine($"Target found: {targetPath}");
+            LogInfo($"Target found: {targetPath}");
+            LogVerbose($"Target info - Length: {targetInfo.Length}, Hashes: {string.Join(", ", targetInfo.Hashes.Keys)}");
 
             // Check for cached version first
+            LogVerbose("Checking for cached version of target");
             var cached = await updater.FindCachedTarget(targetInfo, targetPath, null);
             if (cached.HasValue)
             {
-                Console.WriteLine($"Target already cached at: {cached.Value.FilePath}");
+                LogInfo($"Target already cached at: {cached.Value.FilePath}");
                 return 0;
             }
             else
             {
                 // Download the target file
+                LogVerbose($"Downloading target from: {targetBaseUrl}");
                 var result = await updater.DownloadTarget(targetInfo, targetPath, null, new Uri(targetBaseUrl));
-                Console.WriteLine($"Target downloaded and verified successfully: {result.FilePath}");
+                LogInfo($"Target downloaded and verified successfully: {result.FilePath}");
+                LogVerbose($"Downloaded file size: {new FileInfo(result.FilePath).Length} bytes");
                 return 0;
             }
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error during download: {ex.Message}");
+            LogError("Error during download", ex);
             return 1;
         }
     }
