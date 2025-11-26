@@ -8,15 +8,23 @@ The TUF Conformance CLI provides a standardized interface for testing TUF client
 
 ## Commands
 
+All commands support the `--verbose` flag for detailed logging during conformance test debugging.
+
 ### init
 
 Initialize the client's local trusted metadata:
 
 ```bash
-dotnet run --project examples/TufConformanceCli --metadata-dir ./metadata path/to/trusted-root.json
+dotnet run --project examples/TufConformanceCli --metadata-dir ./metadata init path/to/trusted-root.json
+```
+
+With verbose logging:
+```bash
+dotnet run --project examples/TufConformanceCli --verbose --metadata-dir ./metadata init path/to/trusted-root.json
 ```
 
 - `--metadata-dir`: Directory where metadata will be stored
+- `--verbose`: Enable detailed logging for debugging
 - `trusted-root`: Path to the trusted root.json file
 
 ### refresh
@@ -27,8 +35,14 @@ Update local metadata from the repository:
 dotnet run --project examples/TufConformanceCli refresh --metadata-dir ./metadata --metadata-url https://example.com/metadata
 ```
 
+With verbose logging:
+```bash
+dotnet run --project examples/TufConformanceCli --verbose refresh --metadata-dir ./metadata --metadata-url https://example.com/metadata
+```
+
 - `--metadata-dir`: Directory containing local metadata
 - `--metadata-url`: Base URL for metadata repository
+- `--verbose`: Enable detailed logging for debugging
 
 ### download
 
@@ -43,11 +57,22 @@ dotnet run --project examples/TufConformanceCli download \
   --target-dir ./downloads
 ```
 
+With verbose logging:
+```bash
+dotnet run --project examples/TufConformanceCli --verbose download \
+  --metadata-dir ./metadata \
+  --metadata-url https://example.com/metadata \
+  --target-name file.txt \
+  --target-base-url https://example.com/targets \
+  --target-dir ./downloads
+```
+
 - `--metadata-dir`: Directory containing local metadata
 - `--metadata-url`: Base URL for metadata repository
 - `--target-name`: Name of the target file to download
 - `--target-base-url`: Base URL for target files
 - `--target-dir`: Directory to save the downloaded file
+- `--verbose`: Enable detailed logging for debugging
 
 ## Exit Codes
 
@@ -62,8 +87,87 @@ This CLI can be integrated with the official TUF conformance test suite using Gi
 ```yaml
 - uses: theupdateframework/tuf-conformance@v2
   with:
-    entrypoint: dotnet run --project examples/TufConformanceCli/TufConformanceCli.csproj --
+    entrypoint: ./tuf-conformance-cli/TufConformanceCli
 ```
+
+### Complete GitHub Actions Workflow Example
+
+Here's a complete workflow for TUF conformance testing:
+
+```yaml
+name: TUF Conformance Testing
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  conformance:
+    runs-on: ubuntu-latest
+    name: TUF Conformance Test Suite
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore ./TUF.slnx
+
+      - name: Build TUF Conformance CLI
+        run: |
+          dotnet build examples/TufConformanceCli/TufConformanceCli.csproj \
+            --configuration Release \
+            --no-restore
+
+      - name: Publish TUF Conformance CLI (Self-Contained)
+        run: |
+          dotnet publish examples/TufConformanceCli/TufConformanceCli.csproj \
+            --configuration Release \
+            --runtime linux-x64 \
+            --self-contained true \
+            --output ./tuf-conformance-cli \
+            -p:PublishSingleFile=true \
+            -p:PublishTrimmed=true
+
+      - name: Make CLI executable
+        run: chmod +x ./tuf-conformance-cli/TufConformanceCli
+
+      - name: Verify CLI works
+        run: ./tuf-conformance-cli/TufConformanceCli --help
+
+      - name: Run TUF Conformance Test Suite
+        uses: theupdateframework/tuf-conformance@v2
+        with:
+          entrypoint: ./tuf-conformance-cli/TufConformanceCli
+
+      - name: Upload conformance test results on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: conformance-test-results
+          path: |
+            ./tuf-conformance-cli/
+            ./*.log
+            ./*.xml
+          retention-days: 7
+```
+
+This workflow:
+1. Builds the TUF .NET solution
+2. Publishes the conformance CLI as a self-contained executable
+3. Runs the official TUF conformance test suite
+4. Handles expected test failures via `TufConformanceCli.xfails`
+
+### Expected Test Failures
+
+The `TufConformanceCli.xfails` file lists tests that are expected to fail during development. As features are implemented, tests should be removed from this file.
 
 ## Implementation Notes
 
@@ -71,6 +175,9 @@ This CLI can be integrated with the official TUF conformance test suite using Gi
 - Ensures metadata is up-to-date before downloading targets
 - Provides proper error handling and informative error messages
 - Follows TUF workflow for metadata refresh and target verification
+- Enhanced logging capabilities for conformance test debugging
+- Structured output with clear INFO/ERROR/VERBOSE message levels
+- Comprehensive exception handling with debug information in verbose mode
 
 ## Security Considerations
 

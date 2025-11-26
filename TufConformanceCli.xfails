@@ -1,0 +1,39 @@
+# TUF .NET Conformance Test Expected Failures
+# 
+# This file lists test cases that are expected to fail while the .NET TUF implementation
+# is being developed to achieve full conformance with the TUF specification.
+# As features are implemented and bugs are fixed, tests should be removed from this list.
+#
+# Format: One test identifier per line, comments starting with #
+#
+# Test identifiers can be:
+# - test_name - specific test
+# - test_group - entire test group  
+# - test_group[parameter] - parameterized test within a group
+#
+# Common test categories that might have expected failures:
+
+# Advanced cryptographic algorithms (if not fully implemented)
+# test_metadata_verification[ecdsa-sha2-nistp256]
+# test_metadata_verification[ecdsa-sha2-nistp384] 
+# test_metadata_verification[rsa-pss-sha256]
+# test_metadata_verification[rsa-pss-sha384]
+# test_metadata_verification[rsa-pss-sha512]
+
+# Hash algorithm variations (if specific hash types aren't supported)
+# test_hash_verification[sha512]
+# test_hash_verification[blake2b-256]
+
+# Advanced TUF features that might not be implemented yet
+# test_delegations
+# test_delegation_roles
+# test_consistent_snapshot
+# test_multisig_thresholds
+
+# Network behavior edge cases
+# test_max_request_length
+# test_download_timeout
+# test_metadata_timeout
+
+# For now, starting with no expected failures to see actual conformance test results.
+# This file will be updated based on real test execution results.
