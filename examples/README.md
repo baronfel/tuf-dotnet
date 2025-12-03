@@ -49,6 +49,16 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
 
 **Best for**: TUF conformance testing, validation against the official TUF specification, and ensuring compatibility with other TUF implementations.
 
+### [MonitoringIntegration](./MonitoringIntegration/)
+Comprehensive monitoring and observability example demonstrating production-ready TUF integration with modern observability stacks:
+- OpenTelemetry integration for metrics, logs, and distributed tracing
+- Prometheus-compatible metrics collection and export
+- Security event monitoring and alerting with proper severity classification
+- Health checks and service monitoring capabilities
+- Performance monitoring and optimization guidance
+
+**Best for**: Production deployments requiring comprehensive monitoring, integration with Kubernetes observability stacks, and enterprise-grade security monitoring.
+
 ## Getting Started
 
 1. **Prerequisites**
@@ -60,6 +70,7 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
    # From the repository root
    dotnet build examples/BasicClient/
    dotnet build examples/CliTool/
+   dotnet build examples/MonitoringIntegration/
    dotnet build examples/RepositoryManager/
    dotnet build examples/SigningDemo/
    dotnet build examples/TufConformanceCli/
@@ -78,6 +89,10 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
    # CLI tool example
    cd examples/CliTool
    dotnet run -- --help
+   
+   # Monitoring integration example
+   cd examples/MonitoringIntegration
+   dotnet run
    ```
 
 ## Understanding TUF
