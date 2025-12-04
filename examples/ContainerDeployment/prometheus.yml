@@ -1,0 +1,26 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # Add any alerting rules here
+
+scrape_configs:
+  # Scrape the TUF application
+  - job_name: 'tuf-application'
+    static_configs:
+      - targets: ['tuf-app:8080']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    scrape_timeout: 10s
+
+  # Scrape Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Optional: Scrape the repository server
+  - job_name: 'tuf-repository'
+    static_configs:
+      - targets: ['tuf-repository:80']
+    metrics_path: '/health'
