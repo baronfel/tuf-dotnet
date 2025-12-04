@@ -1,0 +1,244 @@
+---
+# TUF .NET Container Deployment - Kubernetes Configuration
+# This example shows how to deploy the TUF .NET container application in Kubernetes
+# with production-ready security and operational practices.
+
+# ConfigMap for TUF configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tuf-config
+  namespace: default
+data:
+  TUF_METADATA_URL: "https://example.com/metadata"
+  TUF_TARGETS_URL: "https://example.com/targets"
+  ASPNETCORE_ENVIRONMENT: "Production"
+  ASPNETCORE_URLS: "http://+:8080"
+
+---
+# Secret for trusted root metadata (base64 encoded)
+# In production, create this secret from your actual trusted root file:
+# kubectl create secret generic tuf-trusted-root --from-file=trusted-root.json=./path/to/trusted-root.json
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tuf-trusted-root
+  namespace: default
+type: Opaque
+data:
+  trusted-root.json: |
+    eyJzaWduZWQiOnsidHlwZSI6InJvb3QiLCJzcGVjX3ZlcnNpb24iOiIxLjAuMCIsInZlcnNpb24i
+    OjEsImV4cGlyZXMiOiIyMDI2LTEyLTA0VDAwOjAwOjAwWiIsImtleXMiOnt9LCJyb2xlcyI6eyJy
+    b290Ijp7ImtleWlkcyI6W10sInRocmVzaG9sZCI6MX0sInRpbWVzdGFtcCI6eyJrZXlpZHMiOltd
+    LCJ0aHJlc2hvbGQiOjF9LCJzbmFwc2hvdCI6eyJrZXlpZHMiOltdLCJ0aHJlc2hvbGQiOjF9LCJ0
+    YXJnZXRzIjp7ImtleWlkcyI6W10sInRocmVzaG9sZCI6MX19LCJjb25zaXN0ZW50X3NuYXBzaG90
+    IjpmYWxzZX0sInNpZ25hdHVyZXMiOltdfQ==
+
+---
+# Deployment for TUF container application
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tuf-container-app
+  namespace: default
+  labels:
+    app: tuf-container-app
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: tuf-container-app
+  template:
+    metadata:
+      labels:
+        app: tuf-container-app
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      # Security context for the pod
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+      - name: tuf-app
+        image: tuf-container-example:latest
+        imagePullPolicy: IfNotPresent
+        
+        # Security context for the container
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1001
+          runAsGroup: 1001
+          capabilities:
+            drop:
+            - ALL
+
+        # Environment configuration
+        envFrom:
+        - configMapRef:
+            name: tuf-config
+        env:
+        - name: TUF_TRUSTED_ROOT_PATH
+          value: "/secrets/trusted-root.json"
+
+        # Resource limits and requests
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+
+        # Port configuration
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+
+        # Health checks
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 2
+
+        # Startup probe for slower container startup
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 30
+
+        # Volume mounts
+        volumeMounts:
+        - name: trusted-root
+          mountPath: /secrets
+          readOnly: true
+        - name: tmp-metadata
+          mountPath: /tmp/tuf-metadata
+        - name: tmp-targets
+          mountPath: /tmp/tuf-targets
+
+      # Volumes
+      volumes:
+      - name: trusted-root
+        secret:
+          secretName: tuf-trusted-root
+          defaultMode: 0400
+      - name: tmp-metadata
+        emptyDir:
+          sizeLimit: "50Mi"
+      - name: tmp-targets
+        emptyDir:
+          sizeLimit: "500Mi"
+
+      # Pod scheduling
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - tuf-container-app
+              topologyKey: kubernetes.io/hostname
+
+---
+# Service to expose the application
+apiVersion: v1
+kind: Service
+metadata:
+  name: tuf-container-service
+  namespace: default
+  labels:
+    app: tuf-container-app
+spec:
+  selector:
+    app: tuf-container-app
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+    protocol: TCP
+  type: ClusterIP
+
+---
+# ServiceMonitor for Prometheus monitoring (if using Prometheus Operator)
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: tuf-container-monitor
+  namespace: default
+  labels:
+    app: tuf-container-app
+spec:
+  selector:
+    matchLabels:
+      app: tuf-container-app
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+
+---
+# NetworkPolicy for security (optional, adjust based on your requirements)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: tuf-container-netpol
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: tuf-container-app
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector: {}
+    ports:
+    - protocol: TCP
+      port: 8080
+  egress:
+  # Allow DNS resolution
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+  # Allow HTTPS to TUF repositories
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443

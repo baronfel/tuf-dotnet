@@ -22,6 +22,16 @@ A comprehensive command-line interface built with `System.CommandLine` that prov
 
 **Best for**: Understanding how to build production TUF applications or using as a development tool.
 
+### [ContainerDeployment](./ContainerDeployment/)
+Production-ready container deployment example demonstrating TUF .NET in containerized environments:
+- Docker containers with multi-stage builds and security best practices
+- Kubernetes deployments with health checks, resource management, and security contexts
+- Docker Compose setup for local development and testing
+- Monitoring and observability integration (Prometheus)
+- Non-root user execution, read-only filesystems, and minimal attack surface
+
+**Best for**: Deploying TUF .NET applications in Docker, Kubernetes, or other container orchestration platforms.
+
 ### [RepositoryManager](./RepositoryManager/)
 A repository creation and management tool that demonstrates TUF repository setup:
 - Complete TUF repository creation with all required metadata
