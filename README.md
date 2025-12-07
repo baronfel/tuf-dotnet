@@ -21,6 +21,14 @@ TUF .NET brings enterprise-grade security to software distribution in the .NET e
 
 ## Quick Start
 
+### ⚡ **5-Minute Tutorial** (Recommended)
+```bash
+git clone https://github.com/baronfel/tuf-dotnet.git
+cd tuf-dotnet/examples/FiveMinuteTUF
+dotnet run
+```
+This complete tutorial creates a TUF repository, adds files, and demonstrates secure client downloads with real cryptographic verification!
+
 ### Installation
 ```shell
 dotnet add package TUF
@@ -56,6 +64,7 @@ if (targetInfo.HasValue)
 ## Documentation
 
 ### 📚 **Getting Started**
+- **[5-Minute Tutorial](examples/FiveMinuteTUF/)** ⭐ - Complete hands-on tutorial (start here!)
 - **[Quick Start Guide](docs/guides/quick-start.md)** - Get up and running in 5 minutes
 - **[What is TUF?](docs/guides/what-is-tuf.md)** - Understanding the security framework
 - **[Core Concepts](docs/guides/core-concepts.md)** - Essential TUF concepts for .NET developers
@@ -86,6 +95,7 @@ Root solution: `TUF.slnx` (requires .NET 10 SDK, libraries target .NET 8+)
 - **`CanonicalJson/`** — High-performance canonical JSON serialization
 
 ### Examples & Tools
+- **`examples/FiveMinuteTUF/`** ⭐ — Complete 5-minute tutorial (start here!)
 - **`examples/BasicClient/`** — Simple TUF client demonstration
 - **`examples/RepositoryManager/`** — Create and manage TUF repositories
 - **`examples/MultiRepositoryClient/`** — Multi-repository consensus example
@@ -120,6 +130,10 @@ dotnet build
 
 ### Examples
 ```shell
+# Complete 5-minute tutorial (recommended first step)
+cd examples/FiveMinuteTUF
+dotnet run
+
 # Create a TUF repository
 cd examples/RepositoryManager
 dotnet run ./my-repo
