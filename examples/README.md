@@ -4,6 +4,15 @@ This directory contains examples demonstrating how to use the TUF .NET library f
 
 ## Available Examples
 
+### [FiveMinuteTUF](./FiveMinuteTUF/) ⭐ **START HERE**
+A complete, self-contained tutorial that demonstrates the entire TUF workflow in under 5 minutes:
+- Creates a complete TUF repository with real cryptographic keys
+- Adds sample files to the repository with proper metadata signing
+- Shows how a client can securely discover and download those files
+- Demonstrates all key TUF security features with detailed explanations
+
+**Best for**: New users who want to understand TUF quickly with a hands-on, working example.
+
 ### [BasicClient](./BasicClient/)
 A simple console application that demonstrates the fundamental TUF client workflow:
 - Initializing a TUF updater
@@ -11,7 +20,7 @@ A simple console application that demonstrates the fundamental TUF client workfl
 - Querying target file information
 - Downloading target files with integrity verification
 
-**Best for**: Getting started with TUF concepts and basic client operations.
+**Best for**: Understanding client-side TUF operations with minimal setup.
 
 ### [CliTool](./CliTool/)
 A comprehensive command-line interface built with `System.CommandLine` that provides:
@@ -51,23 +60,31 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
 
 ## Getting Started
 
+### **⚡ Quickest Start (Recommended)**
+```bash
+# Run the complete 5-minute tutorial
+cd examples/FiveMinuteTUF
+dotnet run
+```
+This single command demonstrates the entire TUF workflow from repository creation to secure file downloads!
+
+### **Traditional Setup**
 1. **Prerequisites**
    - .NET 8.0 or later
-   - Access to a TUF repository (for testing, you can use the examples with placeholder data)
 
-2. **Build Examples**
+2. **Build All Examples**
    ```bash
    # From the repository root
-   dotnet build examples/BasicClient/
-   dotnet build examples/CliTool/
-   dotnet build examples/RepositoryManager/
-   dotnet build examples/SigningDemo/
-   dotnet build examples/TufConformanceCli/
+   dotnet build
    ```
 
-3. **Run Examples**
+3. **Run Individual Examples**
    ```bash
-   # Create a TUF repository first
+   # 5-minute complete tutorial (recommended first step)
+   cd examples/FiveMinuteTUF
+   dotnet run
+
+   # Create a TUF repository
    cd examples/RepositoryManager
    dotnet run ./my-tuf-repo
 
