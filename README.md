@@ -75,6 +75,7 @@ if (targetInfo.HasValue)
 - **[Building Clients](docs/guides/building-clients.md)** - Production client development
 - **[Creating Repositories](docs/guides/creating-repositories.md)** - Repository setup and management
 - **[Migration Guide](docs/guides/migration.md)** - Migrating from other TUF implementations
+- **[Conformance Testing](docs/conformance-testing.md)** - Official TUF specification compliance testing
 - **[All Guides](docs/guides/)** - Complete guide directory
 
 ## Project Structure
