@@ -31,6 +31,15 @@ A repository creation and management tool that demonstrates TUF repository setup
 
 **Best for**: Creating TUF repositories for testing and understanding repository management workflows.
 
+### [HsmSigningDemo](./HsmSigningDemo/)
+Demonstrates Hardware Security Module (HSM) integration for enterprise-grade security:
+- PKCS#11-based HSM connection and key management
+- Private keys stored in tamper-resistant hardware
+- Support for RSA-PSS, ECDSA, and Ed25519 signatures
+- Production-ready patterns for air-gapped and high-security environments
+
+**Best for**: Enterprise deployments requiring hardware-protected private keys and regulatory compliance.
+
 ### [SigningDemo](./SigningDemo/)
 Demonstrates TUF signing capabilities and key management:
 - Ed25519 and RSA-PSS key generation and signing
@@ -60,6 +69,7 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
    # From the repository root
    dotnet build examples/BasicClient/
    dotnet build examples/CliTool/
+   dotnet build examples/HsmSigningDemo/
    dotnet build examples/RepositoryManager/
    dotnet build examples/SigningDemo/
    dotnet build examples/TufConformanceCli/
