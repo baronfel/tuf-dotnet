@@ -4,6 +4,15 @@ This directory contains examples demonstrating how to use the TUF .NET library f
 
 ## Available Examples
 
+### [HelloTuf](./HelloTuf/) 🚀
+The simplest possible TUF example in under 50 lines - perfect for understanding TUF basics:
+- Demonstrates the minimal TUF workflow
+- Shows TUF configuration and initialization 
+- Explains the core security value proposition
+- Companion to the [5-Minute TUF Tutorial](../docs/guides/5-minute-tutorial.md)
+
+**Best for**: First-time TUF users and understanding the core value proposition.
+
 ### [BasicClient](./BasicClient/)
 A simple console application that demonstrates the fundamental TUF client workflow:
 - Initializing a TUF updater

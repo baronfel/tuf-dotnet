@@ -56,7 +56,8 @@ if (targetInfo.HasValue)
 ## Documentation
 
 ### 📚 **Getting Started**
-- **[Quick Start Guide](docs/guides/quick-start.md)** - Get up and running in 5 minutes
+- **[🚀 5-Minute TUF Tutorial](docs/guides/5-minute-tutorial.md)** - The fastest way to understand TUF with working code
+- **[Quick Start Guide](docs/guides/quick-start.md)** - Comprehensive getting started guide
 - **[What is TUF?](docs/guides/what-is-tuf.md)** - Understanding the security framework
 - **[Core Concepts](docs/guides/core-concepts.md)** - Essential TUF concepts for .NET developers
 
