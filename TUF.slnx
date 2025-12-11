@@ -1,6 +1,7 @@
 <Solution>
   <Project Path="TUF/TUF.csproj" />
   <Folder Name="/examples/">
+    <Project Path="examples/HelloTuf/HelloTuf.csproj" />
     <Project Path="examples/BasicClient/BasicClient.csproj" />
     <Project Path="examples/CliTool/CliTool.csproj" />
     <Project Path="examples/SigningDemo/SigningDemo.csproj" />
