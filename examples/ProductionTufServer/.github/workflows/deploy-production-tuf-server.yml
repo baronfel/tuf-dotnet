@@ -1,0 +1,257 @@
+name: Deploy Production TUF Server
+
+on:
+  push:
+    branches: [main, production]
+    paths: 
+      - 'examples/ProductionTufServer/**'
+      - 'TUF/**'
+      - 'CanonicalJson/**'
+  pull_request:
+    branches: [main]
+    paths: 
+      - 'examples/ProductionTufServer/**'
+  workflow_dispatch:
+    inputs:
+      deployment_target:
+        description: 'Deployment target'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+
+env:
+  REGISTRY: ${{ vars.CONTAINER_REGISTRY || 'ghcr.io' }}
+  IMAGE_NAME: production-tuf-server
+  AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP || 'tuf-server-rg' }}
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+    
+    outputs:
+      image-digest: ${{ steps.build.outputs.digest }}
+      image-uri: ${{ steps.build.outputs.image-uri }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push Docker image
+      id: build
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: examples/ProductionTufServer/Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        platforms: linux/amd64,linux/arm64
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Generate SBOM
+      uses: anchore/sbom-action@v0
+      with:
+        image: ${{ steps.meta.outputs.tags }}
+        format: spdx-json
+        output-file: sbom.spdx.json
+
+    - name: Scan image for vulnerabilities
+      uses: anchore/scan-action@v3
+      with:
+        image: ${{ steps.meta.outputs.tags }}
+        fail-build: false
+        severity-cutoff: high
+
+    - name: Upload SBOM and scan results
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: results.sarif
+
+  test-container:
+    needs: build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Test container startup
+      run: |
+        # Create test repository structure
+        mkdir -p test-repo/{metadata,targets}
+        cp examples/ProductionTufServer/sample-repository/metadata/root.json test-repo/metadata/
+        cp examples/ProductionTufServer/sample-repository/targets/sample-file.txt test-repo/targets/
+        
+        # Start container with test data
+        docker run -d --name test-tuf-server \
+          -p 8080:8080 \
+          -v $(pwd)/test-repo/metadata:/app/metadata:ro \
+          -v $(pwd)/test-repo/targets:/app/targets:ro \
+          ${{ needs.build.outputs.image-uri }}
+        
+        # Wait for startup
+        timeout 60 bash -c 'until curl -f http://localhost:8080/health; do sleep 2; done'
+        
+        # Test endpoints
+        curl -f http://localhost:8080/
+        curl -f http://localhost:8080/health
+        curl -f http://localhost:8080/ready
+        curl -f http://localhost:8080/metadata/root.json
+        curl -f http://localhost:8080/targets/sample-file.txt
+        
+        # Clean up
+        docker stop test-tuf-server
+        docker rm test-tuf-server
+
+  deploy-staging:
+    if: github.event_name == 'push' || github.event.inputs.deployment_target == 'staging'
+    needs: [build, test-container]
+    runs-on: ubuntu-latest
+    environment: staging
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy to Azure Container Instances (Staging)
+      uses: azure/arm-deploy@v1
+      with:
+        resourceGroupName: ${{ env.AZURE_RESOURCE_GROUP }}-staging
+        template: examples/ProductionTufServer/deployment/azure/container-instance.bicep
+        parameters: |
+          containerImage=${{ needs.build.outputs.image-uri }}
+          dnsNameLabel=tuf-server-staging-${{ github.run_number }}
+          corsAllowedOrigins=https://staging.yourdomain.com
+
+    - name: Run health check
+      run: |
+        # Wait for deployment and test
+        sleep 60
+        FQDN=$(az container show --resource-group ${{ env.AZURE_RESOURCE_GROUP }}-staging --name tuf-server-staging-${{ github.run_number }} --query ipAddress.fqdn -o tsv)
+        curl -f http://$FQDN:8080/health
+        echo "Staging deployment successful: http://$FQDN:8080"
+
+  deploy-production:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event.inputs.deployment_target == 'production')
+    needs: [build, test-container, deploy-staging]
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Deploy to ECS Fargate (Production)
+      run: |
+        aws cloudformation deploy \
+          --template-file examples/ProductionTufServer/deployment/aws/ecs-fargate.yaml \
+          --stack-name production-tuf-server \
+          --parameter-overrides \
+            ContainerImage=${{ needs.build.outputs.image-uri }} \
+            VpcId=${{ secrets.AWS_VPC_ID }} \
+            SubnetIds="${{ secrets.AWS_SUBNET_IDS }}" \
+            PublicSubnetIds="${{ secrets.AWS_PUBLIC_SUBNET_IDS }}" \
+            CertificateArn="${{ secrets.AWS_CERTIFICATE_ARN }}" \
+            DomainName="tuf.yourdomain.com" \
+            CorsAllowedOrigins="https://yourdomain.com" \
+          --capabilities CAPABILITY_IAM
+
+    - name: Update DNS record
+      run: |
+        # Get load balancer DNS name
+        ALB_DNS=$(aws cloudformation describe-stacks \
+          --stack-name production-tuf-server \
+          --query 'Stacks[0].Outputs[?OutputKey==`LoadBalancerDnsName`].OutputValue' \
+          --output text)
+        
+        # Update Route 53 DNS record (example)
+        # aws route53 change-resource-record-sets \
+        #   --hosted-zone-id ${{ secrets.AWS_HOSTED_ZONE_ID }} \
+        #   --change-batch file://dns-update.json
+        
+        echo "Production deployment successful: $ALB_DNS"
+
+    - name: Run production health checks
+      run: |
+        # Wait for deployment
+        sleep 120
+        
+        # Get load balancer URL
+        ALB_DNS=$(aws cloudformation describe-stacks \
+          --stack-name production-tuf-server \
+          --query 'Stacks[0].Outputs[?OutputKey==`LoadBalancerDnsName`].OutputValue' \
+          --output text)
+        
+        # Health checks
+        curl -f https://$ALB_DNS/health
+        curl -f https://$ALB_DNS/ready
+        
+        # Optional: Run integration tests
+        # ./run-integration-tests.sh https://$ALB_DNS
+
+  notify:
+    if: always()
+    needs: [build, test-container, deploy-staging, deploy-production]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Notify deployment status
+      uses: 8398a7/action-slack@v3
+      if: always()
+      with:
+        status: ${{ job.status }}
+        text: |
+          TUF Production Server Deployment: ${{ job.status }}
+          
+          🔨 Build: ${{ needs.build.result }}
+          🧪 Tests: ${{ needs.test-container.result }}
+          🎭 Staging: ${{ needs.deploy-staging.result }}
+          🚀 Production: ${{ needs.deploy-production.result }}
+          
+          Image: ${{ needs.build.outputs.image-uri }}
+          Commit: ${{ github.sha }}
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
