@@ -1,0 +1,9 @@
+This is a sample target file for TUF production server demonstration.
+
+In a real TUF deployment, this directory would contain:
+- Application binaries (.exe, .dmg, .deb, etc.)
+- Configuration files
+- Updates and patches
+- Any files that need secure distribution
+
+This file is for demonstration only and should be replaced with real content for production use.

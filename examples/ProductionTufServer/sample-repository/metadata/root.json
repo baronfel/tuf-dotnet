@@ -1,0 +1,41 @@
+{
+  "signatures": [
+    {
+      "signature": "sample-signature-for-demo-purposes"
+    }
+  ],
+  "signed": {
+    "_type": "root",
+    "spec_version": "1.0.0",
+    "version": 1,
+    "expires": "2025-12-12T12:00:00Z",
+    "keys": {
+      "sample-key-id": {
+        "keytype": "ed25519",
+        "scheme": "ed25519",
+        "keyval": {
+          "public": "sample-public-key-for-demo"
+        }
+      }
+    },
+    "roles": {
+      "root": {
+        "keyids": ["sample-key-id"],
+        "threshold": 1
+      },
+      "timestamp": {
+        "keyids": ["sample-key-id"],
+        "threshold": 1
+      },
+      "snapshot": {
+        "keyids": ["sample-key-id"],
+        "threshold": 1
+      },
+      "targets": {
+        "keyids": ["sample-key-id"],
+        "threshold": 1
+      }
+    },
+    "consistent_snapshot": false
+  }
+}

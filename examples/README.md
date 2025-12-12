@@ -49,6 +49,17 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
 
 **Best for**: TUF conformance testing, validation against the official TUF specification, and ensuring compatibility with other TUF implementations.
 
+### [ProductionTufServer](./ProductionTufServer/) 🆕
+**Production-ready TUF repository server** with enterprise-grade security, monitoring, and deployment capabilities:
+- **Containerized ASP.NET Core server** with Docker and multi-stage builds
+- **Cloud deployment templates** for Azure (Container Instances, App Service) and AWS (ECS Fargate)
+- **Security features**: HTTPS-only, security headers, non-root containers, input validation
+- **Monitoring & observability**: Health checks, structured logging, metrics endpoints
+- **Production infrastructure**: Load balancing, auto-scaling, high availability patterns
+- **CI/CD integration**: GitHub Actions workflows for automated deployment
+
+**Best for**: Production TUF repository hosting, enterprise deployments, understanding cloud-native TUF infrastructure, and serving TUF metadata/targets at scale.
+
 ## Getting Started
 
 1. **Prerequisites**
