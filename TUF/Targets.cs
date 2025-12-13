@@ -157,17 +157,53 @@ public partial record DelegatedRole
 
     public bool IsDelegatedPath(string targetFile)
     {
-        if (Paths is null || Paths.Count == 0)
+        // Check path patterns first
+        if (Paths != null && Paths.Count > 0)
         {
-            return false;
+            return Paths.Any(p => PathIsMatch(p, targetFile));
         }
-        return Paths.Any(p => PathIsMatch(p, targetFile));
+        
+        // Check hash-bin prefixes if no paths are specified
+        if (PathHashPrefixes != null && PathHashPrefixes.Count > 0)
+        {
+            return IsHashBinMatch(targetFile, PathHashPrefixes);
+        }
+        
+        return false;
     }
 
     public static bool PathIsMatch(string pathPattern, string targetFile)
     {
         var matcher = new Matcher(StringComparison.Ordinal).AddInclude(pathPattern);
         return matcher.Match(targetFile).HasMatches;
+    }
+
+    /// <summary>
+    /// Determines if a target file matches any of the specified hash-bin prefixes.
+    /// Uses SHA-256 hash of the target file path to check against prefixes.
+    /// </summary>
+    /// <param name="targetFile">The target file path to check</param>
+    /// <param name="hashPrefixes">List of hex prefixes to match against</param>
+    /// <returns>True if the file's path hash starts with any of the specified prefixes</returns>
+    public static bool IsHashBinMatch(string targetFile, List<string> hashPrefixes)
+    {
+        if (string.IsNullOrEmpty(targetFile) || hashPrefixes == null || hashPrefixes.Count == 0)
+        {
+            return false;
+        }
+
+        // Hash the target file path using SHA-256
+        using var sha256 = System.Security.Cryptography.SHA256.Create();
+        var pathBytes = System.Text.Encoding.UTF8.GetBytes(targetFile);
+        var hashBytes = sha256.ComputeHash(pathBytes);
+        
+        // Convert to lowercase hex string
+        var hashHex = Convert.ToHexString(hashBytes).ToLowerInvariant();
+        
+        // Check if hash starts with any of the specified prefixes
+        return hashPrefixes.Any(prefix => 
+            !string.IsNullOrEmpty(prefix) && 
+            hashHex.StartsWith(prefix.ToLowerInvariant(), StringComparison.Ordinal));
     }
 }
 
