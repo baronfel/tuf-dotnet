@@ -40,6 +40,17 @@ Demonstrates TUF signing capabilities and key management:
 
 **Best for**: Understanding TUF cryptographic operations and implementing signing workflows.
 
+### [AspNetCoreIntegration](./AspNetCoreIntegration/)
+Production-ready ASP.NET Core web application demonstrating TUF integration patterns:
+- Dependency injection and service registration
+- Background services for periodic metadata refresh
+- Health checks and monitoring integration
+- RESTful API endpoints for TUF operations
+- Structured logging and activity tracing
+- Configuration management via appsettings.json
+
+**Best for**: Integrating TUF with ASP.NET Core web applications, microservices, and cloud-native deployments.
+
 ### [TufConformanceCli](./TufConformanceCli/)
 Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specification](https://github.com/theupdateframework/tuf-conformance/blob/main/CLIENT-CLI.md):
 - Standard `init`, `refresh`, and `download` commands
@@ -62,6 +73,7 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
    dotnet build examples/CliTool/
    dotnet build examples/RepositoryManager/
    dotnet build examples/SigningDemo/
+   dotnet build examples/AspNetCoreIntegration/
    dotnet build examples/TufConformanceCli/
    ```
 
@@ -74,6 +86,11 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
    # Basic client example
    cd examples/BasicClient
    dotnet run file:///path/to/my-tuf-repo/metadata hello.txt
+
+   # ASP.NET Core web application
+   cd examples/AspNetCoreIntegration
+   dotnet run
+   # Visit https://localhost:5001/swagger for API documentation
 
    # CLI tool example
    cd examples/CliTool
