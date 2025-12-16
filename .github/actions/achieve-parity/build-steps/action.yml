@@ -1,27 +1,46 @@
-name: 'TUF .NET Build Steps'
-description: 'Sets up the .NET TUF project environment for development and testing'
+name: 'Achieve Parity Build Steps'
+description: 'Sets up the TUF .NET development environment for achieve-parity workflow'
 runs:
   using: 'composite'
   steps:
-    - name: Setup .NET SDK
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Install .NET 8
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '10.0.x'
-        
-    - name: Display .NET info
-      run: dotnet --info
-      shell: bash
-      
+        dotnet-version: 8.0.x
+    
+    - name: Install .NET 9
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+    
+    - name: Install .NET 10
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+    
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', '**/*.slnx') }}
+        restore-keys: |
+          nuget-${{ runner.os }}-
+    
     - name: Restore dependencies
-      run: dotnet restore
       shell: bash
-      
+      run: dotnet restore ./TUF.slnx
+    
     - name: Build solution
-      run: dotnet build --no-restore --configuration Release
       shell: bash
-      continue-on-error: true
-      
-    - name: Run tests
-      run: dotnet test --no-build --configuration Release --verbosity normal
+      run: dotnet build ./TUF.slnx --configuration Release --no-restore
+    
+    - name: Run all tests
       shell: bash
-      continue-on-error: true
+      run: dotnet test --configuration Release --no-build --verbosity normal
+    
+    - name: Verify conformance CLI builds
+      shell: bash
+      run: dotnet publish examples/TufConformanceCli/TufConformanceCli.csproj --configuration Release --no-restore
