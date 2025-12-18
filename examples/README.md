@@ -40,6 +40,16 @@ Demonstrates TUF signing capabilities and key management:
 
 **Best for**: Understanding TUF cryptographic operations and implementing signing workflows.
 
+### [HardwareSigningDemo](./HardwareSigningDemo/)
+Demonstrates secure hardware-based signing for TUF operations using PIV smart cards, YubiKeys, and HSMs:
+- Hardware signing provider abstraction for pluggable HSM support
+- PIV (Personal Identity Verification) card integration for YubiKeys and smart cards
+- Air-gapped signing workflows for maximum security
+- Hardware key discovery and management
+- Production-ready root key signing with tamper-resistant hardware
+
+**Best for**: Understanding hardware signing integration, implementing secure production deployments, and air-gapped signing workflows for critical TUF keys.
+
 ### [TufConformanceCli](./TufConformanceCli/)
 Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specification](https://github.com/theupdateframework/tuf-conformance/blob/main/CLIENT-CLI.md):
 - Standard `init`, `refresh`, and `download` commands
@@ -60,6 +70,7 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
    # From the repository root
    dotnet build examples/BasicClient/
    dotnet build examples/CliTool/
+   dotnet build examples/HardwareSigningDemo/
    dotnet build examples/RepositoryManager/
    dotnet build examples/SigningDemo/
    dotnet build examples/TufConformanceCli/
@@ -78,6 +89,10 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
    # CLI tool example
    cd examples/CliTool
    dotnet run -- --help
+
+   # Hardware signing demo (requires PIV card/YubiKey)
+   cd examples/HardwareSigningDemo
+   dotnet run
    ```
 
 ## Understanding TUF

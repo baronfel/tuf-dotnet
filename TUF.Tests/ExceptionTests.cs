@@ -1,4 +1,5 @@
 using System.Net;
+
 using TUF.Exceptions;
 
 namespace TUF.Tests;
@@ -333,7 +334,7 @@ public class ExceptionTests
     public async Task ExceptionSerialization_PreservesProperties()
     {
         var originalException = new RollbackAttackException("timestamp", 5, 3);
-        
+
         // Test that serialization would work by accessing all properties
         await Assert.That(originalException.MetadataType).IsEqualTo("timestamp");
         await Assert.That(originalException.ExpectedVersion).IsEqualTo(5);
