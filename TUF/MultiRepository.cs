@@ -105,7 +105,7 @@ public record MultiRepositoryTargetResult(
     /// </summary>
     public bool IsValid => TargetInfo != null && AgreementCount >= RequiredThreshold;
 
-    public bool TryGetValidFile([NotNullWhen(true)]out TargetFile? targetFile)
+    public bool TryGetValidFile([NotNullWhen(true)] out TargetFile? targetFile)
     {
         targetFile = IsValid ? TargetInfo : null;
         return targetFile != null;

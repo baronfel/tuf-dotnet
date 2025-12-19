@@ -294,7 +294,7 @@ public class RepositoryBuilderTests
         var targetsRole = repository.Targets.Signed;
         await Assert.That(targetsRole.TargetMap.Count).IsEqualTo(1);
         await Assert.That(targetsRole.TargetMap).ContainsKey("test-file.txt");
-        
+
         var targetMetadata = targetsRole.TargetMap["test-file.txt"];
         await Assert.That(targetMetadata.Length).IsEqualTo(testFile.Length);
         await Assert.That(targetMetadata.Hashes).HasCount().GreaterThan(0);

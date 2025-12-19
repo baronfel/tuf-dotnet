@@ -19,7 +19,7 @@ public class MetadataDeserializationException : TufException
     public string? MetadataType { get; }
     public string? RawMetadata { get; }
 
-    public MetadataDeserializationException(string message, string? metadataType = null, string? rawMetadata = null) 
+    public MetadataDeserializationException(string message, string? metadataType = null, string? rawMetadata = null)
         : base(message)
     {
         MetadataType = metadataType;
