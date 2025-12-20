@@ -40,6 +40,16 @@ Demonstrates TUF signing capabilities and key management:
 
 **Best for**: Understanding TUF cryptographic operations and implementing signing workflows.
 
+### [HardwareSigning](./HardwareSigning/)
+Advanced hardware signing example demonstrating enterprise-grade security:
+- YubiKey PIV and HSM integration via PKCS#11
+- Windows CNG Key Storage Provider support
+- Hardware-backed private key protection
+- Air-gapped signing workflows for root keys
+- Production security best practices and compliance
+
+**Best for**: Enterprise deployments requiring hardware security modules, root key protection, and regulatory compliance.
+
 ### [TufConformanceCli](./TufConformanceCli/)
 Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specification](https://github.com/theupdateframework/tuf-conformance/blob/main/CLIENT-CLI.md):
 - Standard `init`, `refresh`, and `download` commands
@@ -60,6 +70,7 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
    # From the repository root
    dotnet build examples/BasicClient/
    dotnet build examples/CliTool/
+   dotnet build examples/HardwareSigning/
    dotnet build examples/RepositoryManager/
    dotnet build examples/SigningDemo/
    dotnet build examples/TufConformanceCli/

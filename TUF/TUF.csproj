@@ -20,4 +20,11 @@
     <PackageReference Include="Serde" />
   </ItemGroup>
 
+  <!-- Optional hardware signing dependencies 
+       Uncomment when implementing full PKCS#11 support:
+  <ItemGroup Condition="'$(EnableHardwareSigning)' == 'true' OR '$(Configuration)' == 'Release'">
+    <PackageReference Include="Pkcs11Interop" />
+  </ItemGroup>
+  -->
+
 </Project>
