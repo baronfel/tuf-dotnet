@@ -4,6 +4,15 @@ This directory contains examples demonstrating how to use the TUF .NET library f
 
 ## Available Examples
 
+### [QuickStart](./QuickStart/) ⭐ **Start Here!**
+A complete 5-minute TUF tutorial that demonstrates the entire end-to-end workflow:
+- Creating a TUF repository with cryptographic signatures
+- Adding target files with integrity metadata
+- Downloading files securely with automatic verification
+- Understanding TUF's security guarantees in action
+
+**Perfect for**: First-time TUF users who want to understand how TUF works in under 5 minutes.
+
 ### [BasicClient](./BasicClient/)
 A simple console application that demonstrates the fundamental TUF client workflow:
 - Initializing a TUF updater
@@ -67,6 +76,10 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
 
 3. **Run Examples**
    ```bash
+   # Start with the 5-minute tutorial (recommended!)
+   cd examples/QuickStart
+   dotnet run
+   
    # Create a TUF repository first
    cd examples/RepositoryManager
    dotnet run ./my-tuf-repo
@@ -118,11 +131,12 @@ repository/
 
 ## Next Steps
 
-1. **Start with BasicClient**: Understand the fundamental TUF workflow
-2. **Explore CliTool**: See how to build production-ready TUF applications
-3. **Read the TUF Specification**: https://theupdateframework.io/specification/
-4. **Check out other implementations**: python-tuf, go-tuf for comparison
-5. **Consider TUF for your applications**: Evaluate if TUF fits your update security needs
+1. **Start with QuickStart**: Get up and running with TUF in under 5 minutes ⭐
+2. **Explore BasicClient**: Understand the fundamental TUF workflow
+3. **Try CliTool**: See how to build production-ready TUF applications
+4. **Read the TUF Specification**: https://theupdateframework.io/specification/
+5. **Check out other implementations**: python-tuf, go-tuf for comparison
+6. **Consider TUF for your applications**: Evaluate if TUF fits your update security needs
 
 ## Contributing
 
