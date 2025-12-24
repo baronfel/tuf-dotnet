@@ -112,12 +112,12 @@ public static class Proxies
         {
             // Read the JSON as a string and parse it back to JsonObject
             var jsonString = StringProxy.Instance.Deserialize(deserializer);
-            
+
             if (jsonString is null)
             {
                 return null;
             }
-            
+
             // Parse the JSON string back to JsonObject, preserving all original types
             return JsonNode.Parse(jsonString)?.AsObject();
         }

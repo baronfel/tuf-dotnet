@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json.Nodes;
 
 using Microsoft.Extensions.FileSystemGlobbing;
@@ -157,17 +159,50 @@ public partial record DelegatedRole
 
     public bool IsDelegatedPath(string targetFile)
     {
-        if (Paths is null || Paths.Count == 0)
+        // Check path-based delegation first
+        if (Paths is not null && Paths.Count > 0)
         {
-            return false;
+            return Paths.Any(p => PathIsMatch(p, targetFile));
         }
-        return Paths.Any(p => PathIsMatch(p, targetFile));
+
+        // Check path hash prefix delegation
+        if (PathHashPrefixes is not null && PathHashPrefixes.Count > 0)
+        {
+            return PathHashPrefixes.Any(prefix => PathHashMatches(prefix, targetFile));
+        }
+
+        // Neither paths nor path hash prefixes specified
+        return false;
     }
 
     public static bool PathIsMatch(string pathPattern, string targetFile)
     {
         var matcher = new Matcher(StringComparison.Ordinal).AddInclude(pathPattern);
         return matcher.Match(targetFile).HasMatches;
+    }
+
+    /// <summary>
+    /// Checks if a target file path matches a hash prefix delegation.
+    /// </summary>
+    /// <param name="hashPrefix">The hex prefix to match against the path hash</param>
+    /// <param name="targetFile">The target file path to hash and check</param>
+    /// <returns>True if the hash of the target file path starts with the prefix</returns>
+    /// <remarks>
+    /// Path hash prefixes provide deterministic load balancing by hashing the target file path
+    /// with SHA256 and checking if the resulting hex string starts with the specified prefix.
+    /// This allows for consistent delegation routing without manual path assignment.
+    /// </remarks>
+    public static bool PathHashMatches(string hashPrefix, string targetFile)
+    {
+        // Hash the target file path using SHA256 (consistent with TUF spec)
+        var pathBytes = Encoding.UTF8.GetBytes(targetFile);
+        var hashBytes = SHA256.HashData(pathBytes);
+
+        // Convert to lowercase hex string
+        var hashHex = Convert.ToHexString(hashBytes).ToLowerInvariant();
+
+        // Check if hash starts with the specified prefix
+        return hashHex.StartsWith(hashPrefix.ToLowerInvariant());
     }
 }
 

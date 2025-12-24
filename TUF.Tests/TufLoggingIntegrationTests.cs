@@ -1,5 +1,7 @@
-using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+
+using Microsoft.Extensions.Logging;
+
 using TUF.Exceptions;
 
 namespace TUF.Tests;
@@ -35,10 +37,10 @@ public class TufLoggingIntegrationTests
         {
             testLogger.Clear();
             ((ILogger)testLogger).LogTufException(exception);
-            
+
             var logEntries = testLogger.GetAllLogEntries();
             await Assert.That(logEntries).HasCount().GreaterThan(0);
-            
+
             var logEntry = logEntries.First();
             await Assert.That(logEntry.Message).IsNotNull();
             await Assert.That(logEntry.Message).IsNotEmpty();
@@ -60,10 +62,10 @@ public class TufLoggingIntegrationTests
         {
             testLogger.Clear();
             ((ILogger)testLogger).LogTufException(exception);
-            
+
             var logEntries = testLogger.GetAllLogEntries();
             await Assert.That(logEntries).HasCount().GreaterThan(0);
-            
+
             var logEntry = logEntries.First();
             var isSecurityLevel = logEntry.Level == LogLevel.Critical || logEntry.Level == LogLevel.Error;
             await Assert.That(isSecurityLevel).IsTrue();
@@ -75,12 +77,12 @@ public class TufLoggingIntegrationTests
     {
         var testLogger = new TestLogger();
         var rollbackException = new RollbackAttackException("timestamp", 10, 5);
-        
+
         ((ILogger)testLogger).LogTufException(rollbackException);
-        
+
         var logEntries = testLogger.GetAllLogEntries();
         await Assert.That(logEntries).HasCount().GreaterThan(0);
-        
+
         var logEntry = logEntries.First();
         await Assert.That(logEntry.Level).IsEqualTo(LogLevel.Critical);
         await Assert.That(logEntry.Message).Contains("timestamp");
