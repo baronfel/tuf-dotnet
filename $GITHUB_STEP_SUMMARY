@@ -1,0 +1,38 @@
+# TUF .NET Parity Improvement: HSM Signing Support
+
+## Progress Report
+
+### ✅ Steps Completed
+1. **Issue Analysis**: Found existing "achieve-parity: Achieve Parity" issue #112 with comprehensive parity analysis
+2. **Build Configuration**: Verified `.github/actions/achieve-parity/build-steps/action.yml` exists and ready
+3. **Gap Analysis**: Identified existing PRs covering PathHashPrefixes, performance benchmarks, tutorials, and documentation
+4. **Goal Selection**: Selected **Advanced Key Management with HSM Support** (HIGH PRIORITY gap not covered by existing PRs)
+5. **Research Completed**:
+   - Current signing implementation uses `ISigner` interface with Ed25519, RSA-PSS, and ECDSA software signers
+   - .NET HSM integration options: PKCS#11 via Pkcs11Interop library, Windows CNG providers
+   - YubiKey PIV support through YKCS11 module
+6. **Branch Created**: `achieve-parity-hsm-signing-support`
+
+### 📊 Research Findings
+
+**Current State**: TUF .NET has excellent software-based signing with Ed25519, RSA-PSS, and ECDSA signers
+**Gap**: Missing hardware security module (HSM) support for production deployments
+**Other Implementations**: Python TUF (PyKCS11), AWS Tough (KMS), have HSM integration
+
+### 🔄 Currently Working On
+- Implementing HSM signing abstraction layer
+
+### 🔗 Web Searches Performed
+- `.NET PKCS11 HSM support YubiKey PIV SmartCard cryptography`
+- `"Pkcs11Interop" .NET library PKCS11 hardware security module HSM`
+- `.NET System.Security.Cryptography CNG hardware security module HSM Windows`
+
+### 🛠️ Tools Used
+- GitHub MCP tools for issue/PR analysis
+- Bash for git operations
+- WebSearch for HSM research
+- Read tool for code analysis
+
+---
+
+> AI-generated content by [achieve-parity](https://github.com/baronfel/tuf-dotnet/actions/runs/20502546777) may contain mistakes.

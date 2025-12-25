@@ -1,8 +1,10 @@
 <Solution>
   <Project Path="TUF/TUF.csproj" />
+  <Project Path="TUF.HSM/TUF.HSM.csproj" />
   <Folder Name="/examples/">
     <Project Path="examples/BasicClient/BasicClient.csproj" />
     <Project Path="examples/CliTool/CliTool.csproj" />
+    <!-- <Project Path="examples/HsmSigning/HsmSigning.csproj" /> -->
     <Project Path="examples/SigningDemo/SigningDemo.csproj" />
     <Project Path="examples/TufConformanceCli/TufConformanceCli.csproj" />
   </Folder>
@@ -10,4 +12,5 @@
   <Project Path="CanonicalJson/CanonicalJson.csproj" />
   <Project Path="TUF.ConformanceTests/TUF.ConformanceTests.csproj" />
   <Project Path="TUF.Tests/TUF.Tests.csproj" />
+  <!-- <Project Path="TUF.HSM.Tests/TUF.HSM.Tests.csproj" /> -->
 </Solution>
