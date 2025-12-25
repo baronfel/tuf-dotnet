@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>preview</LangVersion>
+    <Nullable>enable</Nullable>
+    <IsAotCompatible>true</IsAotCompatible>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>TUF.HSM</PackageId>
+    <Description>Hardware Security Module (HSM) support for TUF .NET including PKCS#11 and Windows CNG providers</Description>
+    <PackageTags>TUF;HSM;PKCS11;YubiKey;PIV;security;cryptography</PackageTags>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\TUF\TUF.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Pkcs11Interop" />
+    <PackageReference Include="Serde" />
+  </ItemGroup>
+
+</Project>
