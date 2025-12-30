@@ -3,11 +3,13 @@
   <Folder Name="/examples/">
     <Project Path="examples/BasicClient/BasicClient.csproj" />
     <Project Path="examples/CliTool/CliTool.csproj" />
+    <Project Path="examples/PerformanceBenchmark/PerformanceBenchmark.csproj" />
     <Project Path="examples/SigningDemo/SigningDemo.csproj" />
     <Project Path="examples/TufConformanceCli/TufConformanceCli.csproj" />
   </Folder>
   <Project Path="CanonicalJson.Tests/CanonicalJson.Tests.csproj" />
   <Project Path="CanonicalJson/CanonicalJson.csproj" />
   <Project Path="TUF.ConformanceTests/TUF.ConformanceTests.csproj" />
+  <Project Path="TUF.Performance/TUF.Performance.csproj" />
   <Project Path="TUF.Tests/TUF.Tests.csproj" />
 </Solution>

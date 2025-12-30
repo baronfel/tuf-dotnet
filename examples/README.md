@@ -22,6 +22,16 @@ A comprehensive command-line interface built with `System.CommandLine` that prov
 
 **Best for**: Understanding how to build production TUF applications or using as a development tool.
 
+### [PerformanceBenchmark](./PerformanceBenchmark/)
+A comprehensive performance monitoring and benchmarking suite for TUF operations:
+- Real-time performance metrics collection with minimal overhead
+- Cryptographic operation benchmarks (Ed25519, RSA, ECDSA)
+- Serialization and deserialization performance analysis
+- Memory usage and garbage collection tracking
+- Production-ready performance monitoring integration
+
+**Best for**: Performance optimization, regression detection, and understanding TUF operation costs.
+
 ### [RepositoryManager](./RepositoryManager/)
 A repository creation and management tool that demonstrates TUF repository setup:
 - Complete TUF repository creation with all required metadata
@@ -60,6 +70,7 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
    # From the repository root
    dotnet build examples/BasicClient/
    dotnet build examples/CliTool/
+   dotnet build examples/PerformanceBenchmark/
    dotnet build examples/RepositoryManager/
    dotnet build examples/SigningDemo/
    dotnet build examples/TufConformanceCli/
@@ -78,6 +89,10 @@ Official TUF conformance testing CLI that implements the [CLIENT-CLI.md specific
    # CLI tool example
    cd examples/CliTool
    dotnet run -- --help
+
+   # Performance benchmark
+   cd examples/PerformanceBenchmark
+   dotnet run --configuration Release
    ```
 
 ## Understanding TUF
