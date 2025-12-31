@@ -17,7 +17,7 @@ TUF .NET brings enterprise-grade security to software distribution in the .NET e
 - 🔑 **Multi-algorithm support** (Ed25519, RSA-PSS, ECDSA)
 - 🌐 **Multi-repository support** (TAP 4) for enhanced security
 - ⚡ **AOT compatible** for minimal startup overhead
-- 🧪 **Conformance tested** against official TUF specification
+- 🧪 **Conformance tested** against official TUF specification via automated CI
 
 ## Quick Start
 
@@ -97,6 +97,7 @@ Root solution: `TUF.slnx` (requires .NET 10 SDK, libraries target .NET 8+)
 - **`TUF.Tests/`** — Comprehensive unit and integration tests
 - **`CanonicalJson.Tests/`** — Canonical JSON serialization tests  
 - **`TUF.ConformanceTests/`** — Official TUF specification conformance tests
+- **`.tuf-conformance-xfails`** — Expected failures during conformance testing development
 
 ## Development
 
@@ -110,13 +111,37 @@ Root solution: `TUF.slnx` (requires .NET 10 SDK, libraries target .NET 8+)
 dotnet restore
 dotnet build --configuration Release
 
-# Run all tests
+# Run all tests (including conformance tests)
 dotnet test --configuration Release
+
+# Build conformance CLI for external testing
+dotnet publish examples/TufConformanceCli/TufConformanceCli.csproj --configuration Release --output ./tuf-conformance-cli
 
 # Build specific examples
 cd examples/BasicClient
 dotnet build
 ```
+
+### Conformance Testing
+
+This implementation is tested against the [official TUF Conformance Suite](https://github.com/theupdateframework/tuf-conformance) via automated CI. The conformance tests verify compatibility with the TUF specification and other TUF implementations.
+
+**Running Conformance Tests Locally:**
+```shell
+# Install the official TUF conformance test suite (requires Python)
+pip install tuf-conformance
+
+# Build the conformance CLI
+dotnet publish examples/TufConformanceCli/TufConformanceCli.csproj --configuration Release --output ./tuf-conformance-cli
+
+# Run conformance tests
+tuf-conformance ./tuf-conformance-cli/TufConformanceCli
+```
+
+**Understanding Test Results:**
+- Expected failures are listed in `.tuf-conformance-xfails`
+- As implementation gaps are addressed, entries are removed from this file
+- The goal is to achieve zero expected failures for full TUF specification compliance
 
 ### Examples
 ```shell
