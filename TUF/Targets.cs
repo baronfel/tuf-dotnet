@@ -41,7 +41,8 @@ public partial record TargetFile
     /// Clients MUST verify at least one hash algorithm they trust. Common algorithms:
     /// - "sha256": SHA-256 (most common, good security/performance balance)
     /// - "sha512": SHA-512 (higher security, more computation)
-    /// - "blake2b-256": BLAKE2b (modern alternative to SHA-256)
+    /// - "blake2b-256": BLAKE2b (modern alternative to SHA-256, faster than SHA-2)
+    /// - "sha3-256": SHA-3-256 (NIST next-generation standard, quantum-resistant)
     /// 
     /// Multiple hash algorithms provide crypto-agility and defense against
     /// hash function vulnerabilities.
