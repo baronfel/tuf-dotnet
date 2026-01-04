@@ -309,6 +309,10 @@ public class TrustedMetadataWithTimestamp(Metadata<Root> root, Metadata<Timestam
             {
                 "sha256" => Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(data)).ToLowerInvariant(),
                 "sha512" => Convert.ToHexString(System.Security.Cryptography.SHA512.HashData(data)).ToLowerInvariant(),
+                "blake2b-256" => Convert.ToHexString(NSec.Cryptography.HashAlgorithm.Blake2b_256.Hash(data)).ToLowerInvariant(),
+#if NET8_0_OR_GREATER
+                "sha3-256" => Convert.ToHexString(System.Security.Cryptography.SHA3_256.HashData(data)).ToLowerInvariant(),
+#endif
                 _ => null // Skip unsupported hash algorithms
             };
 
