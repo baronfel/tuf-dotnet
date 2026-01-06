@@ -315,4 +315,5 @@ public class DelegationTests
         await Assert.That(matchingRoles[0].Name).IsEqualTo("first-role");
         await Assert.That(matchingRoles[1].Name).IsEqualTo("second-role");
     }
+
 }

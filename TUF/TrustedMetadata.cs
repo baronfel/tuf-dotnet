@@ -402,9 +402,15 @@ public class TrustedMetadataWithSnapshot(Metadata<Root> root, Metadata<Timestamp
         }
         else
         {
-            // This would require having the delegator targets metadata loaded
-            // For now, we'll throw as this requires more complex state management
-            throw new NotImplementedException("Delegated role verification not yet implemented");
+            // For delegated role verification, we need the delegator targets metadata.
+            // At this point, we only have snapshot and timestamp, not the full targets metadata.
+            // This is an architectural limitation - delegated roles should only be loaded 
+            // after their delegator targets are loaded (which creates CompleteTrustedMetadata).
+            throw new InvalidOperationException(
+                $"Cannot verify delegated role '{roleName}' with delegator '{delegatorRoleName}' " +
+                "without first loading the delegator targets metadata. " +
+                "Load the delegator role first to create CompleteTrustedMetadata, " +
+                "then load delegated roles using CompleteTrustedMetadata.UpdateDelegatedTargets()");
         }
 
         // Version must match snapshot expectation
